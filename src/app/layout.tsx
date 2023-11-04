@@ -4,6 +4,7 @@ import './globals.css';
 import { NextAuthSessionProvider } from './providers/sessionProvider';
 import { APP_DESCRIPTION } from '@/lib/const';
 import { generatePageTitle } from '@/lib/utils';
+import { PageWrapper } from '@/components/layout/PageWrapper';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className={inter.className}>
-        <NextAuthSessionProvider>{children}</NextAuthSessionProvider>
+        <NextAuthSessionProvider>
+          <PageWrapper>{children}</PageWrapper>
+        </NextAuthSessionProvider>
       </body>
     </html>
   );
