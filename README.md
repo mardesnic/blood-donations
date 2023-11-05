@@ -16,7 +16,7 @@ Copy the .env.example file to a new file named .env and fill in the environment 
 
 ## Database
 
-Generate prisma client:
+Generate prisma client (run on schema changes):
 
 ```bash
 npx prisma generate
@@ -28,13 +28,13 @@ Run initial migration:
 npx prisma migrate dev
 ```
 
-Seed the database (creates a dummy admin):
+Seed the database:
 
 ```bash
 npx prisma db seed
 ```
 
-Reset database:
+Reset database (also seeds database):
 
 ```bash
 npx prisma migrate reset

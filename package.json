@@ -21,6 +21,7 @@
     "react-icons": "^4.11.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.2.0",
     "@types/bcrypt": "^5.0.1",
     "@types/node": "^20.8.10",
     "@types/react": "^18",

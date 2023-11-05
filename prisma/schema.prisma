@@ -6,14 +6,133 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+enum CommunicationType {
+  SMS
+  EMAIL
+  PUSH
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum BloodType {
+  A_POSITIVE
+  A_NEGATIVE
+  B_POSITIVE
+  B_NEGATIVE
+  AB_POSITIVE
+  AB_NEGATIVE
+  O_POSITIVE
+  O_NEGATIVE
+}
+
+enum DenyReasonType {
+  SEVEN_DAYS
+  FIFTEEN_DAYS
+  ONE_MONTH
+  SIX_MONTHS
+  ONE_YEAR
+  LONGER
+  PERMANENT
 }
 
 model User {
   id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
+  email     String   @unique @db.VarChar(100)
+  password  String   @db.VarChar(100)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Donor {
+  id             String          @id @default(uuid())
+  firstName      String          @db.VarChar(100)
+  lastName       String          @db.VarChar(100)
+  fatherName     String?         @db.VarChar(100)
+  email          String          @unique @db.VarChar(100)
+  phone          String?         @db.VarChar(100)
+  dob            DateTime
+  oib            String          @unique @db.VarChar(11)
+  address        String?         @db.VarChar(100)
+  city           String?         @db.VarChar(100)
+  gender         Gender
+  bloodType      BloodType
+  donationCount  Int             @default(0)
+  lastDonation   DateTime?
+  active         Boolean         @default(true)
+  note           String?         @db.Text
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  donations      Donation[]
+  communications Communication[]
+
+  @@index([firstName])
+  @@index([lastName])
+  @@index([city])
+  @@index([address])
+  @@index([bloodType])
+}
+
+model Donation {
+  id           String          @id @default(uuid())
+  donorId      String
+  actionId     String
+  denied       Boolean         @default(false)
+  denyReason   DenyReasonType?
+  donationDate DateTime
+  note         String?         @db.Text
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  donor        Donor           @relation(fields: [donorId], references: [id])
+  action       Action          @relation(fields: [actionId], references: [id])
+}
+
+model Action {
+  id            String     @id @default(uuid())
+  placeId       String
+  title         String     @db.VarChar(100)
+  startDateTime DateTime
+  endDateTime   DateTime
+  donationCount Int        @default(0)
+  note          String?    @db.Text
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  donations     Donation[]
+  place         Place      @relation(fields: [placeId], references: [id])
+
+  @@index([title])
+}
+
+model Communication {
+  id        String            @id @default(uuid())
+  donorId   String
+  type      CommunicationType
+  note      String?           @db.Text
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  donor     Donor             @relation(fields: [donorId], references: [id])
+
+  @@index([type])
+}
+
+model Place {
+  id          String   @id @default(uuid())
+  title       String   @db.VarChar(100)
+  address     String?  @db.VarChar(100)
+  city        String?  @db.VarChar(100)
+  phone       String?  @db.VarChar(100)
+  email       String?  @db.VarChar(100)
+  contactName String?  @db.VarChar(100)
+  note        String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  actions     Action[]
+
+  @@index([title])
 }
