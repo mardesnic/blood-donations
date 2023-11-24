@@ -1,12 +1,18 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Roboto } from 'next/font/google';
 import './globals.css';
 import { NextAuthSessionProvider } from './providers/sessionProvider';
 import { APP_DESCRIPTION } from '@/lib/const';
 import { generatePageTitle } from '@/lib/utils';
-import { PageWrapper } from '@/components/layout/PageWrapper';
+import ThemeRegistry from '@/lib/theme/ThemeRegistry';
+import Container from '@mui/material/Container';
+import CssBaseline from '@mui/material/CssBaseline';
 
-const inter = Inter({ subsets: ['latin'] });
+const roboto = Roboto({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-roboto',
+})
 
 export const metadata: Metadata = {
   title: generatePageTitle('Welcome'),
@@ -20,10 +26,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
-      <body className={inter.className}>
-        <NextAuthSessionProvider>
-          <PageWrapper>{children}</PageWrapper>
-        </NextAuthSessionProvider>
+      <body className={roboto.className}>
+        <ThemeRegistry options={{ key: 'mui' }}>
+          <NextAuthSessionProvider>
+            <Container>
+              <CssBaseline />
+              {children}
+            </Container>
+          </NextAuthSessionProvider>
+        </ThemeRegistry>
       </body>
     </html>
   );
