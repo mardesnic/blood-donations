@@ -9,10 +9,10 @@ import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
 
 const roboto = Roboto({
-  weight: '400',
+  weight: ['300', '400', '500', '700'],
   subsets: ['latin'],
   variable: '--font-roboto',
-})
+});
 
 export const metadata: Metadata = {
   title: generatePageTitle('Welcome'),

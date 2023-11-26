@@ -31,7 +31,7 @@ export const LogoutForm = () => {
   return (
     <Form onSubmit={onSubmit}>
       <Stack direction='row'>
-        <Button onClick={(e) => router.back()}>Cancel</Button>
+        <Button onClick={() => router.back()}>Cancel</Button>
         <Button type='submit' disabled={loading} color='danger'>
           {loading ? <Spinner /> : <FaSignOutAlt />}
           Sign Out
