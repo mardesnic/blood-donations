@@ -1,14 +1,10 @@
 'use client';
 
-import { Button } from '@/components/form/Button';
-import { Form } from '@/components/form/Form';
-import { Spinner } from '@/components/icons/Spinner';
-import { Stack } from '@/components/layout/Stack';
 import { ROUTE_PATHS } from '@/routes';
+import { Box, Button, Stack } from '@mui/material';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { FaSignOutAlt } from 'react-icons/fa';
 
 export const LogoutForm = () => {
   const router = useRouter();
@@ -19,7 +15,7 @@ export const LogoutForm = () => {
     e.preventDefault();
     try {
       await signOut({ redirect: false });
-      router.push(ROUTE_PATHS.PUBLIC.LOGIN);
+      router.push(ROUTE_PATHS.PUBLIC.LOGIN.path);
       return;
     } catch (error) {
       console.warn(error);
@@ -29,14 +25,15 @@ export const LogoutForm = () => {
   };
 
   return (
-    <Form onSubmit={onSubmit}>
-      <Stack direction='row'>
-        <Button onClick={() => router.back()}>Cancel</Button>
-        <Button type='submit' disabled={loading} color='danger'>
-          {loading ? <Spinner /> : <FaSignOutAlt />}
+    <Box component='form' onSubmit={onSubmit} noValidate>
+      <Stack direction='row' gap={2}>
+        <Button onClick={() => router.back()} variant='outlined'>
+          Cancel
+        </Button>
+        <Button type='submit' disabled={loading}>
           Sign Out
         </Button>
       </Stack>
-    </Form>
+    </Box>
   );
 };

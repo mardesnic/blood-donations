@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { ROUTE_PATHS } from '@/routes';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -14,7 +13,7 @@ export const LoginForm = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const callbackUrl = ROUTE_PATHS.PROTECTED.HOME;
+  const callbackUrl = ROUTE_PATHS.PROTECTED.HOME.path;
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -43,43 +42,34 @@ export const LoginForm = () => {
   };
 
   return (
-    <Stack alignItems='center' sx={{ marginTop: 8 }}>
-      <Typography component='h1' variant='h5'>
-        Sign in
-      </Typography>
-      <Box component='form' onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
-        <TextField
-          margin='normal'
-          required
-          fullWidth
-          id='email'
-          label='Email Address'
-          name='email'
-          autoComplete='email'
-          error={!!error}
-          helperText={error}
-          autoFocus
-        />
-        <TextField
-          margin='normal'
-          required
-          fullWidth
-          name='password'
-          label='Password'
-          type='password'
-          id='password'
-          autoComplete='current-password'
-        />
-        <Button
-          variant='contained'
-          fullWidth
-          type='submit'
-          sx={{ mt: 1 }}
-          disabled={loading}
-        >
+    <Box component='form' onSubmit={onSubmit} noValidate>
+      <TextField
+        margin='normal'
+        required
+        fullWidth
+        id='email'
+        label='Email Address'
+        name='email'
+        autoComplete='email'
+        error={!!error}
+        helperText={error}
+        autoFocus
+      />
+      <TextField
+        margin='normal'
+        required
+        fullWidth
+        name='password'
+        label='Password'
+        type='password'
+        id='password'
+        autoComplete='current-password'
+      />
+      <Stack direction='row' justifyContent='flex-end' sx={{ mt: 2 }}>
+        <Button type='submit' disabled={loading}>
           Sign In
         </Button>
-      </Box>
-    </Stack>
+      </Stack>
+    </Box>
   );
 };

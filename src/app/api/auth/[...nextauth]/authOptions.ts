@@ -6,8 +6,8 @@ import Credentials from 'next-auth/providers/credentials';
 
 export const authOptions: NextAuthOptions = {
   pages: {
-    signIn: ROUTE_PATHS.PUBLIC.LOGIN,
-    signOut: ROUTE_PATHS.PUBLIC.LOGOUT,
+    signIn: ROUTE_PATHS.PUBLIC.LOGIN.path,
+    signOut: ROUTE_PATHS.PUBLIC.LOGOUT.path,
   },
   providers: [
     Credentials({
