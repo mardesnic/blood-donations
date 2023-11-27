@@ -16,7 +16,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email' },
         password: { label: 'Password' },
       },
-      authorize: async (credentials, req) => {
+      authorize: async (credentials) => {
         if (!credentials || !credentials.email || !credentials.password) {
           return null;
         }

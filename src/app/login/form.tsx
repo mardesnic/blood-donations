@@ -2,33 +2,29 @@
 
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 import { ROUTE_PATHS } from '@/routes';
-import { Form } from '@/components/form/Form';
-import { Button } from '@/components/form/Button';
-import { InputText } from '@/components/form/InputText';
-import { Stack } from '@/components/layout/Stack';
-import { Spinner } from '@/components/icons/Spinner';
-import { FaSignInAlt } from 'react-icons/fa';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 
 export const LoginForm = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [formValues, setFormValues] = useState({
-    email: '',
-    password: '',
-  });
   const [error, setError] = useState('');
   const callbackUrl = ROUTE_PATHS.PROTECTED.HOME;
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setLoading(true);
-    e.preventDefault();
+    const data = new FormData(event.currentTarget);
     try {
       const res = await signIn('credentials', {
         redirect: false,
-        email: formValues.email,
-        password: formValues.password,
+        email: data.get('email'),
+        password: data.get('password'),
       });
       if (!res?.ok) {
         setError('Invalid email or password');
@@ -46,38 +42,44 @@ export const LoginForm = () => {
     }
   };
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormValues({ ...formValues, [name]: value });
-  };
-
   return (
-    <Form onSubmit={onSubmit}>
-      <Stack>
-        <InputText
-          placeholder='Email'
-          name='email'
-          type='email'
-          onChange={handleChange}
-          value={formValues.email}
-          autoFocus={true}
-          required={true}
-        />
-        <InputText
-          placeholder='Password'
-          name='password'
-          type='password'
-          onChange={handleChange}
-          value={formValues.password}
-          autoFocus
+    <Stack alignItems='center' sx={{ marginTop: 8 }}>
+      <Typography component='h1' variant='h5'>
+        Sign in
+      </Typography>
+      <Box component='form' onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
+        <TextField
+          margin='normal'
           required
+          fullWidth
+          id='email'
+          label='Email Address'
+          name='email'
+          autoComplete='email'
+          error={!!error}
+          helperText={error}
+          autoFocus
         />
-        {error && <p>{error}</p>}
-        <Button type='submit' disabled={loading} color='primary'>
-          {loading ? <Spinner /> : <FaSignInAlt />}
+        <TextField
+          margin='normal'
+          required
+          fullWidth
+          name='password'
+          label='Password'
+          type='password'
+          id='password'
+          autoComplete='current-password'
+        />
+        <Button
+          variant='contained'
+          fullWidth
+          type='submit'
+          sx={{ mt: 1 }}
+          disabled={loading}
+        >
           Sign In
         </Button>
-      </Stack>
-    </Form>
+      </Box>
+    </Stack>
   );
 };
