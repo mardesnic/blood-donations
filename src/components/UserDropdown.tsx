@@ -4,10 +4,11 @@ import React from 'react';
 import { MdAccountCircle } from 'react-icons/md';
 import { IconButton, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { ROUTE_PATHS } from '@/routes';
-import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export const UserDropdown = () => {
+  const router = useRouter();
   const { data: session } = useSession();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -15,8 +16,11 @@ export const UserDropdown = () => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
     setAnchorEl(null);
+
+    await signOut({ redirect: false });
+    router.push(ROUTE_PATHS.PUBLIC.LOGIN.path);
   };
 
   return (
@@ -47,9 +51,7 @@ export const UserDropdown = () => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleClose}>
-          <Link href={ROUTE_PATHS.PUBLIC.LOGOUT.path}>Sign Out</Link>
-        </MenuItem>
+        <MenuItem onClick={handleClose}>Sign Out</MenuItem>
       </Menu>
     </div>
   );

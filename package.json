@@ -17,6 +17,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.14.18",
+    "@mui/x-data-grid": "^6.18.2",
     "@prisma/client": "^5.5.2",
     "bcrypt": "^5.1.1",
     "next": "14.0.0",
