@@ -1,6 +1,7 @@
 import { BreakpointsOptions, createTheme } from '@mui/material/styles';
 import { TypographyOptions } from '@mui/material/styles/createTypography';
 import { Roboto } from 'next/font/google';
+import type {} from '@mui/x-data-grid/themeAugmentation';
 
 const breakpoints: BreakpointsOptions = {
   values: {
@@ -27,6 +28,7 @@ const typography: TypographyOptions = {
   h1: {
     fontSize: 22,
     fontWeight: 700,
+    marginBlockEnd: 24,
   },
   h2: {
     fontSize: 20,
@@ -53,6 +55,30 @@ export const theme = createTheme({
       defaultProps: {
         variant: 'outlined',
         InputLabelProps: { shrink: true },
+      },
+    },
+    MuiDataGrid: {
+      defaultProps: {
+        disableColumnFilter: true,
+        disableColumnSelector: true,
+        disableDensitySelector: true,
+        disableRowSelectionOnClick: true,
+        hideFooterSelectedRowCount: true,
+        autoHeight: true,
+        density: 'compact',
+        pageSizeOptions: [10, 25, 50],
+        initialState: {
+          pagination: {
+            paginationModel: { pageSize: 10, page: 0 },
+          },
+        },
+        slotProps: {
+          toolbar: {
+            showQuickFilter: true,
+            csvOptions: { disableToolbarButton: true },
+            printOptions: { disableToolbarButton: true },
+          },
+        },
       },
     },
   },
