@@ -95,7 +95,7 @@ model Donation {
 
 model Action {
   id            String     @id @default(uuid())
-  placeId       String
+  placeId       String?
   title         String     @db.VarChar(100)
   startDateTime DateTime
   endDateTime   DateTime
@@ -104,7 +104,7 @@ model Action {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   donations     Donation[]
-  place         Place      @relation(fields: [placeId], references: [id])
+  place         Place?     @relation(fields: [placeId], references: [id])
 
   @@index([title])
 }

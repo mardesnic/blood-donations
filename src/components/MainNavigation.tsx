@@ -31,7 +31,7 @@ export const MainNavigation = async () => {
                 </Button>
               ))}
             </Box>
-            <Box>
+            <Box sx={{ ml: 'auto' }}>
               <UserDropdown />
             </Box>
           </>
