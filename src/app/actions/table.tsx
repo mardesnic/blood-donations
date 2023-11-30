@@ -1,51 +1,62 @@
 'use client';
 
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Action } from '@prisma/client';
+import { IconButton } from '@mui/material';
+import { MdDelete, MdEdit } from 'react-icons/md';
+import { useActionsContext } from '@/context/ActionsContext';
 
-interface ActionsTableProps {
-  actions: Action[];
-}
-export default function ActionsTable({ actions }: ActionsTableProps) {
+export default function ActionsTable() {
+  const { actions, isLoading } = useActionsContext();
   const columns: GridColDef[] = [
     {
       field: 'title',
+      headerName: 'Title',
       flex: 1,
     },
     {
       field: 'startDateTime',
+      headerName: 'Start Date',
       flex: 1,
     },
     {
       field: 'endDateTime',
+      headerName: 'End Date',
       flex: 1,
     },
     {
       field: 'donationCount',
+      headerName: 'Donation Count',
       flex: 1,
     },
     {
       field: 'note',
+      headerName: 'Note',
       flex: 1,
     },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      renderCell: (params: { row: Action }) => (
+        <>
+          <IconButton
+            onClick={() => {
+              console.log('edot action ', params);
+            }}
+          >
+            <MdEdit />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              console.log('delete action');
+            }}
+          >
+            <MdDelete />
+          </IconButton>
+        </>
+      ),
+    },
   ];
-  return (
-    <Box sx={{ height: 400, width: 1 }}>
-      <DataGrid
-        rows={actions}
-        disableColumnFilter
-        disableColumnSelector
-        disableDensitySelector
-        columns={columns}
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{
-          toolbar: {
-            showQuickFilter: true,
-          },
-        }}
-      />
-    </Box>
-  );
+  return <DataGrid rows={actions} columns={columns} loading={isLoading} />;
 }

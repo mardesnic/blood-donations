@@ -1,20 +1,33 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 import { generatePageTitle } from '@/lib/utils';
-import { Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { PageWrapper } from '@/components/PageWrapper';
-import ActionService from '../api/actions/service';
 import ActionsTable from '@/app/actions/table';
+import { ActionsProvider } from '@/context/ActionsContext';
+import Button from '@mui/material/Button';
 
 export const metadata: Metadata = {
   title: generatePageTitle('Actions'),
 };
 
 export default async function ActionsPage() {
-  const actions = await ActionService.find();
   return (
     <PageWrapper>
-      <Typography variant='h1'>Actions</Typography>
-      <ActionsTable actions={actions} />
+      <Stack
+        direction='row'
+        justifyContent='space-between'
+        alignItems='center'
+        mb={2}
+      >
+        <Typography variant='h1'>Actions</Typography>
+        <Link href='/actions/new'>
+          <Button>Create new</Button>
+        </Link>
+      </Stack>
+      <ActionsProvider>
+        <ActionsTable />
+      </ActionsProvider>
     </PageWrapper>
   );
 }

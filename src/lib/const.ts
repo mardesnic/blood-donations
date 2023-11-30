@@ -4,4 +4,7 @@ export const reactQueryKeys = {
   places: {
     all: () => ['PLACES'] as const,
   },
+  actions: {
+    all: () => ['ACTIONS'] as const,
+  },
 };
