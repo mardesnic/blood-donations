@@ -16,6 +16,46 @@ const useGetPlaces = () => {
   });
 };
 
+const createPlace = async (data: Partial<Place>): Promise<void> => {
+  const response = await fetch(`/api/places/`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    alert('Failed to create place.');
+  }
+};
+
+const useCreatePlace = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<Place>) => createPlace(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: reactQueryKeys.places.all() });
+    },
+  });
+};
+
+const updatePlace = async (data: Partial<Place>): Promise<void> => {
+  const response = await fetch(`/api/places/${data.id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    alert('Failed to update place.');
+  }
+};
+
+const useUpdatePlace = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<Place>) => updatePlace(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: reactQueryKeys.places.all() });
+    },
+  });
+};
+
 const removePlace = async (id: string): Promise<void> => {
   const response = await fetch(`/api/places/${id}`, {
     method: 'DELETE',
@@ -35,4 +75,4 @@ const useRemovePlace = () => {
   });
 };
 
-export { useGetPlaces, useRemovePlace };
+export { useGetPlaces, useCreatePlace, useUpdatePlace, useRemovePlace };

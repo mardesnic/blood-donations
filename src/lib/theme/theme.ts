@@ -55,6 +55,13 @@ export const theme = createTheme({
       defaultProps: {
         variant: 'outlined',
         InputLabelProps: { shrink: true },
+        fullWidth: true,
+        margin: 'normal',
+      },
+    },
+    MuiDialog: {
+      defaultProps: {
+        keepMounted: true,
       },
     },
     MuiDataGrid: {
