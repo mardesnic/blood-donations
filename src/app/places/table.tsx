@@ -8,7 +8,7 @@ import { MdDelete, MdEdit } from 'react-icons/md';
 import { usePlacesContext } from '@/context/PlacesContext';
 
 export default function PlacesTable() {
-  const { places, isLoading, isFetching, removePlace } = usePlacesContext();
+  const { places, isLoading, isFetching, openDialog } = usePlacesContext();
   const columns: GridColDef[] = [
     {
       field: 'title',
@@ -38,12 +38,18 @@ export default function PlacesTable() {
     {
       field: 'actions',
       headerName: 'Actions',
+      disableColumnMenu: true,
+      hideSortIcons: true,
       renderCell: (params: { row: Place }) => (
         <>
-          <IconButton onClick={() => console.log(params.row)}>
+          <IconButton
+            onClick={() => openDialog({ type: 'update', place: params.row })}
+          >
             <MdEdit />
           </IconButton>
-          <IconButton onClick={() => removePlace(params.row.id)}>
+          <IconButton
+            onClick={() => openDialog({ type: 'delete', place: params.row })}
+          >
             <MdDelete />
           </IconButton>
         </>
