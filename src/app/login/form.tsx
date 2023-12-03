@@ -2,47 +2,46 @@
 
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { ROUTE_PATHS } from '@/routes';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { useState } from 'react';
 
 export const LoginForm = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const callbackUrl = ROUTE_PATHS.PROTECTED.HOME.path;
+  const [loginError, setLoginError] = useState('');
 
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
-    const data = new FormData(event.currentTarget);
-    try {
-      const res = await signIn('credentials', {
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema: Yup.object({
+      email: Yup.string().required('Email is required').email(),
+      password: Yup.string().required('Password is required'),
+    }),
+    onSubmit: async (values) => {
+      const result = await signIn('credentials', {
         redirect: false,
-        email: data.get('email'),
-        password: data.get('password'),
+        email: values.email,
+        password: values.password,
       });
-      if (!res?.ok) {
-        setError('Invalid email or password');
-        setLoading(false);
+
+      if (!result?.ok) {
+        setLoginError('Invalid email or password.');
         return;
       }
-      setError('');
-      router.push(callbackUrl);
-      return;
-    } catch (error) {
-      console.warn(error);
-      setError('Something went wrong, try again later!');
-      setLoading(false);
-      return;
-    }
-  };
+      setLoginError('');
+      router.push(ROUTE_PATHS.PROTECTED.HOME.path);
+    },
+  });
 
   return (
-    <Box component='form' onSubmit={onSubmit} noValidate>
+    <Box component='form' onSubmit={formik.handleSubmit} noValidate>
       <TextField
         margin='normal'
         required
@@ -50,9 +49,14 @@ export const LoginForm = () => {
         label='Email Address'
         name='email'
         autoComplete='email'
-        error={!!error}
-        helperText={error}
         autoFocus
+        value={formik.values.email}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={
+          !!loginError || (formik.touched.email && Boolean(formik.errors.email))
+        }
+        helperText={loginError || (formik.touched.email && formik.errors.email)}
       />
       <TextField
         margin='normal'
@@ -62,9 +66,14 @@ export const LoginForm = () => {
         type='password'
         id='password'
         autoComplete='current-password'
+        value={formik.values.password}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.password && Boolean(formik.errors.password)}
+        helperText={formik.touched.password && formik.errors.password}
       />
       <Stack direction='row' justifyContent='flex-end' sx={{ mt: 2 }}>
-        <Button type='submit' disabled={loading}>
+        <Button type='submit' disabled={formik.isSubmitting}>
           Sign In
         </Button>
       </Stack>

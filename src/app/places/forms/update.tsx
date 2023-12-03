@@ -1,8 +1,9 @@
 import { usePlacesContext } from '@/context/PlacesContext';
 import { Box, Button, Stack, TextField } from '@mui/material';
 import { Place } from '@prisma/client';
-import React from 'react';
+import { useFormik } from 'formik';
 import { MdEdit } from 'react-icons/md';
+import * as Yup from 'yup';
 
 interface Props {
   place: Place;
@@ -11,20 +12,36 @@ interface Props {
 export const PlaceUpdateForm = ({ place }: Props) => {
   const { closeDialog, updatePlace, isLoading } = usePlacesContext();
 
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    await updatePlace({
-      id: data.get('id'),
-      title: data.get('title'),
-    } as Place);
-    closeDialog();
-  };
+  const formik = useFormik({
+    initialValues: {
+      title: place.title,
+    },
+    validationSchema: Yup.object({
+      title: Yup.string()
+        .required('Title is required')
+        .min(3, 'Must be 3 characters or more'),
+    }),
+    onSubmit: async (values) => {
+      await updatePlace({
+        id: place.id,
+        ...values,
+      } as Place);
+      closeDialog();
+    },
+  });
 
   return (
-    <Box component='form' onSubmit={onSubmit} noValidate>
-      <input type='hidden' name='id' value={place.id} />
-      <TextField label='Title' name='title' defaultValue={place?.title} />
+    <Box component='form' onSubmit={formik.handleSubmit} noValidate>
+      <TextField
+        label='Title'
+        name='title'
+        value={formik.values.title}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.title && Boolean(formik.errors.title)}
+        helperText={formik.touched.title && formik.errors.title}
+        required
+      />
       <Stack direction='row' justifyContent='flex-end' gap={2}>
         <Button onClick={closeDialog} variant='outlined' disabled={isLoading}>
           Cancel
