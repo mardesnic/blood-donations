@@ -8,7 +8,7 @@ import { MdDelete, MdEdit } from 'react-icons/md';
 import { useActionsContext } from '@/context/ActionsContext';
 
 export default function ActionsTable() {
-  const { actions, isLoading } = useActionsContext();
+  const { actions, isLoading, isFetching, openDialog } = useActionsContext();
   const columns: GridColDef[] = [
     {
       field: 'title',
@@ -38,19 +38,19 @@ export default function ActionsTable() {
     {
       field: 'actions',
       headerName: 'Actions',
+      disableColumnMenu: true,
+      hideSortIcons: true,
       renderCell: (params: { row: Action }) => (
         <>
           <IconButton
             onClick={() => {
-              console.log('edot action ', params);
+              console.log('edit action ', params);
             }}
           >
             <MdEdit />
           </IconButton>
           <IconButton
-            onClick={() => {
-              console.log('delete action');
-            }}
+            onClick={() => openDialog({ type: 'delete', action: params.row })}
           >
             <MdDelete />
           </IconButton>
@@ -58,5 +58,11 @@ export default function ActionsTable() {
       ),
     },
   ];
-  return <DataGrid rows={actions} columns={columns} loading={isLoading} />;
+  return (
+    <DataGrid
+      rows={actions}
+      columns={columns}
+      loading={isLoading || isFetching}
+    />
+  );
 }
