@@ -4,8 +4,9 @@ import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Place } from '@prisma/client';
 import { IconButton } from '@mui/material';
-import { MdDelete, MdEdit } from 'react-icons/md';
+import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
 import { usePlacesContext } from '@/context/PlacesContext';
+import { ROUTE_PATHS } from '@/routes';
 
 export default function PlacesTable() {
   const { places, isLoading, isFetching, openDialog } = usePlacesContext();
@@ -13,6 +14,11 @@ export default function PlacesTable() {
     {
       field: 'title',
       headerName: 'Title',
+      flex: 1,
+    },
+    {
+      field: 'city',
+      headerName: 'City',
       flex: 1,
     },
     {
@@ -26,13 +32,13 @@ export default function PlacesTable() {
       flex: 1,
     },
     {
-      field: 'email',
-      headerName: 'Email',
+      field: 'phone',
+      headerName: 'Phone',
       flex: 1,
     },
     {
-      field: 'phone',
-      headerName: 'Phone',
+      field: 'email',
+      headerName: 'Email',
       flex: 1,
     },
     {
@@ -40,8 +46,14 @@ export default function PlacesTable() {
       headerName: 'Actions',
       disableColumnMenu: true,
       hideSortIcons: true,
+      flex: 1,
       renderCell: (params: { row: Place }) => (
         <>
+          <IconButton
+            href={`${ROUTE_PATHS.PROTECTED.PLACES.path}/${params.row.id}`}
+          >
+            <MdVisibility />
+          </IconButton>
           <IconButton
             onClick={() => openDialog({ type: 'update', place: params.row })}
           >

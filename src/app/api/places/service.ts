@@ -6,10 +6,15 @@ export default class PlaceService {
     return await prisma.place.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
+  static async findOne(id: string) {
+    return await prisma.place.findUnique({
+      where: { id },
+    });
+  }
+
   static async create(data: Partial<Place>): Promise<Place> {
-    const newplace = { title: data?.title || '' };
     return await prisma.place.create({
-      data: newplace,
+      data: data as Place,
     });
   }
 
