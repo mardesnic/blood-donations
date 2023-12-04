@@ -1,5 +1,14 @@
 import { useActionsContext } from '@/context/ActionsContext';
-import { Box, Button, Stack, TextField } from '@mui/material';
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+} from '@mui/material';
 import { Action } from '@prisma/client';
 import { useFormik } from 'formik';
 import dayjs from 'dayjs';
@@ -9,13 +18,17 @@ import * as Yup from 'yup';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { DATE_TIME_FORMAT } from '@/lib/const';
+import { usePlacesContext } from '@/context/PlacesContext';
 
 export const ActionCreateForm = () => {
   const { closeDialog, createAction, isLoading } = useActionsContext();
+  const { places } = usePlacesContext();
 
   const formik = useFormik({
     initialValues: {
       title: '',
+      placeId: '',
       startDateTime: dayjs(),
       endDateTime: dayjs(),
       note: '',
@@ -49,13 +62,34 @@ export const ActionCreateForm = () => {
           required
         />
 
+        <FormControl fullWidth>
+          <InputLabel id='place-label'>Place</InputLabel>
+          <Select
+            labelId='place-label'
+            id='placeId'
+            name='placeId'
+            value={formik.values.placeId}
+            label='Place'
+            onChange={formik.handleChange}
+          >
+            <MenuItem value=''>
+              <em>None</em>
+            </MenuItem>
+            {places.map((place) => (
+              <MenuItem key={place.id} value={place.id}>
+                {place.title}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <DateTimePicker
           label='Start time'
           value={formik.values.startDateTime}
           onChange={(value) =>
             formik.setFieldValue('startDateTime', dayjs(value))
           }
-          format='DD/MM/YYYY HH:mm'
+          format={DATE_TIME_FORMAT}
           ampm={false}
         />
 
@@ -65,7 +99,7 @@ export const ActionCreateForm = () => {
           onChange={(value) =>
             formik.setFieldValue('endDateTime', dayjs(value))
           }
-          format='DD/MM/YYYY HH:mm'
+          format={DATE_TIME_FORMAT}
           ampm={false}
         />
 
