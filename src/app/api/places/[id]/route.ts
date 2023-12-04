@@ -8,7 +8,13 @@ export async function PUT(
   const id = contex.params.id;
   const body = await req.json();
   const data = {
-    title: body?.title,
+    title: body?.title || '',
+    address: body?.address || '',
+    city: body?.city || '',
+    phone: body?.phone || '',
+    email: body?.email || '',
+    contactName: body?.contactName || '',
+    note: body?.note || '',
   };
   const place = await PlaceService.update(id, data);
   return NextResponse.json(place);

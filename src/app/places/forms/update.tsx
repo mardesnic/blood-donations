@@ -15,11 +15,18 @@ export const PlaceUpdateForm = ({ place }: Props) => {
   const formik = useFormik({
     initialValues: {
       title: place.title,
+      address: place.address,
+      city: place.city,
+      phone: place.phone,
+      email: place.email,
+      contactName: place.contactName,
+      note: place.note,
     },
     validationSchema: Yup.object({
       title: Yup.string()
         .required('Title is required')
         .min(3, 'Must be 3 characters or more'),
+      email: Yup.string().email('Email must be a valid email'),
     }),
     onSubmit: async (values) => {
       await updatePlace({
@@ -41,6 +48,43 @@ export const PlaceUpdateForm = ({ place }: Props) => {
         error={formik.touched.title && Boolean(formik.errors.title)}
         helperText={formik.touched.title && formik.errors.title}
         required
+      />
+      <TextField
+        label='City'
+        name='city'
+        value={formik.values.city}
+        onChange={formik.handleChange}
+      />
+      <TextField
+        label='Address'
+        name='address'
+        value={formik.values.address}
+        onChange={formik.handleChange}
+      />
+      <TextField
+        label='Contact Name'
+        name='contactName'
+        value={formik.values.contactName}
+        onChange={formik.handleChange}
+      />
+      <TextField
+        label='Phone'
+        name='phone'
+        value={formik.values.phone}
+        onChange={formik.handleChange}
+      />
+      <TextField
+        label='Email'
+        name='email'
+        value={formik.values.email}
+        onChange={formik.handleChange}
+      />
+      <TextField
+        label='Note'
+        name='note'
+        value={formik.values.note}
+        onChange={formik.handleChange}
+        multiline
       />
       <Stack direction='row' justifyContent='flex-end' gap={2}>
         <Button onClick={closeDialog} variant='outlined' disabled={isLoading}>
