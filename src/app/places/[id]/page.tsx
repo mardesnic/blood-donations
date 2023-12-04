@@ -4,6 +4,7 @@ import PlaceService from '@/app/api/places/service';
 import { generatePageTitle } from '@/lib/utils';
 import { Breadcrumbs, Link, Typography } from '@mui/material';
 import { ROUTE_PATHS } from '@/routes';
+import { notFound } from 'next/navigation';
 
 type Props = {
   params: { id: string };
@@ -17,10 +18,11 @@ export async function generateMetadata({
     title: generatePageTitle(place?.title),
   };
 }
+
 export default async function PlacesPage({ params: { id } }: Props) {
   const place = await PlaceService.findOne(id);
   if (!place) {
-    return null;
+    notFound();
   }
   return (
     <PageWrapper>
