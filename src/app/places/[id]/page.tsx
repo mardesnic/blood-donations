@@ -19,7 +19,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function PlacesPage({ params: { id } }: Props) {
+export default async function PlaceDetails({ params: { id } }: Props) {
   const place = await PlaceService.findOne(id);
   if (!place) {
     notFound();
