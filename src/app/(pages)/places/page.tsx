@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import { generatePageTitle } from '@/lib/utils';
-import { PageWrapper } from '@/components/PageWrapper';
 import PlacesTable from './table';
 import { PlacesProvider } from '@/context/PlacesContext';
 import { PlaceDeleteDialog } from './dialogs/delete';
@@ -14,14 +13,12 @@ export const metadata: Metadata = {
 
 export default async function PlacesPage() {
   return (
-    <PageWrapper>
-      <PlacesProvider>
-        <PlacesHeader />
-        <PlacesTable />
-        <PlaceCreateDialog />
-        <PlaceUpdateDialog />
-        <PlaceDeleteDialog />
-      </PlacesProvider>
-    </PageWrapper>
+    <PlacesProvider>
+      <PlacesHeader />
+      <PlacesTable />
+      <PlaceCreateDialog />
+      <PlaceUpdateDialog />
+      <PlaceDeleteDialog />
+    </PlacesProvider>
   );
 }
