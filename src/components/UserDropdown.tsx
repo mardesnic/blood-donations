@@ -18,6 +18,10 @@ export const UserDropdown = () => {
 
   const handleClose = async () => {
     setAnchorEl(null);
+  };
+
+  const handleSignOut = async () => {
+    handleClose();
 
     await signOut({ redirect: false });
     router.push(ROUTE_PATHS.PUBLIC.LOGIN.path);
@@ -51,7 +55,7 @@ export const UserDropdown = () => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleClose}>Sign Out</MenuItem>
+        <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
       </Menu>
     </div>
   );

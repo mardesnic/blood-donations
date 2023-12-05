@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { PageWrapper } from '@/components/PageWrapper';
 import PlaceService from '@/app/api/places/service';
 import { generatePageTitle } from '@/lib/utils';
 import { Breadcrumbs, Link, Typography } from '@mui/material';
@@ -25,12 +24,12 @@ export default async function PlaceDetails({ params: { id } }: Props) {
     notFound();
   }
   return (
-    <PageWrapper>
+    <>
       <Breadcrumbs>
         <Link href={ROUTE_PATHS.PROTECTED.PLACES.path}>Places</Link>
         <Typography>{place.title}</Typography>
       </Breadcrumbs>
       <pre>{JSON.stringify(place, null, 2)}</pre>
-    </PageWrapper>
+    </>
   );
 }
