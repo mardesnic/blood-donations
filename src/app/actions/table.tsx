@@ -1,11 +1,13 @@
 'use client';
 
 import * as React from 'react';
+import dayjs from 'dayjs';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Action } from '@prisma/client';
 import { IconButton } from '@mui/material';
 import { MdDelete, MdEdit } from 'react-icons/md';
 import { useActionsContext } from '@/context/ActionsContext';
+import { DATE_TIME_FORMAT } from '@/lib/const';
 
 export default function ActionsTable() {
   const { actions, isLoading, isFetching, openDialog } = useActionsContext();
@@ -16,14 +18,22 @@ export default function ActionsTable() {
       flex: 1,
     },
     {
+      field: 'place',
+      headerName: 'Place',
+      flex: 1,
+      renderCell: (params) => params?.value?.title || 'None',
+    },
+    {
       field: 'startDateTime',
       headerName: 'Start Date',
       flex: 1,
+      renderCell: (params) => dayjs(params.value).format(DATE_TIME_FORMAT),
     },
     {
       field: 'endDateTime',
       headerName: 'End Date',
       flex: 1,
+      renderCell: (params) => dayjs(params.value).format(DATE_TIME_FORMAT),
     },
     {
       field: 'donationCount',

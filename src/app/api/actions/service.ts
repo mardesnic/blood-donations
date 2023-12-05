@@ -3,7 +3,14 @@ import { Action } from '@prisma/client';
 
 export default class ActionService {
   static async find() {
-    return await prisma.action.findMany({ orderBy: { createdAt: 'desc' } });
+    return await prisma.action.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        place: true,
+      },
+    });
   }
 
   static async create(data: Action): Promise<Action> {
