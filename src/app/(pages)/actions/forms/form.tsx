@@ -30,7 +30,6 @@ export const ActionForm = ({ action }: Props) => {
     useActionsContext();
   const { places } = usePlacesContext();
 
-  console.log(action);
   const formik = useFormik({
     initialValues: {
       title: action?.title || '',
