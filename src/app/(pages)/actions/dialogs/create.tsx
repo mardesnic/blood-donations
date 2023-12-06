@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { MdClose } from 'react-icons/md';
-import { ActionCreateForm } from '../forms/create';
+import { ActionForm } from '../forms/form';
 
 export const ActionCreateDialog = () => {
   const { closeDialog, activeDialog } = useActionsContext();
@@ -33,7 +33,7 @@ export const ActionCreateDialog = () => {
         </Toolbar>
       </AppBar>
       <Container maxWidth={'sm'}>
-        <ActionCreateForm />
+        <ActionForm />
       </Container>
     </Dialog>
   );

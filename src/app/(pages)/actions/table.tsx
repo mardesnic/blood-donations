@@ -53,9 +53,7 @@ export default function ActionsTable() {
       renderCell: (params: { row: Action }) => (
         <>
           <IconButton
-            onClick={() => {
-              console.log('edit action ', params);
-            }}
+            onClick={() => openDialog({ type: 'update', action: params.row })}
           >
             <MdEdit />
           </IconButton>

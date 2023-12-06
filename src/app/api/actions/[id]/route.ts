@@ -7,10 +7,8 @@ export async function PUT(
 ) {
   const id = contex.params.id;
   const body = await req.json();
-  const data = {
-    title: body?.title,
-  };
-  const action = await ActionService.update(id, data);
+
+  const action = await ActionService.update(id, body);
   return NextResponse.json(action);
 }
 
