@@ -21,17 +21,22 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DATE_TIME_FORMAT } from '@/lib/const';
 import { usePlacesContext } from '@/context/PlacesContext';
 
-export const ActionCreateForm = () => {
-  const { closeDialog, createAction, isLoading } = useActionsContext();
+interface Props {
+  action?: Action;
+}
+
+export const ActionForm = ({ action }: Props) => {
+  const { closeDialog, createAction, updateAction, isLoading } =
+    useActionsContext();
   const { places } = usePlacesContext();
 
   const formik = useFormik({
     initialValues: {
-      title: '',
-      placeId: '',
-      startDateTime: dayjs(),
-      endDateTime: dayjs(),
-      note: '',
+      title: action?.title || '',
+      placeId: action?.placeId || '',
+      startDateTime: dayjs(action?.startDateTime) || dayjs(),
+      endDateTime: dayjs(action?.endDateTime) || dayjs(),
+      note: action?.note || '',
     },
     validationSchema: Yup.object({
       title: Yup.string()
@@ -39,11 +44,19 @@ export const ActionCreateForm = () => {
         .min(3, 'Must be 3 characters or more'),
     }),
     onSubmit: async (values) => {
-      await createAction({
+      const newValues = {
         ...values,
         startDateTime: values.startDateTime.toDate(),
         endDateTime: values.endDateTime.toDate(),
-      } as Action);
+      };
+      if (action?.id) {
+        await updateAction({
+          ...newValues,
+          id: action.id,
+        });
+      } else {
+        await createAction(newValues as Action);
+      }
       closeDialog();
     },
   });
