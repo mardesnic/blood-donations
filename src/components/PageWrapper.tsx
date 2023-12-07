@@ -1,6 +1,6 @@
 import { Container } from '@mui/material';
 import React, { ReactNode } from 'react';
-import { MainNavigation } from './MainNavigation';
+import { TopBar } from './TopBar';
 
 interface Props {
   children: ReactNode;
@@ -9,8 +9,10 @@ interface Props {
 export const PageWrapper = ({ children }: Props) => {
   return (
     <>
-      <MainNavigation />
-      <Container sx={{ py: 3 }}>{children}</Container>
+      <TopBar />
+      <Container component='main' fixed sx={{ py: 3 }}>
+        {children}
+      </Container>
     </>
   );
 };
