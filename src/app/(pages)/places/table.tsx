@@ -1,15 +1,17 @@
 'use client';
 
-import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Place } from '@prisma/client';
-import { IconButton } from '@mui/material';
+import { IconButton, useMediaQuery, useTheme } from '@mui/material';
 import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
 import { usePlacesContext } from '@/context/PlacesContext';
 import { ROUTE_PATHS } from '@/routes';
 
 export default function PlacesTable() {
   const { places, isLoading, isFetching, openDialog } = usePlacesContext();
+  const theme = useTheme();
+  const isMdScreen = useMediaQuery(theme.breakpoints.down('md'));
+
   const columns: GridColDef[] = [
     {
       field: 'title',
@@ -46,7 +48,7 @@ export default function PlacesTable() {
       headerName: 'Actions',
       disableColumnMenu: true,
       hideSortIcons: true,
-      flex: 1,
+      minWidth: 135,
       renderCell: (params: { row: Place }) => (
         <>
           <IconButton
@@ -68,11 +70,46 @@ export default function PlacesTable() {
       ),
     },
   ];
+
+  const mdColumns: GridColDef[] = [
+    {
+      field: 'title',
+      headerName: 'Title',
+      flex: 1,
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      disableColumnMenu: true,
+      hideSortIcons: true,
+      minWidth: 135,
+      renderCell: (params: { row: Place }) => (
+        <>
+          <IconButton
+            href={`${ROUTE_PATHS.PROTECTED.PLACES.path}/${params.row.id}`}
+          >
+            <MdVisibility />
+          </IconButton>
+          <IconButton
+            onClick={() => openDialog({ type: 'update', place: params.row })}
+          >
+            <MdEdit />
+          </IconButton>
+          <IconButton
+            onClick={() => openDialog({ type: 'delete', place: params.row })}
+          >
+            <MdDelete />
+          </IconButton>
+        </>
+      ),
+    },
+  ];
+
   return (
     <DataGrid
       loading={isLoading || isFetching}
       rows={places || []}
-      columns={columns}
+      columns={isMdScreen ? mdColumns : columns}
     />
   );
 }
