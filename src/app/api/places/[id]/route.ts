@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import PlaceService from '../service';
+import { Place } from '@prisma/client';
 
 export async function PUT(
   req: NextRequest,
@@ -7,7 +8,7 @@ export async function PUT(
 ) {
   const id = contex.params.id;
   const body = await req.json();
-  const data = {
+  const data: Partial<Place> = {
     title: body?.title || '',
     address: body?.address || '',
     city: body?.city || '',

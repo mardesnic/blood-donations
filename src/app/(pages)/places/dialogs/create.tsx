@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { MdClose } from 'react-icons/md';
-import { PlaceCreateForm } from '../forms/create';
+import { PlaceForm } from '../forms/form';
 
 export const PlaceCreateDialog = () => {
   const { closeDialog, activeDialog } = usePlacesContext();
@@ -22,7 +22,7 @@ export const PlaceCreateDialog = () => {
 
   return (
     <Dialog open={true} onClose={closeDialog} fullScreen>
-      <AppBar color='default' position='relative'>
+      <AppBar color='default' position='sticky'>
         <Toolbar>
           <IconButton edge='start' color='inherit' onClick={closeDialog}>
             <MdClose />
@@ -32,8 +32,8 @@ export const PlaceCreateDialog = () => {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Container maxWidth={'sm'}>
-        <PlaceCreateForm />
+      <Container maxWidth={'sm'} sx={{ pt: 2, pb: 3 }}>
+        <PlaceForm />
       </Container>
     </Dialog>
   );
