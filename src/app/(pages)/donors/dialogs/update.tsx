@@ -1,6 +1,6 @@
 'use client';
 
-import { usePlacesContext } from '@/context/PlacesContext';
+import { useDonorsContext } from '@/context/DonorsContext';
 import {
   AppBar,
   Container,
@@ -11,16 +11,16 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { MdClose } from 'react-icons/md';
-import { PlaceForm } from '../forms/form';
+import { DonorForm } from '../forms/form';
 
-export const PlaceUpdateDialog = () => {
-  const { closeDialog, activeDialog } = usePlacesContext();
+export const DonorUpdateDialog = () => {
+  const { closeDialog, activeDialog } = useDonorsContext();
 
   if (activeDialog?.type !== 'update') {
     return null;
   }
 
-  const { place } = activeDialog;
+  const { donor } = activeDialog;
 
   return (
     <Dialog open={true} onClose={closeDialog} fullScreen>
@@ -30,12 +30,12 @@ export const PlaceUpdateDialog = () => {
             <MdClose />
           </IconButton>
           <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component='div'>
-            {place.title}
+            {donor.firstName}
           </Typography>
         </Toolbar>
       </AppBar>
       <Container maxWidth={'sm'} sx={{ pt: 2, pb: 3 }}>
-        <PlaceForm place={place} />
+        <DonorForm donor={donor} />
       </Container>
     </Dialog>
   );

@@ -6,21 +6,22 @@ import { MdEdit } from 'react-icons/md';
 import * as Yup from 'yup';
 
 interface Props {
-  place: Place;
+  place?: Place;
 }
 
-export const PlaceUpdateForm = ({ place }: Props) => {
-  const { closeDialog, updatePlace, isLoading } = usePlacesContext();
+export const PlaceForm = ({ place }: Props) => {
+  const { closeDialog, createPlace, updatePlace, isLoading } =
+    usePlacesContext();
 
   const formik = useFormik({
     initialValues: {
-      title: place.title,
-      address: place.address,
-      city: place.city,
-      phone: place.phone,
-      email: place.email,
-      contactName: place.contactName,
-      note: place.note,
+      title: place?.title || '',
+      address: place?.address || '',
+      city: place?.city || '',
+      phone: place?.phone || '',
+      email: place?.email || '',
+      contactName: place?.contactName || '',
+      note: place?.note || '',
     },
     validationSchema: Yup.object({
       title: Yup.string()
@@ -29,10 +30,18 @@ export const PlaceUpdateForm = ({ place }: Props) => {
       email: Yup.string().email('Email must be a valid email'),
     }),
     onSubmit: async (values) => {
-      await updatePlace({
-        id: place.id,
+      const newValues = {
         ...values,
-      } as Place);
+        id: place?.id,
+      };
+      if (place?.id) {
+        await updatePlace({
+          ...newValues,
+          id: place.id,
+        });
+      } else {
+        await createPlace(newValues as Place);
+      }
       closeDialog();
     },
   });
@@ -49,36 +58,45 @@ export const PlaceUpdateForm = ({ place }: Props) => {
         helperText={formik.touched.title && formik.errors.title}
         required
       />
+
       <TextField
         label='City'
         name='city'
         value={formik.values.city}
         onChange={formik.handleChange}
       />
+
       <TextField
         label='Address'
         name='address'
         value={formik.values.address}
         onChange={formik.handleChange}
       />
+
       <TextField
         label='Contact Name'
         name='contactName'
         value={formik.values.contactName}
         onChange={formik.handleChange}
       />
+
       <TextField
         label='Phone'
         name='phone'
         value={formik.values.phone}
         onChange={formik.handleChange}
       />
+
       <TextField
         label='Email'
         name='email'
         value={formik.values.email}
         onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.email && Boolean(formik.errors.email)}
+        helperText={formik.touched.email && formik.errors.email}
       />
+
       <TextField
         label='Note'
         name='note'
@@ -86,6 +104,7 @@ export const PlaceUpdateForm = ({ place }: Props) => {
         onChange={formik.handleChange}
         multiline
       />
+
       <Stack direction='row' justifyContent='flex-end' gap={2}>
         <Button onClick={closeDialog} variant='outlined' disabled={isLoading}>
           Cancel
