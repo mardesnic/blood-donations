@@ -6,6 +6,7 @@ import { generatePageTitle } from '@/lib/utils';
 import ThemeRegistry from '@/lib/theme/ThemeRegistry';
 import CssBaseline from '@mui/material/CssBaseline';
 import ReactQueryProvider from './providers/ReactQueryProvider';
+import { AlertProvider } from '@/context/AlertContext';
 
 export const metadata: Metadata = {
   title: generatePageTitle('Welcome'),
@@ -22,10 +23,12 @@ export default function RootLayout({
       <body>
         <ThemeRegistry options={{ key: 'mui' }}>
           <NextAuthSessionProvider>
-            <ReactQueryProvider>
-              <CssBaseline />
-              {children}
-            </ReactQueryProvider>
+            <AlertProvider>
+              <ReactQueryProvider>
+                <CssBaseline />
+                {children}
+              </ReactQueryProvider>
+            </AlertProvider>
           </NextAuthSessionProvider>
         </ThemeRegistry>
       </body>

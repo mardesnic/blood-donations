@@ -23,7 +23,7 @@ const createPlace = async (data: Partial<Place>): Promise<void> => {
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    alert('Failed to create place.');
+    throw new Error('Failed to create place.');
   }
 };
 
@@ -43,7 +43,7 @@ const updatePlace = async (data: Partial<Place>): Promise<void> => {
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    alert('Failed to update place.');
+    throw new Error('Failed to update place.');
   }
 };
 
@@ -62,7 +62,7 @@ const removePlace = async (id: string): Promise<void> => {
     method: 'DELETE',
   });
   if (!response.ok) {
-    alert('Failed to remove the place.');
+    throw new Error('Failed to remove the place.');
   }
 };
 

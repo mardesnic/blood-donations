@@ -34,7 +34,7 @@ const createDonor = async (data: Partial<Donor>): Promise<void> => {
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    alert('Failed to create donor.');
+    throw new Error('Failed to create donor.');
   }
 };
 
@@ -54,7 +54,7 @@ const updateDonor = async (data: Partial<Donor>): Promise<void> => {
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    alert('Failed to update donor.');
+    throw new Error('Failed to update donor.');
   }
 };
 
@@ -73,7 +73,7 @@ const removeDonor = async (id: string): Promise<void> => {
     method: 'DELETE',
   });
   if (!response.ok) {
-    alert('Failed to remove the donor.');
+    throw new Error('Failed to remove the donor.');
   }
 };
 

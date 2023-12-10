@@ -17,12 +17,12 @@ const useGetActions = () => {
 };
 
 const createAction = async (data: Partial<Action>): Promise<void> => {
-  const response = await fetch(`/api/actions/`, {
+  const response = await fetch(`/api/actions`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    alert('Failed to create action.');
+    throw new Error('Failed to create action.');
   }
 };
 
@@ -42,7 +42,7 @@ const updateAction = async (data: Partial<Action>): Promise<void> => {
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    alert('Failed to update action.');
+    throw new Error('Failed to update action.');
   }
 };
 
@@ -61,7 +61,7 @@ const removeAction = async (id: string): Promise<void> => {
     method: 'DELETE',
   });
   if (!response.ok) {
-    alert('Failed to remove the action.');
+    throw new Error('Failed to remove the action.');
   }
 };
 
