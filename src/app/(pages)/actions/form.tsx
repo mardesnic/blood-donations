@@ -61,8 +61,6 @@ const Form = ({ action }: Props) => {
     },
   });
 
-  console.log('formik ', formik);
-
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box component='form' onSubmit={formik.handleSubmit} noValidate>
