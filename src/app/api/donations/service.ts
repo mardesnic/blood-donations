@@ -30,10 +30,6 @@ export default class DonationService {
   }
 
   static async delete(id: string) {
-    // await prisma.donation.updateMany({
-    //   where: { actionId: id },
-    //   data: { actionId: null },
-    // });
     return prisma.donation.delete({ where: { id } });
   }
 }
