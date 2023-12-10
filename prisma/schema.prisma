@@ -82,7 +82,7 @@ model Donor {
 model Donation {
   id           String          @id @default(uuid())
   donorId      String
-  actionId     String
+  actionId     String?
   denied       Boolean         @default(false)
   denyReason   DenyReasonType?
   donationDate DateTime
@@ -90,7 +90,7 @@ model Donation {
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
   donor        Donor           @relation(fields: [donorId], references: [id])
-  action       Action          @relation(fields: [actionId], references: [id])
+  action       Action?         @relation(fields: [actionId], references: [id])
 }
 
 model Action {

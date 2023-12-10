@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { MdClose } from 'react-icons/md';
-import { ActionForm } from '../forms/form';
+import { ActionForm } from '../form';
 
 export const ActionCreateDialog = () => {
   const { closeDialog, activeDialog } = useActionsContext();

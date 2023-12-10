@@ -5,9 +5,10 @@ import dayjs from 'dayjs';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Action } from '@prisma/client';
 import { IconButton } from '@mui/material';
-import { MdDelete, MdEdit } from 'react-icons/md';
+import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
 import { useActionsContext } from '@/context/ActionsContext';
 import { DATE_TIME_FORMAT } from '@/lib/const';
+import { ROUTE_PATHS } from '@/routes';
 
 export default function ActionsTable() {
   const { actions, isLoading, isFetching, openDialog } = useActionsContext();
@@ -50,8 +51,14 @@ export default function ActionsTable() {
       headerName: 'Actions',
       disableColumnMenu: true,
       hideSortIcons: true,
+      minWidth: 135,
       renderCell: (params: { row: Action }) => (
         <>
+          <IconButton
+            href={`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${params.row.id}`}
+          >
+            <MdVisibility />
+          </IconButton>
           <IconButton
             onClick={() => openDialog({ type: 'update', action: params.row })}
           >

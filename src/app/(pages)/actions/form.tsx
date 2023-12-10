@@ -19,13 +19,13 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DATE_TIME_FORMAT } from '@/lib/const';
-import { usePlacesContext } from '@/context/PlacesContext';
+import { PlacesProvider, usePlacesContext } from '@/context/PlacesContext';
 
 interface Props {
   action?: Action;
 }
 
-export const ActionForm = ({ action }: Props) => {
+const Form = ({ action }: Props) => {
   const { closeDialog, createAction, updateAction, isLoading } =
     useActionsContext();
   const { places } = usePlacesContext();
@@ -127,11 +127,23 @@ export const ActionForm = ({ action }: Props) => {
           <Button onClick={closeDialog} variant='outlined' disabled={isLoading}>
             Cancel
           </Button>
-          <Button type='submit' disabled={isLoading} startIcon={<MdEdit />}>
+          <Button
+            type='submit'
+            disabled={isLoading || !formik.isValid}
+            startIcon={<MdEdit />}
+          >
             Save Changes
           </Button>
         </Stack>
       </Box>
     </LocalizationProvider>
+  );
+};
+
+export const ActionForm = ({ action }: Props) => {
+  return (
+    <PlacesProvider>
+      <Form action={action} />
+    </PlacesProvider>
   );
 };
