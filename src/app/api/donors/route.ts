@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import DonorService from './service';
 import { Donor } from '@prisma/client';
+import { PAGE_SIZE } from '@/lib/const';
 
-export async function GET() {
-  const donors = await DonorService.find();
-  return NextResponse.json(donors);
+export async function GET(req: NextRequest) {
+  const searchParams = req.nextUrl.searchParams;
+  const page = searchParams.get('page') || 0;
+  const pageSize = searchParams.get('pageSize') || PAGE_SIZE;
+  const take = parseInt(pageSize.toString(), 10);
+  const skip = parseInt(page.toString(), 10) * take;
+  const { donors, count } = await DonorService.find(take, skip);
+  return NextResponse.json({ donors, count });
 }
 
 export async function POST(req: NextRequest) {

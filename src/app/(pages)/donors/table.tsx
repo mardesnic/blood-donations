@@ -12,7 +12,8 @@ import { ROUTE_PATHS } from '@/routes';
 import { theme } from '@/lib/theme/theme';
 
 export default function DonorsTable() {
-  const { donors, isLoading, isFetching, openDialog } = useDonorsContext();
+  const { donors, donorCount, changePaginationModel, isLoading, openDialog } =
+    useDonorsContext();
   const isMdScreen = useMediaQuery(theme.breakpoints.down('md'));
   const columns: GridColDef[] = [
     {
@@ -120,8 +121,11 @@ export default function DonorsTable() {
   return (
     <DataGrid
       rows={donors}
+      rowCount={donorCount}
       columns={isMdScreen ? mdColumns : columns}
-      loading={isLoading || isFetching}
+      loading={isLoading}
+      paginationMode='server'
+      onPaginationModelChange={changePaginationModel}
     />
   );
 }
