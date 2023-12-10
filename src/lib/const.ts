@@ -13,7 +13,7 @@ export const reactQueryKeys = {
     all: () => ['ACTIONS'] as const,
   },
   donations: {
-    all: () => ['ACTIONS'] as const,
+    all: () => ['DONATIONS'] as const,
   },
   donors: {
     all: () => ['DONORS'] as const,
