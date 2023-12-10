@@ -13,6 +13,12 @@ export default class ActionService {
     });
   }
 
+  static async findOne(id: string) {
+    return await prisma.action.findUnique({
+      where: { id },
+    });
+  }
+
   static async create(data: Action): Promise<Action> {
     return prisma.action.create({
       data,
@@ -27,6 +33,10 @@ export default class ActionService {
   }
 
   static async delete(id: string) {
+    await prisma.donation.updateMany({
+      where: { actionId: id },
+      data: { actionId: null },
+    });
     return prisma.action.delete({ where: { id } });
   }
 }

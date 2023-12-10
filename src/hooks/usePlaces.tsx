@@ -13,6 +13,7 @@ const useGetPlaces = () => {
   return useQuery({
     queryKey: reactQueryKeys.places.all(),
     queryFn: () => getPlaces(),
+    refetchOnMount: false,
   });
 };
 
