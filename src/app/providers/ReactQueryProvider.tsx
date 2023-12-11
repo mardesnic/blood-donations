@@ -1,14 +1,22 @@
 'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  MutationCache,
+  QueryClient,
+  QueryCache,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
+import { useAlertContext } from '@/context/AlertContext';
 
 export default function ReactQueryProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { showAlert } = useAlertContext();
+  const onError = (error: Error) => showAlert(error.message, 'error');
   const [client] = useState(
     new QueryClient({
       defaultOptions: {
@@ -16,6 +24,8 @@ export default function ReactQueryProvider({
           refetchOnWindowFocus: false,
         },
       },
+      mutationCache: new MutationCache({ onError }),
+      queryCache: new QueryCache({ onError }),
     })
   );
 
