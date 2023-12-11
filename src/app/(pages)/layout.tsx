@@ -1,5 +1,4 @@
 import { PageWrapper } from '@/components/PageWrapper';
-import { CssBaseline } from '@mui/material';
 import { AlertPopup } from '@/components/AlertPopup';
 
 export default function PageLayout({
@@ -10,7 +9,6 @@ export default function PageLayout({
   return (
     <PageWrapper>
       <AlertPopup />
-      <CssBaseline />
       {children}
     </PageWrapper>
   );
