@@ -22,6 +22,7 @@ export default function ReactQueryProvider({
       defaultOptions: {
         queries: {
           refetchOnWindowFocus: false,
+          retry: false,
         },
       },
       mutationCache: new MutationCache({ onError }),

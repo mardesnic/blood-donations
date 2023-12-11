@@ -1,15 +1,28 @@
 import { prisma } from '@/db';
-import { Donor } from '@prisma/client';
+import { Donor, Prisma } from '@prisma/client';
 
 export default class DonorService {
   static async find(
     take: number,
-    skip: number
+    skip: number,
+    search: string[]
   ): Promise<{ donors: Donor[]; count: number }> {
+    const searchConditions = search.map((term) => ({
+      OR: [
+        { fullName: { contains: term } },
+        { city: { contains: term } },
+        { email: { contains: term } },
+        { oib: { contains: term } },
+      ],
+    }));
+    const whereCondition =
+      search.length > 0 ? { OR: [...searchConditions] } : {};
+
     const donors = await prisma.donor.findMany({
       take,
       skip,
       orderBy: { createdAt: 'desc' },
+      where: whereCondition,
     });
     const count = await prisma.donor.count();
     return { donors, count };

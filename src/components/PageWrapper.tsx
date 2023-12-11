@@ -10,7 +10,7 @@ export const PageWrapper = ({ children }: Props) => {
   return (
     <>
       <TopBar />
-      <Container component='main' fixed sx={{ py: 3 }}>
+      <Container component='main' maxWidth='xl' sx={{ py: 3 }}>
         {children}
       </Container>
     </>

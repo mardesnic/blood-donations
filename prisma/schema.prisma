@@ -54,6 +54,7 @@ model Donor {
   id             String          @id @default(uuid())
   firstName      String          @db.VarChar(100)
   lastName       String          @db.VarChar(100)
+  fullName       String?         @db.VarChar(100)
   fatherName     String?         @db.VarChar(100)
   email          String          @unique @db.VarChar(100)
   phone          String?         @db.VarChar(100)

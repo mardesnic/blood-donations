@@ -87,6 +87,11 @@ export const theme = createTheme({
           },
         },
       },
+      styleOverrides: {
+        root: {
+          'input[type=search]': { minWidth: 205 },
+        },
+      },
     },
   },
 });

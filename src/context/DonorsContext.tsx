@@ -7,7 +7,7 @@ import {
   useUpdateDonor,
 } from '@/hooks/useDonors';
 import { PAGE_SIZE } from '@/lib/const';
-import { GridPaginationModel } from '@mui/x-data-grid';
+import { GridFilterModel, GridPaginationModel } from '@mui/x-data-grid';
 import { Donor } from '@prisma/client';
 import React, { createContext, useContext, useState } from 'react';
 
@@ -34,12 +34,14 @@ interface DonorsContextI {
   isFetching: boolean;
   activeDialog: DialogType;
   paginationModel: GridPaginationModel;
+  filterModel: GridFilterModel;
   openDialog: (dialog: DialogType) => void;
   createDonor: (data: Partial<Donor>) => Promise<void>;
   updateDonor: (data: Partial<Donor>) => Promise<void>;
   removeDonor: (id: string) => Promise<void>;
   closeDialog: () => void;
   changePaginationModel: (paginationModel: GridPaginationModel) => void;
+  changeFilterModel: (filterModel: GridFilterModel) => void;
 }
 
 const DonorsContext = createContext({} as DonorsContextI);
@@ -50,7 +52,14 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
     page: 0,
     pageSize: PAGE_SIZE,
   });
-  const { isLoading, isFetching, data } = useGetDonors({ ...paginationModel }); // TODO: search, filter, order...
+  const [filterModel, setFilterModel] = useState<GridFilterModel>(
+    {} as GridFilterModel
+  );
+  const { isLoading, isFetching, data } = useGetDonors({
+    ...paginationModel,
+    search: filterModel?.quickFilterValues?.join('|') || '',
+    filter: JSON.stringify(filterModel.items) || '',
+  });
   const { mutateAsync: createDonor, isPending: isCreatePending } =
     useCreateDonor();
   const { mutateAsync: updateDonor, isPending: isUpdatePending } =
@@ -63,6 +72,9 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
   const donorCount = data?.count || 0;
   const changePaginationModel = (paginationModel: GridPaginationModel) =>
     setPaginationModel(paginationModel);
+  const changeFilterModel = (filterModel: GridFilterModel) =>
+    setFilterModel(filterModel);
+
   const values: DonorsContextI = {
     donors,
     donorCount,
@@ -77,6 +89,8 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
     openDialog,
     paginationModel,
     changePaginationModel,
+    filterModel,
+    changeFilterModel,
   };
 
   return (

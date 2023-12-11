@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import dayjs from 'dayjs';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import { Donor } from '@prisma/client';
 import { IconButton, useMediaQuery } from '@mui/material';
 import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
@@ -12,24 +12,35 @@ import { ROUTE_PATHS } from '@/routes';
 import { theme } from '@/lib/theme/theme';
 
 export default function DonorsTable() {
-  const { donors, donorCount, changePaginationModel, isLoading, openDialog } =
-    useDonorsContext();
+  const {
+    donors,
+    donorCount,
+    changePaginationModel,
+    changeFilterModel,
+    isLoading,
+    openDialog,
+  } = useDonorsContext();
   const isMdScreen = useMediaQuery(theme.breakpoints.down('md'));
   const columns: GridColDef[] = [
     {
-      field: 'firstName',
-      headerName: 'First Name',
-      flex: 1,
+      field: 'fullName',
+      headerName: 'Name',
+      flex: 2,
     },
     {
-      field: 'lastName',
-      headerName: 'Last Name',
-      flex: 1,
+      field: 'email',
+      headerName: 'Email',
+      flex: 2,
+    },
+    {
+      field: 'oib',
+      headerName: 'OIB',
+      flex: 2,
     },
     {
       field: 'city',
       headerName: 'City',
-      flex: 1,
+      flex: 2,
     },
     {
       field: 'gender',
@@ -45,18 +56,22 @@ export default function DonorsTable() {
       field: 'donationCount',
       headerName: 'Donations',
       flex: 1,
+      type: 'number',
     },
     {
       field: 'lastDonation',
       headerName: 'Last Donation',
       flex: 1,
       renderCell: (params) => dayjs(params.value).format(DATE_FORMAT),
+      valueGetter: ({ value }) => value && new Date(value),
+      type: 'date',
     },
     {
       field: 'actions',
       headerName: 'Actions',
       disableColumnMenu: true,
       hideSortIcons: true,
+      filterable: false,
       minWidth: 135,
       renderCell: (params: { row: Donor }) => (
         <>
@@ -82,13 +97,8 @@ export default function DonorsTable() {
 
   const mdColumns: GridColDef[] = [
     {
-      field: 'firstName',
-      headerName: 'First Name',
-      flex: 1,
-    },
-    {
-      field: 'lastName',
-      headerName: 'Last Name',
+      field: 'fullName',
+      headerName: 'Name',
       flex: 1,
     },
     {
@@ -126,6 +136,14 @@ export default function DonorsTable() {
       loading={isLoading}
       paginationMode='server'
       onPaginationModelChange={changePaginationModel}
+      filterMode='server'
+      onFilterModelChange={changeFilterModel}
+      disableColumnFilter={false}
+      slots={{ toolbar: GridToolbar }}
+      filterDebounceMs={500}
+      localeText={{
+        toolbarQuickFilterPlaceholder: 'Search by name, city, email, oib',
+      }}
     />
   );
 }

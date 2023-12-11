@@ -68,10 +68,13 @@ function generateDonor(actionId: string): GeneratedDonor {
   const donorId = faker.string.uuid();
   const dob = faker.date.past({ years: 30, refDate: new Date('2000-01-01') });
   dob.setHours(0, 0, 0, 0);
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.firstName();
   return {
     id: donorId,
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
+    firstName: firstName,
+    lastName: lastName,
+    fullName: `${firstName} ${lastName}`,
     fatherName: faker.person.firstName(),
     email: faker.internet.email(),
     phone: faker.phone.number(),

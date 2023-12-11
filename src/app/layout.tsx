@@ -4,7 +4,6 @@ import { NextAuthSessionProvider } from './providers/NextAuthSessionProvider';
 import { APP_DESCRIPTION } from '@/lib/const';
 import { generatePageTitle } from '@/lib/utils';
 import ThemeRegistry from '@/lib/theme/ThemeRegistry';
-import CssBaseline from '@mui/material/CssBaseline';
 import ReactQueryProvider from './providers/ReactQueryProvider';
 import { AlertProvider } from '@/context/AlertContext';
 
@@ -24,10 +23,7 @@ export default function RootLayout({
         <ThemeRegistry options={{ key: 'mui' }}>
           <NextAuthSessionProvider>
             <AlertProvider>
-              <ReactQueryProvider>
-                <CssBaseline />
-                {children}
-              </ReactQueryProvider>
+              <ReactQueryProvider>{children}</ReactQueryProvider>
             </AlertProvider>
           </NextAuthSessionProvider>
         </ThemeRegistry>

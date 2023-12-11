@@ -11,6 +11,7 @@ export async function PUT(
   const data: Partial<Donor> = {
     firstName: body?.firstName || '',
     lastName: body?.lastName || '',
+    fullName: `${body?.firstName || ''} ${body?.lastName || ''}`,
     fatherName: body?.fatherName || '',
     email: body?.email || '',
     phone: body?.phone || '',
