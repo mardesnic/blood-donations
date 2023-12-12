@@ -42,7 +42,7 @@ export const DATA_GRID_PRISMA_TRANSLATION_MAP: {
   before: 'lt',
 };
 
-export const ENABLED_GRID_NUMERIC_OPERATORS = ['>', '<', '=', '<=', '<='];
+export const ENABLED_GRID_NUMERIC_OPERATORS = ['>', '<', '=', '<=', '>='];
 export const ENABLED_GRID_STRING_OPERATORS = ['contains', 'equals'];
 export const ENABLED_GRID_DATE_OPERATORS = ['is', 'after', 'before'];
 export const ENABLED_GRID_SINGLE_SELECT_OPERATORS = ['is', 'not', 'isAnyOf'];
