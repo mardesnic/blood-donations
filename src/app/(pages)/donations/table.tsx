@@ -15,32 +15,34 @@ export default function DonationsTable() {
     useDonationsContext();
   const columns: GridColDef[] = [
     {
-      field: 'title',
-      headerName: 'Title',
-      flex: 1,
-    },
-    {
-      field: 'place',
-      headerName: 'Place',
-      flex: 1,
-      renderCell: (params) => params?.value?.title || 'None',
-    },
-    {
-      field: 'startDateTime',
-      headerName: 'Start Date',
+      field: 'donationDate',
+      headerName: 'Donation Date',
       flex: 1,
       renderCell: (params) => dayjs(params.value).format(DATE_TIME_FORMAT),
     },
     {
-      field: 'endDateTime',
-      headerName: 'End Date',
+      field: 'donor',
+      headerName: 'Donor',
       flex: 1,
-      renderCell: (params) => dayjs(params.value).format(DATE_TIME_FORMAT),
+      renderCell: (params) => params.value.fullName,
     },
     {
-      field: 'donationCount',
-      headerName: 'Donation Count',
+      field: 'action',
+      headerName: 'Action',
       flex: 1,
+      renderCell: (params) => params.value.title || 'None',
+    },
+    {
+      field: 'denied',
+      headerName: 'Denied',
+      flex: 1,
+      renderCell: (params) => {
+        if (!params.value) {
+          return '-';
+        }
+
+        return params?.row?.denyReason;
+      },
     },
     {
       field: 'note',
@@ -76,6 +78,11 @@ export default function DonationsTable() {
   ];
   return (
     <DataGrid
+      initialState={{
+        sorting: {
+          sortModel: [{ field: 'donationDate', sort: 'desc' }],
+        },
+      }}
       rows={donations}
       columns={columns}
       loading={isLoading || isFetching}

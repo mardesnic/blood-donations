@@ -5,7 +5,11 @@ export default class DonationService {
   static async find() {
     return await prisma.donation.findMany({
       orderBy: {
-        createdAt: 'desc',
+        donationDate: 'desc',
+      },
+      include: {
+        donor: true,
+        action: true,
       },
     });
   }
