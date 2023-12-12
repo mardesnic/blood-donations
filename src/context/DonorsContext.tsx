@@ -7,6 +7,7 @@ import {
   useUpdateDonor,
 } from '@/hooks/useDonors';
 import { PAGE_SIZE } from '@/lib/const';
+import { generateFilterString } from '@/lib/utils';
 import { GridFilterModel, GridPaginationModel } from '@mui/x-data-grid';
 import { Donor } from '@prisma/client';
 import React, { createContext, useContext, useState } from 'react';
@@ -57,8 +58,8 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
   );
   const { isLoading, isFetching, data } = useGetDonors({
     ...paginationModel,
-    search: filterModel?.quickFilterValues?.join('|') || '',
-    filter: JSON.stringify(filterModel.items) || '',
+    search: filterModel?.quickFilterValues?.join(' ') || '',
+    filter: generateFilterString(filterModel),
   });
   const { mutateAsync: createDonor, isPending: isCreatePending } =
     useCreateDonor();

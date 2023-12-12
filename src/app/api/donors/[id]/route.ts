@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import DonorService from '../service';
 import { Donor } from '@prisma/client';
+import { getDateFromDateTime } from '@/lib/utils';
 
 export async function PUT(
   req: NextRequest,
@@ -8,6 +9,10 @@ export async function PUT(
 ) {
   const id = contex.params.id;
   const body = await req.json();
+  const lastDonationDate = body?.lastDonation
+    ? getDateFromDateTime(body?.lastDonation)
+    : undefined;
+  const dob = body?.dob ? getDateFromDateTime(body?.dob) : undefined;
   const data: Partial<Donor> = {
     firstName: body?.firstName || '',
     lastName: body?.lastName || '',
@@ -15,14 +20,14 @@ export async function PUT(
     fatherName: body?.fatherName || '',
     email: body?.email || '',
     phone: body?.phone || '',
-    dob: body?.dob || '',
+    dob,
     oib: body?.oib || '',
     address: body?.address || '',
     city: body?.city || '',
     gender: body?.gender || '',
     bloodType: body?.bloodType || '',
     donationCount: body?.donationCount || 0,
-    lastDonation: body?.lastDonation || '',
+    lastDonation: lastDonationDate,
     active: body?.active || true,
     note: body?.note || '',
   };

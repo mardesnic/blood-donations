@@ -66,8 +66,19 @@ function generateDonation(
 // Generate a single donor with donations and communications
 function generateDonor(actionId: string): GeneratedDonor {
   const donorId = faker.string.uuid();
-  const dob = faker.date.past({ years: 30, refDate: new Date('2000-01-01') });
-  dob.setHours(0, 0, 0, 0);
+  const dob = new Date(
+    faker.date
+      .past({ years: 30, refDate: new Date('2000-01-01') })
+      .toISOString()
+      .split('T')[0]
+  );
+  const lastDonation = new Date(
+    faker.date
+      .past({ years: 3, refDate: new Date() })
+      .toISOString()
+      .split('T')[0]
+  );
+  lastDonation.setHours(0, 0, 0, 0);
   const firstName = faker.person.firstName();
   const lastName = faker.person.firstName();
   return {
@@ -85,7 +96,7 @@ function generateDonor(actionId: string): GeneratedDonor {
     gender: randomEnum(Gender),
     bloodType: randomEnum(BloodType),
     donationCount: faker.number.int({ min: 0, max: 100 }),
-    lastDonation: faker.date.past({ years: 3, refDate: new Date() }),
+    lastDonation,
     active: faker.datatype.boolean(),
     note: faker.lorem.sentence(),
     donations: Array.from({ length: 5 }, () =>

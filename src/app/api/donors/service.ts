@@ -1,24 +1,54 @@
 import { prisma } from '@/db';
+import {
+  getPrismaOperatorFromGridOperator,
+  getPrismaTermFromGridOperator,
+} from '@/lib/utils';
 import { Donor } from '@prisma/client';
 
 export default class DonorService {
   static async find(
     take: number,
     skip: number,
-    search: string[]
+    search: string,
+    filterField: keyof Donor,
+    filterOperator: string,
+    filterTerm: string
   ): Promise<{ donors: Donor[]; count: number }> {
     let whereCondition = {};
+    let searchCondition = {};
+    let filterCondition = {};
     if (search?.length) {
-      const fullNameCondition = { fullName: { contains: search.join(' ') } };
-      const searchConditions = search.map((term) => ({
+      searchCondition = {
         OR: [
-          { city: { contains: term } },
-          { email: { contains: term } },
-          { oib: { contains: term } },
+          { fullName: { contains: search } },
+          { city: { contains: search } },
+          { email: { contains: search } },
+          { oib: { contains: search } },
         ],
-      }));
-      whereCondition = { OR: [fullNameCondition, ...searchConditions] };
+      };
     }
+    if (filterField && filterOperator && typeof filterTerm !== 'undefined') {
+      const prismaOperator = getPrismaOperatorFromGridOperator(filterOperator);
+      const prismaTerm = getPrismaTermFromGridOperator(
+        filterOperator,
+        filterTerm
+      );
+      if (prismaTerm !== '' && prismaTerm.toString().length !== 0) {
+        filterCondition = { [filterField]: { [prismaOperator]: prismaTerm } };
+      }
+    }
+    if (
+      Object.values(searchCondition).length &&
+      Object.values(filterCondition).length
+    ) {
+      whereCondition = { AND: [searchCondition, filterCondition] };
+    } else {
+      whereCondition = { ...searchCondition, ...filterCondition };
+    }
+    // TODO: remove dev log after testing
+    console.log('searchCondition', JSON.stringify(searchCondition, null, 2));
+    console.log('filterCondition', JSON.stringify(filterCondition, null, 2));
+    console.log('whereCondition', JSON.stringify(whereCondition, null, 2));
 
     const donors = await prisma.donor.findMany({
       take,
@@ -26,7 +56,7 @@ export default class DonorService {
       orderBy: { createdAt: 'desc' },
       where: whereCondition,
     });
-    const count = await prisma.donor.count();
+    const count = await prisma.donor.count({ where: whereCondition });
     return { donors, count };
   }
 

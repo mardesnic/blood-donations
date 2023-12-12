@@ -2,12 +2,27 @@
 
 import * as React from 'react';
 import dayjs from 'dayjs';
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import { Donor } from '@prisma/client';
+import {
+  DataGrid,
+  GridColDef,
+  GridColType,
+  GridToolbar,
+  getGridDateOperators,
+  getGridNumericOperators,
+  getGridSingleSelectOperators,
+  getGridStringOperators,
+} from '@mui/x-data-grid';
+import { BloodType, Donor, Gender } from '@prisma/client';
 import { IconButton, useMediaQuery } from '@mui/material';
 import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
 import { useDonorsContext } from '@/context/DonorsContext';
-import { DATE_FORMAT } from '@/lib/const';
+import {
+  DATE_FORMAT,
+  ENABLED_GRID_DATE_OPERATORS,
+  ENABLED_GRID_NUMERIC_OPERATORS,
+  ENABLED_GRID_SINGLE_SELECT_OPERATORS,
+  ENABLED_GRID_STRING_OPERATORS,
+} from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
 import { theme } from '@/lib/theme/theme';
 
@@ -21,36 +36,40 @@ export default function DonorsTable() {
     openDialog,
   } = useDonorsContext();
   const isMdScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const columns: GridColDef[] = [
+  const lgColumns: GridColDef[] = [
     {
       field: 'fullName',
       headerName: 'Name',
-      flex: 2,
+      flex: 1,
     },
     {
       field: 'email',
       headerName: 'Email',
-      flex: 2,
+      flex: 1,
     },
     {
       field: 'oib',
       headerName: 'OIB',
-      flex: 2,
+      flex: 1,
     },
     {
       field: 'city',
       headerName: 'City',
-      flex: 2,
+      flex: 1,
     },
     {
       field: 'gender',
       headerName: 'Gender',
       flex: 1,
+      type: 'singleSelect',
+      valueOptions: Object.values(Gender),
     },
     {
       field: 'bloodType',
       headerName: 'Blood Type',
       flex: 1,
+      type: 'singleSelect',
+      valueOptions: Object.values(BloodType),
     },
     {
       field: 'donationCount',
@@ -61,6 +80,14 @@ export default function DonorsTable() {
     {
       field: 'lastDonation',
       headerName: 'Last Donation',
+      flex: 1,
+      renderCell: (params) => dayjs(params.value).format(DATE_FORMAT),
+      valueGetter: ({ value }) => value && new Date(value),
+      type: 'date',
+    },
+    {
+      field: 'dob',
+      headerName: 'Date of Birth',
       flex: 1,
       renderCell: (params) => dayjs(params.value).format(DATE_FORMAT),
       valueGetter: ({ value }) => value && new Date(value),
@@ -128,11 +155,41 @@ export default function DonorsTable() {
       ),
     },
   ];
+  const columns = isMdScreen ? mdColumns : lgColumns;
+
+  const getEnabledGridFilterOperators = (colType: GridColType) => {
+    switch (colType) {
+      case 'number':
+        return getGridNumericOperators().filter((operator) =>
+          ENABLED_GRID_NUMERIC_OPERATORS.includes(operator.value)
+        );
+      case 'date':
+        return getGridDateOperators().filter((operator) =>
+          ENABLED_GRID_DATE_OPERATORS.includes(operator.value)
+        );
+      case 'singleSelect':
+        return getGridSingleSelectOperators().filter((operator) =>
+          ENABLED_GRID_SINGLE_SELECT_OPERATORS.includes(operator.value)
+        );
+      case 'string':
+      default:
+        return getGridStringOperators().filter((operator) =>
+          ENABLED_GRID_STRING_OPERATORS.includes(operator.value)
+        );
+    }
+  };
+  columns.forEach(
+    (column) =>
+      (column.filterOperators = getEnabledGridFilterOperators(
+        column?.type || 'string'
+      ))
+  );
+
   return (
     <DataGrid
       rows={donors}
       rowCount={donorCount}
-      columns={isMdScreen ? mdColumns : columns}
+      columns={columns}
       loading={isLoading}
       paginationMode='server'
       onPaginationModelChange={changePaginationModel}
