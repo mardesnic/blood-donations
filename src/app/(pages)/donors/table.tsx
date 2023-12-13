@@ -2,29 +2,15 @@
 
 import * as React from 'react';
 import dayjs from 'dayjs';
-import {
-  DataGrid,
-  GridColDef,
-  GridColType,
-  GridToolbar,
-  getGridDateOperators,
-  getGridNumericOperators,
-  getGridSingleSelectOperators,
-  getGridStringOperators,
-} from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import { BloodType, Donor, Gender } from '@prisma/client';
 import { IconButton, useMediaQuery } from '@mui/material';
 import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
 import { useDonorsContext } from '@/context/DonorsContext';
-import {
-  DATE_FORMAT,
-  ENABLED_GRID_DATE_OPERATORS,
-  ENABLED_GRID_NUMERIC_OPERATORS,
-  ENABLED_GRID_SINGLE_SELECT_OPERATORS,
-  ENABLED_GRID_STRING_OPERATORS,
-} from '@/lib/const';
+import { DATE_FORMAT } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
 import { theme } from '@/lib/theme/theme';
+import { getEnabledGridFilterOperators } from '@/lib/clientUtils';
 
 export default function DonorsTable() {
   const {
@@ -76,6 +62,14 @@ export default function DonorsTable() {
       headerName: 'Donations',
       flex: 1,
       type: 'number',
+      valueGetter: ({ row }) => row.donationCount,
+      renderCell: (params: {
+        row: Donor & { _count: { donations: number } };
+      }) => (
+        <>
+          {params.row.donationCount} ({params.row['_count'].donations})
+        </>
+      ),
     },
     {
       field: 'lastDonation',
@@ -157,32 +151,9 @@ export default function DonorsTable() {
   ];
   const columns = isMdScreen ? mdColumns : lgColumns;
 
-  const getEnabledGridFilterOperators = (colType: GridColType) => {
-    switch (colType) {
-      case 'number':
-        return getGridNumericOperators().filter((operator) =>
-          ENABLED_GRID_NUMERIC_OPERATORS.includes(operator.value)
-        );
-      case 'date':
-        return getGridDateOperators().filter((operator) =>
-          ENABLED_GRID_DATE_OPERATORS.includes(operator.value)
-        );
-      case 'singleSelect':
-        return getGridSingleSelectOperators().filter((operator) =>
-          ENABLED_GRID_SINGLE_SELECT_OPERATORS.includes(operator.value)
-        );
-      case 'string':
-      default:
-        return getGridStringOperators().filter((operator) =>
-          ENABLED_GRID_STRING_OPERATORS.includes(operator.value)
-        );
-    }
-  };
   columns.forEach(
     (column) =>
-      (column.filterOperators = getEnabledGridFilterOperators(
-        column?.type || 'string'
-      ))
+      (column.filterOperators = getEnabledGridFilterOperators(column.type))
   );
 
   return (

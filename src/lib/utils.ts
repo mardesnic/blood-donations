@@ -48,8 +48,10 @@ export function getPrismaTermFromGridOperator(
     return term.toString() || '';
   }
   if (ENABLED_GRID_SINGLE_SELECT_OPERATORS.includes(operator)) {
-    if (operator === 'isAnyOf') {
-      return term.split(',');
+    const isMulti = operator === 'isAnyOf';
+    if (isMulti) {
+      const terms = term.split(',');
+      return terms.filter(Boolean).length ? terms : '';
     }
     return term.toString() || '';
   }

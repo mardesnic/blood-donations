@@ -3,7 +3,7 @@ import {
   getPrismaOperatorFromGridOperator,
   getPrismaTermFromGridOperator,
 } from '@/lib/utils';
-import { Donor } from '@prisma/client';
+import { Donor, Prisma } from '@prisma/client';
 
 export default class DonorService {
   static async find(
@@ -14,47 +14,22 @@ export default class DonorService {
     filterOperator: string,
     filterTerm: string
   ): Promise<{ donors: Donor[]; count: number }> {
-    let whereCondition = {};
-    let searchCondition = {};
-    let filterCondition = {};
-    if (search?.length) {
-      searchCondition = {
-        OR: [
-          { fullName: { contains: search } },
-          { city: { contains: search } },
-          { email: { contains: search } },
-          { oib: { contains: search } },
-        ],
-      };
-    }
-    if (filterField && filterOperator && typeof filterTerm !== 'undefined') {
-      const prismaOperator = getPrismaOperatorFromGridOperator(filterOperator);
-      const prismaTerm = getPrismaTermFromGridOperator(
-        filterOperator,
-        filterTerm
-      );
-      if (prismaTerm !== '' && prismaTerm.toString().length !== 0) {
-        filterCondition = { [filterField]: { [prismaOperator]: prismaTerm } };
-      }
-    }
-    if (
-      Object.values(searchCondition).length &&
-      Object.values(filterCondition).length
-    ) {
-      whereCondition = { AND: [searchCondition, filterCondition] };
-    } else {
-      whereCondition = { ...searchCondition, ...filterCondition };
-    }
-    // TODO: remove dev log after testing
-    console.log('searchCondition', JSON.stringify(searchCondition, null, 2));
-    console.log('filterCondition', JSON.stringify(filterCondition, null, 2));
-    console.log('whereCondition', JSON.stringify(whereCondition, null, 2));
-
+    const whereCondition = this.constructWhereCondition(
+      search,
+      filterField,
+      filterOperator,
+      filterTerm
+    );
     const donors = await prisma.donor.findMany({
       take,
       skip,
       orderBy: { createdAt: 'desc' },
       where: whereCondition,
+      include: {
+        _count: {
+          select: { donations: true },
+        },
+      },
     });
     const count = await prisma.donor.count({ where: whereCondition });
     return { donors, count };
@@ -63,6 +38,10 @@ export default class DonorService {
   static async findOne(id: string) {
     return await prisma.donor.findUnique({
       where: { id },
+      include: {
+        donations: true,
+        communications: true,
+      },
     });
   }
 
@@ -87,5 +66,45 @@ export default class DonorService {
       where: { donorId: id },
     });
     return await prisma.donor.delete({ where: { id } });
+  }
+
+  private static constructWhereCondition(
+    search: string,
+    filterField: keyof Donor,
+    filterOperator: string,
+    filterTerm: string
+  ): Prisma.DonorWhereInput {
+    let whereCondition = {};
+    let searchCondition = {};
+    let filterCondition = {};
+    if (search?.length) {
+      searchCondition = {
+        OR: [
+          { fullName: { contains: search } },
+          { city: { contains: search } },
+          { email: { contains: search } },
+          { oib: { contains: search } },
+        ],
+      };
+    }
+    if (filterField && filterOperator && typeof filterTerm !== 'undefined') {
+      const prismaOperator = getPrismaOperatorFromGridOperator(filterOperator);
+      const prismaTerm = getPrismaTermFromGridOperator(
+        filterOperator,
+        filterTerm
+      );
+      if (prismaTerm !== '') {
+        filterCondition = { [filterField]: { [prismaOperator]: prismaTerm } };
+      }
+    }
+    if (
+      Object.values(searchCondition).length &&
+      Object.values(filterCondition).length
+    ) {
+      whereCondition = { AND: [searchCondition, filterCondition] };
+    } else {
+      whereCondition = { ...searchCondition, ...filterCondition };
+    }
+    return whereCondition;
   }
 }
