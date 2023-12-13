@@ -1,12 +1,13 @@
 import { reactQueryKeys } from '@/lib/const';
 import { Donation } from '@prisma/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { DonationWithDonor } from '@/context/DonationsContext';
 
 const getDonations = async () => {
   const response = await fetch('/api/donations', {
     method: 'GET',
   });
-  return (await response.json()) as Donation[];
+  return (await response.json()) as DonationWithDonor[];
 };
 
 const useGetDonations = () => {

@@ -3,10 +3,12 @@
 import * as React from 'react';
 import dayjs from 'dayjs';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Donation } from '@prisma/client';
 import { IconButton } from '@mui/material';
 import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
-import { useDonationsContext } from '@/context/DonationsContext';
+import {
+  useDonationsContext,
+  DonationWithDonor,
+} from '@/context/DonationsContext';
 import { DATE_TIME_FORMAT } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
 
@@ -55,7 +57,7 @@ export default function DonationsTable() {
       disableColumnMenu: true,
       hideSortIcons: true,
       minWidth: 135,
-      renderCell: (params: { row: Donation }) => (
+      renderCell: (params: { row: DonationWithDonor }) => (
         <>
           <IconButton
             href={`${ROUTE_PATHS.PROTECTED.DONATIONS.path}/${params.row.id}`}
