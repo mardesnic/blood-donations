@@ -1,11 +1,17 @@
-import { useDonationsContext } from '@/context/DonationsContext';
-import { Box, Button, Stack } from '@mui/material';
-import { Donation } from '@prisma/client';
-import { useFormik } from 'formik';
 import React from 'react';
+import { useDonationsContext } from '@/context/DonationsContext';
+import { useActionsContext, ActionsProvider } from '@/context/ActionsContext';
+import { Box, Button, MenuItem, Stack } from '@mui/material';
+import { Donation, Donor } from '@prisma/client';
+import { useFormik } from 'formik';
 import { MdEdit } from 'react-icons/md';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+import { DonorsProvider, useDonorsContext } from '@/context/DonorsContext';
+import CircularProgress from '@mui/material/CircularProgress';
+import { debounce } from '@mui/material/utils';
 
 interface Props {
   donation?: Donation;
@@ -15,13 +21,21 @@ const Form = ({ donation }: Props) => {
   const { closeDialog, createDonation, updateDonation, isLoading } =
     useDonationsContext();
 
+  const {
+    donors,
+    isLoading: isDonorsLoading,
+    filterModel,
+    changeFilterModel,
+  } = useDonorsContext();
+
+  const { actions } = useActionsContext();
+
   const formik = useFormik({
-    initialValues: {},
-    // validationSchema: Yup.object({
-    //   title: Yup.string()
-    //     .required('Title is required')
-    //     .min(3, 'Must be 3 characters or more'),
-    // }),
+    initialValues: {
+      donorId: '',
+      actionId: '',
+      note: '',
+    },
     onSubmit: async (values) => {
       if (donation?.id) {
         await updateDonation({
@@ -35,68 +49,75 @@ const Form = ({ donation }: Props) => {
     },
   });
 
+  const onDonorInputChange = (event: React.SyntheticEvent, value: string) => {
+    changeFilterModel({
+      ...filterModel,
+      quickFilterValues: [value],
+    });
+  };
+
+  const searchDonorDelayed = React.useMemo(
+    () => debounce(onDonorInputChange, 500),
+    [onDonorInputChange]
+  );
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box component='form' onSubmit={formik.handleSubmit} noValidate>
-        {/*<TextField*/}
-        {/*  label='Title'*/}
-        {/*  name='title'*/}
-        {/*  value={formik.values.title}*/}
-        {/*  onChange={formik.handleChange}*/}
-        {/*  onBlur={formik.handleBlur}*/}
-        {/*  error={formik.touched.title && Boolean(formik.errors.title)}*/}
-        {/*  helperText={formik.touched.title && formik.errors.title}*/}
-        {/*  required*/}
-        {/*/>*/}
+        <Autocomplete
+          disablePortal
+          fullWidth
+          id='donors-selector'
+          options={donors}
+          onChange={(event, value) => {
+            formik.setFieldValue('donorId', value?.id);
+          }}
+          onInputChange={searchDonorDelayed}
+          getOptionKey={(option: Donor) => option.id}
+          getOptionLabel={(option) => option.fullName || ''}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label='Donor'
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <React.Fragment>
+                    {isDonorsLoading ? (
+                      <CircularProgress color='inherit' size={20} />
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                  </React.Fragment>
+                ),
+              }}
+            />
+          )}
+        />
 
-        {/*<FormControl fullWidth>*/}
-        {/*  <InputLabel id='place-label'>Place</InputLabel>*/}
-        {/*  <Select*/}
-        {/*    labelId='place-label'*/}
-        {/*    id='placeId'*/}
-        {/*    name='placeId'*/}
-        {/*    value={formik.values.placeId}*/}
-        {/*    label='Place'*/}
-        {/*    onChange={formik.handleChange}*/}
-        {/*  >*/}
-        {/*    <MenuItem value=''>*/}
-        {/*      <em>None</em>*/}
-        {/*    </MenuItem>*/}
-        {/*    {places.map((place) => (*/}
-        {/*      <MenuItem key={place.id} value={place.id}>*/}
-        {/*        {place.title}*/}
-        {/*      </MenuItem>*/}
-        {/*    ))}*/}
-        {/*  </Select>*/}
-        {/*</FormControl>*/}
+        <TextField
+          label='Action'
+          name='actionId'
+          value={formik.values.actionId}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.actionId && Boolean(formik.errors.actionId)}
+          helperText={formik.touched.actionId && formik.errors.actionId}
+          select
+        >
+          {actions.map((action) => (
+            <MenuItem key={action.id} value={action.id}>
+              {action.title}
+            </MenuItem>
+          ))}
+        </TextField>
 
-        {/*<DateTimePicker*/}
-        {/*  label='Start time'*/}
-        {/*  value={formik.values.startDateTime}*/}
-        {/*  onChange={(value) =>*/}
-        {/*    formik.setFieldValue('startDateTime', dayjs(value))*/}
-        {/*  }*/}
-        {/*  format={DATE_TIME_FORMAT}*/}
-        {/*  ampm={false}*/}
-        {/*/>*/}
-
-        {/*<DateTimePicker*/}
-        {/*  label='End time'*/}
-        {/*  value={formik.values.endDateTime}*/}
-        {/*  onChange={(value) =>*/}
-        {/*    formik.setFieldValue('endDateTime', dayjs(value))*/}
-        {/*  }*/}
-        {/*  format={DATE_TIME_FORMAT}*/}
-        {/*  ampm={false}*/}
-        {/*/>*/}
-
-        {/*<TextField*/}
-        {/*  label='Note'*/}
-        {/*  name='note'*/}
-        {/*  value={formik.values.note}*/}
-        {/*  onChange={formik.handleChange}*/}
-        {/*  onBlur={formik.handleBlur}*/}
-        {/*/>*/}
+        <TextField
+          label='Note'
+          name='note'
+          value={formik.values.note}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+        />
         <Stack direction='row' justifyContent='flex-end' gap={2}>
           <Button onClick={closeDialog} variant='outlined' disabled={isLoading}>
             Cancel
@@ -110,11 +131,16 @@ const Form = ({ donation }: Props) => {
           </Button>
         </Stack>
       </Box>
-      x
     </LocalizationProvider>
   );
 };
 
 export const DonationForm = ({ donation }: Props) => {
-  return <Form donation={donation} />;
+  return (
+    <DonorsProvider>
+      <ActionsProvider>
+        <Form donation={donation} />
+      </ActionsProvider>
+    </DonorsProvider>
+  );
 };
