@@ -12,7 +12,9 @@ export default class DonorService {
     search: string,
     filterField: keyof Donor,
     filterOperator: string,
-    filterTerm: string
+    filterTerm: string,
+    sortField: keyof Donor = 'createdAt',
+    sort: string = 'desc'
   ): Promise<{ donors: Donor[]; count: number }> {
     const whereCondition = this.constructWhereCondition(
       search,
@@ -23,7 +25,7 @@ export default class DonorService {
     const donors = await prisma.donor.findMany({
       take,
       skip,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { [sortField]: sort },
       where: whereCondition,
       include: {
         _count: {

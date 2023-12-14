@@ -7,8 +7,12 @@ import {
   useUpdateDonor,
 } from '@/hooks/useDonors';
 import { PAGE_SIZE } from '@/lib/const';
-import { generateFilterString } from '@/lib/utils';
-import { GridFilterModel, GridPaginationModel } from '@mui/x-data-grid';
+import { generateFilterString, generateSortString } from '@/lib/utils';
+import {
+  GridFilterModel,
+  GridPaginationModel,
+  GridSortModel,
+} from '@mui/x-data-grid';
 import { Donor } from '@prisma/client';
 import React, { createContext, useContext, useState } from 'react';
 
@@ -36,6 +40,7 @@ interface DonorsContextI {
   activeDialog: DialogType;
   paginationModel: GridPaginationModel;
   filterModel: GridFilterModel;
+  sortModel: GridSortModel;
   openDialog: (dialog: DialogType) => void;
   createDonor: (data: Partial<Donor>) => Promise<void>;
   updateDonor: (data: Partial<Donor>) => Promise<void>;
@@ -43,6 +48,7 @@ interface DonorsContextI {
   closeDialog: () => void;
   changePaginationModel: (paginationModel: GridPaginationModel) => void;
   changeFilterModel: (filterModel: GridFilterModel) => void;
+  changeSortModel: (sortModel: GridSortModel) => void;
 }
 
 const DonorsContext = createContext({} as DonorsContextI);
@@ -56,10 +62,14 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
   const [filterModel, setFilterModel] = useState<GridFilterModel>(
     {} as GridFilterModel
   );
+  const [sortModel, setSortModel] = useState<GridSortModel>(
+    {} as GridSortModel
+  );
   const { isLoading, isFetching, data } = useGetDonors({
     ...paginationModel,
     search: filterModel?.quickFilterValues?.join(' ') || '',
     filter: generateFilterString(filterModel),
+    sort: generateSortString(sortModel),
   });
   const { mutateAsync: createDonor, isPending: isCreatePending } =
     useCreateDonor();
@@ -75,6 +85,7 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
     setPaginationModel(paginationModel);
   const changeFilterModel = (filterModel: GridFilterModel) =>
     setFilterModel(filterModel);
+  const changeSortModel = (sortModel: GridSortModel) => setSortModel(sortModel);
 
   const values: DonorsContextI = {
     donors,
@@ -92,6 +103,8 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
     changePaginationModel,
     filterModel,
     changeFilterModel,
+    sortModel,
+    changeSortModel,
   };
 
   return (

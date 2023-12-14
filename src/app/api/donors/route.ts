@@ -2,20 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import DonorService from './service';
 import { Donor } from '@prisma/client';
 import { PAGE_SIZE } from '@/lib/const';
-import { getDateFromDateTime } from '@/lib/utils';
+import {
+  generateFilterFieldsFromFilterString,
+  generateSortFieldsFromSortString,
+  getDateFromDateTime,
+} from '@/lib/utils';
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const page = searchParams.get('page') || 0;
   const pageSize = searchParams.get('pageSize') || PAGE_SIZE;
   const search = searchParams?.get('search') || '';
-  let filterField = '';
-  let filterOperator = '';
-  let filterTerm = '';
-  const filterString = searchParams?.get('filter') || '';
-  if (filterString) {
-    [filterField, filterOperator, filterTerm] = filterString.split('|');
-  }
+  const { filterField, filterOperator, filterTerm } =
+    generateFilterFieldsFromFilterString(searchParams?.get('filter') || '');
+  const { sortField, sort } = generateSortFieldsFromSortString(
+    searchParams?.get('sort') || ''
+  );
   const take = parseInt(pageSize.toString(), 10);
   const skip = parseInt(page.toString(), 10) * take;
   const { donors, count } = await DonorService.find(
@@ -24,7 +26,9 @@ export async function GET(req: NextRequest) {
     search,
     filterField as keyof Donor,
     filterOperator,
-    filterTerm
+    filterTerm,
+    sortField as keyof Donor,
+    sort
   );
   return NextResponse.json({ donors, count });
 }

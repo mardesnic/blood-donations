@@ -17,10 +17,16 @@ export const reactQueryKeys = {
   },
   donors: {
     all: () => ['DONORS'] as const,
-    list: (page: number, pageSize: number, search: string, filter: string) =>
+    list: (
+      page: number,
+      pageSize: number,
+      search: string,
+      filter: string,
+      sort: string
+    ) =>
       [
         ...reactQueryKeys.donors.all(),
-        { page, pageSize, search, filter },
+        { page, pageSize, search, filter, sort },
       ] as const,
   },
 };

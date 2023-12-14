@@ -6,7 +6,7 @@ import {
   ENABLED_GRID_SINGLE_SELECT_OPERATORS,
   ENABLED_GRID_STRING_OPERATORS,
 } from '@/lib/const';
-import { GridFilterModel } from '@mui/x-data-grid';
+import { GridFilterModel, GridSortModel } from '@mui/x-data-grid';
 
 export function generatePageTitle(title: string = '') {
   return `${title ? `${title} | ` : ''}${APP_TITLE}`;
@@ -17,13 +17,49 @@ export function getDisplayName(input: string[]): string {
 }
 
 export function generateFilterString(filterModel: GridFilterModel): string {
-  const filter = filterModel?.items?.[0];
-  if (!filter) {
+  const filterItem = filterModel?.items?.[0];
+  if (!filterItem) {
     return '';
   }
-  return `${filter?.field || ''}|${filter?.operator || ''}|${
-    filter?.value || ''
+  return `${filterItem?.field || ''}|${filterItem?.operator || ''}|${
+    filterItem?.value || ''
   }`;
+}
+
+export function generateSortString(sortModel: GridSortModel): string {
+  const sortItem = sortModel?.[0];
+  if (!sortItem) {
+    return '';
+  }
+  return `${sortItem?.field || ''}|${sortItem?.sort || ''}`;
+}
+
+export function generateFilterFieldsFromFilterString(filterString: string): {
+  filterField: string;
+  filterOperator: string;
+  filterTerm: string;
+} {
+  let filterField = '';
+  let filterOperator = '';
+  let filterTerm = '';
+  if (!filterString) {
+    return { filterField, filterOperator, filterTerm };
+  }
+  [filterField, filterOperator, filterTerm] = filterString.split('|');
+  return { filterField, filterOperator, filterTerm };
+}
+
+export function generateSortFieldsFromSortString(sortString: string): {
+  sortField?: string;
+  sort?: string;
+} {
+  let sortField = undefined;
+  let sort = undefined;
+  if (!sortString) {
+    return { sortField, sort };
+  }
+  [sortField, sort] = sortString.split('|');
+  return { sortField, sort };
 }
 
 export function getPrismaOperatorFromGridOperator(operator: string): string {
