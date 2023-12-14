@@ -6,17 +6,21 @@ import {
   useRemoveDonation,
   useUpdateDonation,
 } from '@/hooks/useDonations';
-import { Donation } from '@prisma/client';
+import { Donation, Prisma } from '@prisma/client';
 import React, { createContext, useContext, useState } from 'react';
+
+export type DonationWithDonor = Prisma.DonationGetPayload<{
+  include: { donor: true };
+}>;
 
 interface DeleteDialogI {
   type: 'delete';
-  donation: Donation;
+  donation: DonationWithDonor;
 }
 
 interface UpdateDialogI {
   type: 'update';
-  donation: Donation;
+  donation: DonationWithDonor;
 }
 
 interface CreateDialogI {
@@ -26,7 +30,7 @@ interface CreateDialogI {
 type DialogType = null | DeleteDialogI | UpdateDialogI | CreateDialogI;
 
 interface DonationsContextI {
-  donations: Donation[];
+  donations: DonationWithDonor[];
   isLoading: boolean;
   isFetching: boolean;
   activeDialog: DialogType;

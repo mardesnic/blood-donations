@@ -5,8 +5,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 type GetDonorsParams = {
   page: number;
   pageSize: number;
-  search: string;
-  filter: string;
+  search?: string;
+  filter?: string;
 };
 
 const getDonors = async ({
@@ -16,10 +16,10 @@ const getDonors = async ({
   filter,
 }: GetDonorsParams) => {
   const queryParams = new URLSearchParams({
-    page: page.toString(),
-    pageSize: pageSize.toString(),
-    search,
-    filter,
+    page: page?.toString() || '1',
+    pageSize: pageSize?.toString() || '10',
+    search: search || '',
+    filter: filter || '',
   });
   const response = await fetch(`/api/donors?${queryParams}`, {
     method: 'GET',
@@ -27,15 +27,16 @@ const getDonors = async ({
   return (await response.json()) as { donors: Donor[]; count: number };
 };
 
-const useGetDonors = (getDonorsParams: GetDonorsParams) => {
+const useGetDonors = (getDonorsParams: GetDonorsParams, enabled = true) => {
   return useQuery({
     queryKey: reactQueryKeys.donors.list(
       getDonorsParams.page,
       getDonorsParams.pageSize,
-      getDonorsParams.search,
-      getDonorsParams.filter
+      getDonorsParams.search || '',
+      getDonorsParams.filter || ''
     ),
     queryFn: () => getDonors(getDonorsParams),
+    enabled,
   });
 };
 
