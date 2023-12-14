@@ -13,30 +13,44 @@ import { DATE_TIME_FORMAT } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
 
 export default function DonationsTable() {
-  const { donations, isLoading, isFetching, openDialog } =
-    useDonationsContext();
+  const {
+    donations,
+    count,
+    isLoading,
+    isFetching,
+    openDialog,
+    changePaginationModel,
+    changeSortModel,
+  } = useDonationsContext();
   const columns: GridColDef[] = [
     {
       field: 'donationDate',
       headerName: 'Donation Date',
+      sortingOrder: ['desc', 'asc'],
       flex: 1,
       renderCell: (params) => dayjs(params.value).format(DATE_TIME_FORMAT),
     },
     {
       field: 'donor',
       headerName: 'Donor',
+      sortable: false,
+      disableColumnMenu: true,
       flex: 1,
       renderCell: (params) => params.value.fullName,
     },
     {
       field: 'action',
       headerName: 'Action',
+      sortable: false,
+      disableColumnMenu: true,
       flex: 1,
       renderCell: (params) => params.value.title || 'None',
     },
     {
       field: 'denied',
       headerName: 'Denied',
+      sortable: false,
+      disableColumnMenu: true,
       flex: 1,
       renderCell: (params) => {
         if (!params.value) {
@@ -49,6 +63,8 @@ export default function DonationsTable() {
     {
       field: 'note',
       headerName: 'Note',
+      sortable: false,
+      disableColumnMenu: true,
       flex: 1,
     },
     {
@@ -84,10 +100,17 @@ export default function DonationsTable() {
         sorting: {
           sortModel: [{ field: 'donationDate', sort: 'desc' }],
         },
+        pagination: { paginationModel: { pageSize: 10 } },
       }}
       rows={donations}
+      rowCount={count}
       columns={columns}
       loading={isLoading || isFetching}
+      paginationMode='server'
+      onPaginationModelChange={changePaginationModel}
+      pageSizeOptions={[10, 50, 100]}
+      sortingMode='server'
+      onSortModelChange={changeSortModel}
     />
   );
 }

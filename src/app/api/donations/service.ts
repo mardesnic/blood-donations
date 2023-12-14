@@ -2,16 +2,24 @@ import { prisma } from '@/db';
 import { Donation } from '@prisma/client';
 
 export default class DonationService {
-  static async find() {
-    return await prisma.donation.findMany({
-      orderBy: {
-        donationDate: 'desc',
-      },
-      include: {
-        donor: true,
-        action: true,
-      },
-    });
+  static async find(
+    take: number,
+    skip: number,
+    sortField: keyof Donation = 'donationDate',
+    sort: string = 'desc'
+  ) {
+    return Promise.all([
+      prisma.donation.findMany({
+        take,
+        skip,
+        orderBy: { [sortField]: sort },
+        include: {
+          donor: true,
+          action: true,
+        },
+      }),
+      prisma.donation.count(),
+    ]);
   }
 
   static async findOne(id: string) {

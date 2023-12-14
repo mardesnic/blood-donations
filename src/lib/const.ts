@@ -14,6 +14,17 @@ export const reactQueryKeys = {
   },
   donations: {
     all: () => ['DONATIONS'] as const,
+    list: (
+      page: number,
+      pageSize: number,
+      search: string,
+      filter: string,
+      sort: string
+    ) =>
+      [
+        ...reactQueryKeys.donations.all(),
+        { page, pageSize, search, filter, sort },
+      ] as const,
   },
   donors: {
     all: () => ['DONORS'] as const,
