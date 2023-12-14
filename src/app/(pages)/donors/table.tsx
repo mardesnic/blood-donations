@@ -18,6 +18,7 @@ export default function DonorsTable() {
     donorCount,
     changePaginationModel,
     changeFilterModel,
+    changeSortModel,
     isLoading,
     openDialog,
   } = useDonorsContext();
@@ -166,6 +167,8 @@ export default function DonorsTable() {
       onPaginationModelChange={changePaginationModel}
       filterMode='server'
       onFilterModelChange={changeFilterModel}
+      sortingMode='server'
+      onSortModelChange={changeSortModel}
       disableColumnFilter={false}
       slots={{ toolbar: GridToolbar }}
       filterDebounceMs={500}

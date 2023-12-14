@@ -7,6 +7,7 @@ type GetDonorsParams = {
   pageSize: number;
   search?: string;
   filter?: string;
+  sort?: string;
 };
 
 const getDonors = async ({
@@ -14,12 +15,14 @@ const getDonors = async ({
   pageSize,
   search,
   filter,
+  sort,
 }: GetDonorsParams) => {
   const queryParams = new URLSearchParams({
     page: page?.toString() || '1',
     pageSize: pageSize?.toString() || '10',
     search: search || '',
     filter: filter || '',
+    sort: sort || '',
   });
   const response = await fetch(`/api/donors?${queryParams}`, {
     method: 'GET',
@@ -33,7 +36,8 @@ const useGetDonors = (getDonorsParams: GetDonorsParams, enabled = true) => {
       getDonorsParams.page,
       getDonorsParams.pageSize,
       getDonorsParams.search || '',
-      getDonorsParams.filter || ''
+      getDonorsParams.filter || '',
+      getDonorsParams.sort || ''
     ),
     queryFn: () => getDonors(getDonorsParams),
     enabled,
