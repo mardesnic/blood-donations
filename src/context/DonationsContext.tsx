@@ -8,6 +8,9 @@ import {
 } from '@/hooks/useDonations';
 import { Donation, Prisma } from '@prisma/client';
 import React, { createContext, useContext, useState } from 'react';
+import { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
+import { PAGE_SIZE } from '@/lib/const';
+import { generateSortString } from '@/lib/utils';
 
 export type DonationWithDonor = Prisma.DonationGetPayload<{
   include: { donor: true };
@@ -31,6 +34,7 @@ type DialogType = null | DeleteDialogI | UpdateDialogI | CreateDialogI;
 
 interface DonationsContextI {
   donations: DonationWithDonor[];
+  count: number;
   isLoading: boolean;
   isFetching: boolean;
   activeDialog: DialogType;
@@ -39,6 +43,10 @@ interface DonationsContextI {
   updateDonation: (data: Partial<Donation>) => Promise<void>;
   removeDonation: (id: string) => Promise<void>;
   closeDialog: () => void;
+  paginationModel: GridPaginationModel;
+  changePaginationModel: (paginationModel: GridPaginationModel) => void;
+  sortModel: GridSortModel;
+  changeSortModel: (sortModel: GridSortModel) => void;
 }
 
 const DonationsContext = createContext({} as DonationsContextI);
@@ -48,7 +56,17 @@ export const DonationsProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { isLoading, isFetching, data: donations = [] } = useGetDonations();
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: PAGE_SIZE,
+  });
+  const [sortModel, setSortModel] = useState<GridSortModel>(
+    {} as GridSortModel
+  );
+  const { isLoading, isFetching, data } = useGetDonations({
+    ...paginationModel,
+    sort: generateSortString(sortModel),
+  });
   const { mutateAsync: createDonation, isPending: isCreatePending } =
     useCreateDonation();
   const { mutateAsync: updateDonation, isPending: isUpdatePending } =
@@ -59,8 +77,13 @@ export const DonationsProvider = ({
   const closeDialog = () => setActiveDialog(null);
   const openDialog = (dialog: DialogType) => setActiveDialog(dialog);
 
+  const changePaginationModel = (paginationModel: GridPaginationModel) =>
+    setPaginationModel(paginationModel);
+  const changeSortModel = (sortModel: GridSortModel) => setSortModel(sortModel);
+
   const values: DonationsContextI = {
-    donations,
+    donations: data?.donations || [],
+    count: data?.count || 0,
     isLoading:
       isLoading ||
       isFetching ||
@@ -74,6 +97,10 @@ export const DonationsProvider = ({
     activeDialog,
     closeDialog,
     openDialog,
+    paginationModel,
+    changePaginationModel,
+    sortModel,
+    changeSortModel,
   };
 
   return (

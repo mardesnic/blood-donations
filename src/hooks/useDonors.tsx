@@ -1,14 +1,7 @@
 import { reactQueryKeys } from '@/lib/const';
+import { GetParams } from '@/lib/types';
 import { Donor } from '@prisma/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-
-type GetDonorsParams = {
-  page: number;
-  pageSize: number;
-  search?: string;
-  filter?: string;
-  sort?: string;
-};
 
 const getDonors = async ({
   page,
@@ -16,7 +9,7 @@ const getDonors = async ({
   search,
   filter,
   sort,
-}: GetDonorsParams) => {
+}: GetParams) => {
   const queryParams = new URLSearchParams({
     page: page?.toString() || '1',
     pageSize: pageSize?.toString() || '10',
@@ -30,7 +23,7 @@ const getDonors = async ({
   return (await response.json()) as { donors: Donor[]; count: number };
 };
 
-const useGetDonors = (getDonorsParams: GetDonorsParams, enabled = true) => {
+const useGetDonors = (getDonorsParams: GetParams, enabled = true) => {
   return useQuery({
     queryKey: reactQueryKeys.donors.list(
       getDonorsParams.page,
