@@ -105,3 +105,23 @@ export function getPrismaTermFromGridOperator(
 export function getDateFromDateTime(date: Date | string): Date {
   return new Date(new Date(date).toISOString().split('T')[0]);
 }
+
+export function generateExportDownloadLink(
+  baseUrl: string,
+  search: string,
+  filterModel: GridFilterModel,
+  sortModel: GridSortModel
+): string {
+  const searchString = `search=${encodeURIComponent(search || '')}`;
+  const filterString = `filter=${encodeURIComponent(
+    generateFilterString(filterModel) || ''
+  )}`;
+  const sortString = `sort=${encodeURIComponent(
+    generateSortString(sortModel) || ''
+  )}`;
+  const queryStringParts = [searchString, filterString, sortString].filter(
+    Boolean
+  );
+
+  return `${baseUrl}?${queryStringParts.join('&')}`;
+}

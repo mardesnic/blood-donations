@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import dayjs from 'dayjs';
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { BloodType, Donor, Gender } from '@prisma/client';
 import { IconButton, useMediaQuery } from '@mui/material';
 import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
@@ -11,6 +11,7 @@ import { DATE_FORMAT } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
 import { theme } from '@/lib/theme/theme';
 import { getEnabledGridFilterOperators } from '@/lib/clientUtils';
+import { CustomDataGridToolbar } from '@/components/CustomDataGridToolbar';
 
 export default function DonorsTable() {
   const {
@@ -21,6 +22,7 @@ export default function DonorsTable() {
     changeSortModel,
     isLoading,
     openDialog,
+    exportDonorsDownloadLink,
   } = useDonorsContext();
   const isMdScreen = useMediaQuery(theme.breakpoints.down('md'));
   const lgColumns: GridColDef[] = [
@@ -170,7 +172,14 @@ export default function DonorsTable() {
       sortingMode='server'
       onSortModelChange={changeSortModel}
       disableColumnFilter={false}
-      slots={{ toolbar: GridToolbar }}
+      slots={{
+        toolbar: (props) => (
+          <CustomDataGridToolbar
+            {...props}
+            exportLink={exportDonorsDownloadLink}
+          />
+        ),
+      }}
       filterDebounceMs={500}
       localeText={{
         toolbarQuickFilterPlaceholder: 'Search by name, city, email, oib',

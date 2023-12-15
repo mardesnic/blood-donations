@@ -7,7 +7,11 @@ import {
   useUpdateDonor,
 } from '@/hooks/useDonors';
 import { PAGE_SIZE } from '@/lib/const';
-import { generateFilterString, generateSortString } from '@/lib/utils';
+import {
+  generateExportDownloadLink,
+  generateFilterString,
+  generateSortString,
+} from '@/lib/utils';
 import {
   GridFilterModel,
   GridPaginationModel,
@@ -49,6 +53,7 @@ interface DonorsContextI {
   changePaginationModel: (paginationModel: GridPaginationModel) => void;
   changeFilterModel: (filterModel: GridFilterModel) => void;
   changeSortModel: (sortModel: GridSortModel) => void;
+  exportDonorsDownloadLink: string;
 }
 
 const DonorsContext = createContext({} as DonorsContextI);
@@ -65,9 +70,10 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
   const [sortModel, setSortModel] = useState<GridSortModel>(
     {} as GridSortModel
   );
+  const search = filterModel?.quickFilterValues?.join(' ') || '';
   const { isLoading, isFetching, data } = useGetDonors({
     ...paginationModel,
-    search: filterModel?.quickFilterValues?.join(' ') || '',
+    search,
     filter: generateFilterString(filterModel),
     sort: generateSortString(sortModel),
   });
@@ -105,6 +111,12 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
     changeFilterModel,
     sortModel,
     changeSortModel,
+    exportDonorsDownloadLink: generateExportDownloadLink(
+      '/api/donors/export',
+      search,
+      filterModel,
+      sortModel
+    ),
   };
 
   return (
