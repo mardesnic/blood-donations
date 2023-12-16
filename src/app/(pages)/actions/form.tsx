@@ -39,9 +39,7 @@ const Form = ({ action }: Props) => {
       note: action?.note || '',
     },
     validationSchema: Yup.object({
-      title: Yup.string()
-        .required('Title is required')
-        .min(3, 'Must be 3 characters or more'),
+      title: Yup.string().required('Title is required'),
     }),
     onSubmit: async (values) => {
       const newValues = {
@@ -60,6 +58,10 @@ const Form = ({ action }: Props) => {
       closeDialog();
     },
   });
+
+  React.useEffect(() => {
+    (() => formik.validateForm())();
+  }, []);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>

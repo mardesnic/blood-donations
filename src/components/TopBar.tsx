@@ -1,3 +1,4 @@
+'use client';
 import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
 import React from 'react';
 import { UserDropdown } from './UserDropdown';
@@ -5,8 +6,11 @@ import { ROUTE_PATHS } from '@/routes';
 import Link from 'next/link';
 import { APP_TITLE } from '@/lib/const';
 import { Sidebar } from './Sidebar';
+import { usePathname } from 'next/navigation';
 
 export const TopBar = async () => {
+  const pathname = usePathname();
+
   return (
     <AppBar position='sticky'>
       <Toolbar>
@@ -15,15 +19,23 @@ export const TopBar = async () => {
         </Typography>
         <>
           <Box display={{ xs: 'none', md: 'flex' }} sx={{ flexGrow: 1, ml: 2 }}>
-            {Object.values(ROUTE_PATHS.PROTECTED).map((page, i) => (
-              <Button
-                key={`${page.path}${i}`}
-                sx={{ color: 'white' }}
-                variant='text'
-                size='large'
-              >
-                <Link href={page.path}>{page.label}</Link>
-              </Button>
+            {Object.values(ROUTE_PATHS.PROTECTED).map((page) => (
+              <Link href={page.path} key={`${page.path}`}>
+                <Button
+                  variant='text'
+                  size='large'
+                  className={pathname == page.path ? 'active' : ''}
+                  sx={{
+                    color: 'white',
+                    '&.active': {
+                      fontWeight: 'bold',
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  {page.label}
+                </Button>
+              </Link>
             ))}
           </Box>
           <Box sx={{ ml: 'auto' }} display={{ xs: 'none', md: 'flex' }}>
