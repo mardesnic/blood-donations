@@ -1,4 +1,5 @@
 import React from 'react';
+import * as Yup from 'yup';
 import {
   useDonationsContext,
   DonationWithDonor,
@@ -52,6 +53,13 @@ const Form = ({ donation }: Props) => {
       denyReason: donation?.denyReason || '',
       note: donation?.note || '',
     },
+    validationSchema: Yup.object({
+      donor: Yup.object().shape({
+        id: Yup.string()
+          .required('Donor is required')
+          .min(1, 'Please select donor'),
+      }),
+    }),
     onSubmit: async (values) => {
       const newValues = {
         donorId: values.donorId,
@@ -82,6 +90,10 @@ const Form = ({ donation }: Props) => {
     []
   );
 
+  React.useEffect(() => {
+    (() => formik.validateForm())();
+  }, []);
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box component='form' onSubmit={formik.handleSubmit} noValidate>
@@ -95,6 +107,7 @@ const Form = ({ donation }: Props) => {
             formik.setFieldValue('donorId', value?.id);
             formik.setFieldValue('donor', value);
           }}
+          onBlur={formik.handleBlur}
           onInputChange={searchDonorDelayed}
           getOptionKey={(option: Donor) => option.id}
           getOptionLabel={(option) => option.fullName || ''}
@@ -104,8 +117,9 @@ const Form = ({ donation }: Props) => {
             <TextField
               {...params}
               label='Donor'
-              required
-              InputLabelProps={{ required: true }}
+              onBlur={formik.handleBlur}
+              error={formik.touched.donorId && Boolean(formik.errors.donorId)}
+              helperText={formik.touched.donorId && formik.errors.donorId}
               InputProps={{
                 ...params.InputProps,
                 endAdornment: (
@@ -121,7 +135,7 @@ const Form = ({ donation }: Props) => {
           )}
         />
 
-        {actions.length && (
+        {!!actions.length && (
           <TextField
             label='Action'
             name='actionId'
@@ -197,7 +211,7 @@ const Form = ({ donation }: Props) => {
           </Button>
           <Button
             type='submit'
-            disabled={isLoading || !formik.isValid}
+            disabled={isLoading || formik.isSubmitting || !formik.isValid}
             startIcon={<MdEdit />}
           >
             Save Changes
