@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import ActionService from '@/app/api/actions/service';
 import { generatePageTitle } from '@/lib/utils';
-import { Breadcrumbs, Link, Typography } from '@mui/material';
+import { Breadcrumbs, Typography } from '@mui/material';
+import Link from 'next/link';
 import { ROUTE_PATHS } from '@/routes';
 import { notFound } from 'next/navigation';
 

@@ -9,6 +9,7 @@ import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
 import { useActionsContext } from '@/context/ActionsContext';
 import { DATE_TIME_FORMAT } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
+import Link from 'next/link';
 
 export default function ActionsTable() {
   const { actions, isLoading, isFetching, openDialog } = useActionsContext();
@@ -55,11 +56,11 @@ export default function ActionsTable() {
       minWidth: 135,
       renderCell: (params: { row: Action }) => (
         <>
-          <IconButton
-            href={`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${params.row.id}`}
-          >
-            <MdVisibility />
-          </IconButton>
+          <Link href={`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${params.row.id}`}>
+            <IconButton>
+              <MdVisibility />
+            </IconButton>
+          </Link>
           <IconButton
             onClick={() => openDialog({ type: 'update', action: params.row })}
           >

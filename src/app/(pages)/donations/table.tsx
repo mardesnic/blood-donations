@@ -11,6 +11,7 @@ import {
 } from '@/context/DonationsContext';
 import { DATE_TIME_FORMAT } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
+import Link from 'next/link';
 
 export default function DonationsTable() {
   const {
@@ -76,11 +77,13 @@ export default function DonationsTable() {
       minWidth: 135,
       renderCell: (params: { row: DonationWithDonor }) => (
         <>
-          <IconButton
+          <Link
             href={`${ROUTE_PATHS.PROTECTED.DONATIONS.path}/${params.row.id}`}
           >
-            <MdVisibility />
-          </IconButton>
+            <IconButton>
+              <MdVisibility />
+            </IconButton>
+          </Link>
           <IconButton
             onClick={() => openDialog({ type: 'update', donation: params.row })}
           >

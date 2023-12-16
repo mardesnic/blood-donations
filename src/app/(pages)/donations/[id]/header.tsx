@@ -1,6 +1,7 @@
 import React from 'react';
 import { ROUTE_PATHS } from '@/routes';
-import { Breadcrumbs, Link, Typography } from '@mui/material';
+import { Breadcrumbs, Typography } from '@mui/material';
+import Link from 'next/link';
 import { Donation } from '@prisma/client';
 
 interface Props {

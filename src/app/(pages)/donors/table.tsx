@@ -12,6 +12,7 @@ import { ROUTE_PATHS } from '@/routes';
 import { theme } from '@/lib/theme/theme';
 import { getEnabledGridFilterOperators } from '@/lib/clientUtils';
 import { CustomDataGridToolbar } from '@/components/CustomDataGridToolbar';
+import Link from 'next/link';
 
 export default function DonorsTable() {
   const {
@@ -99,11 +100,12 @@ export default function DonorsTable() {
       minWidth: 135,
       renderCell: (params: { row: Donor }) => (
         <>
-          <IconButton
-            href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${params.row.id}`}
-          >
-            <MdVisibility />
-          </IconButton>
+          <Link href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${params.row.id}`}>
+            <IconButton>
+              <MdVisibility />
+            </IconButton>
+          </Link>
+
           <IconButton
             onClick={() => openDialog({ type: 'update', donor: params.row })}
           >
@@ -133,11 +135,11 @@ export default function DonorsTable() {
       minWidth: 135,
       renderCell: (params: { row: Donor }) => (
         <>
-          <IconButton
-            href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${params.row.id}`}
-          >
-            <MdVisibility />
-          </IconButton>
+          <Link href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${params.row.id}`}>
+            <IconButton>
+              <MdVisibility />
+            </IconButton>
+          </Link>
           <IconButton
             onClick={() => openDialog({ type: 'update', donor: params.row })}
           >

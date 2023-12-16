@@ -9,6 +9,7 @@ import { usePlacesContext } from '@/context/PlacesContext';
 import { ROUTE_PATHS } from '@/routes';
 import { theme } from '@/lib/theme/theme';
 import { getEnabledGridFilterOperators } from '@/lib/clientUtils';
+import Link from 'next/link';
 
 export default function PlacesTable() {
   const {
@@ -62,11 +63,11 @@ export default function PlacesTable() {
       minWidth: 135,
       renderCell: (params: { row: Place }) => (
         <>
-          <IconButton
-            href={`${ROUTE_PATHS.PROTECTED.PLACES.path}/${params.row.id}`}
-          >
-            <MdVisibility />
-          </IconButton>
+          <Link href={`${ROUTE_PATHS.PROTECTED.PLACES.path}/${params.row.id}`}>
+            <IconButton>
+              <MdVisibility />
+            </IconButton>
+          </Link>
           <IconButton
             onClick={() => openDialog({ type: 'update', place: params.row })}
           >
@@ -96,11 +97,12 @@ export default function PlacesTable() {
       minWidth: 135,
       renderCell: (params: { row: Place }) => (
         <>
-          <IconButton
-            href={`${ROUTE_PATHS.PROTECTED.PLACES.path}/${params.row.id}`}
-          >
-            <MdVisibility />
-          </IconButton>
+          <Link href={`${ROUTE_PATHS.PROTECTED.PLACES.path}/${params.row.id}`}>
+            <IconButton>
+              <MdVisibility />
+            </IconButton>
+          </Link>
+
           <IconButton
             onClick={() => openDialog({ type: 'update', place: params.row })}
           >
