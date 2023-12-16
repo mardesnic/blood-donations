@@ -1,9 +1,11 @@
 import { prisma } from '@/db';
+import { DATE_FORMAT } from '@/lib/const';
 import {
   getPrismaOperatorFromGridOperator,
   getPrismaTermFromGridOperator,
 } from '@/lib/utils';
 import { Donor, Prisma } from '@prisma/client';
+import dayjs from 'dayjs';
 import { format } from 'fast-csv';
 import { Readable } from 'stream';
 
@@ -91,11 +93,28 @@ export default class DonorService {
       where: whereCondition,
     });
 
-    // TODO: remove some donor fields like id, format dates, better column headers, etc
+    const csvData = donors.map((donor) => ({
+      Name: donor.firstName,
+      'Last Name': donor.lastName,
+      'Father Name': donor.fatherName,
+      OIB: donor.oib,
+      Email: donor.email,
+      Phone: donor.phone,
+      City: donor.city,
+      Gender: donor.gender,
+      'Blood Type': donor.bloodType,
+      Donations: donor.donationCount,
+      'Last Donation': dayjs(donor.lastDonation).format(DATE_FORMAT),
+      'Date of Birth': dayjs(donor.dob).format(DATE_FORMAT),
+      Note: donor.note,
+      'Created At': dayjs(donor.createdAt).format(DATE_FORMAT),
+      'Updated At': dayjs(donor.updatedAt).format(DATE_FORMAT),
+      Active: donor.active,
+    }));
 
     // Convert donors to CSV
     const csvStream = format({ headers: true });
-    donors.forEach((donor) => csvStream.write(donor));
+    csvData.forEach((donor) => csvStream.write(donor));
     csvStream.end();
 
     // Convert stream to a promise of a string

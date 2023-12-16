@@ -30,7 +30,7 @@ const Form = ({ donation }: Props) => {
     donation?.donor?.fullName || ''
   );
 
-  const { closeDialog, createDonation, updateDonation, isLoading } =
+  const { closeDialog, createDonation, updateDonation, isLoading, donor } =
     useDonationsContext();
 
   const { isLoading: isDonorsLoading, data } = useGetDonors({
@@ -44,8 +44,8 @@ const Form = ({ donation }: Props) => {
   const deniedReasons = Object.keys(DenyReasonType);
   const formik = useFormik({
     initialValues: {
-      donorId: donation?.donorId || '',
-      donor: donation?.donor || null,
+      donorId: donation?.donorId || donor?.id || '',
+      donor: donation?.donor || donor || null,
       actionId: donation?.actionId || '',
       donationDate: dayjs(donation?.donationDate) || dayjs(),
       denied: !!donation?.denied,

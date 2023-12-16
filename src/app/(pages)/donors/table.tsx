@@ -92,10 +92,10 @@ export default function DonorsTable() {
     },
     {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: '',
       disableColumnMenu: true,
-      hideSortIcons: true,
       filterable: false,
+      sortable: false,
       minWidth: 135,
       renderCell: (params: { row: Donor }) => (
         <>

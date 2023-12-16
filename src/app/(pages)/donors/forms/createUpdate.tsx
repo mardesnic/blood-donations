@@ -15,7 +15,7 @@ interface Props {
   donor?: Donor;
 }
 
-export const DonorForm = ({ donor }: Props) => {
+export const DonorCreateUpdateForm = ({ donor }: Props) => {
   const { closeDialog, createDonor, updateDonor, isLoading } =
     useDonorsContext();
 

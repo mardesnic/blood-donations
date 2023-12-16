@@ -9,12 +9,15 @@ export async function GET(req: NextRequest) {
   const page = searchParams.get('page') || 0;
   const pageSize = searchParams.get('pageSize') || PAGE_SIZE;
 
+  const donorId = searchParams.get('donorId') || '';
+
   const take = parseInt(pageSize.toString(), 10);
   const skip = parseInt(page.toString(), 10) * take;
   const { sortField, sort } = generateSortFieldsFromSortString(
     searchParams?.get('sort') || ''
   );
   const [donations, count] = await DonationService.find(
+    donorId,
     take,
     skip,
     sortField as keyof Donation,

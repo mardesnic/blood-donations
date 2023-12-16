@@ -69,9 +69,10 @@ export default function DonationsTable() {
     },
     {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: '',
       disableColumnMenu: true,
-      hideSortIcons: true,
+      sortable: false,
+      filterable: false,
       minWidth: 135,
       renderCell: (params: { row: DonationWithDonor }) => (
         <>
@@ -100,7 +101,7 @@ export default function DonationsTable() {
         sorting: {
           sortModel: [{ field: 'donationDate', sort: 'desc' }],
         },
-        pagination: { paginationModel: { pageSize: 10 } },
+        pagination: { paginationModel: { pageSize: 15 } },
       }}
       rows={donations}
       rowCount={count}
@@ -108,7 +109,6 @@ export default function DonationsTable() {
       loading={isLoading || isFetching}
       paginationMode='server'
       onPaginationModelChange={changePaginationModel}
-      pageSizeOptions={[10, 50, 100]}
       sortingMode='server'
       onSortModelChange={changeSortModel}
     />

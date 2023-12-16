@@ -4,19 +4,17 @@ import { Donation } from '@prisma/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DonationWithDonor } from '@/context/DonationsContext';
 
-const getDonations = async ({
-  page,
-  pageSize,
-  search,
-  filter,
-  sort,
-}: GetParams) => {
+const getDonations = async (
+  { page, pageSize, search, filter, sort }: GetParams,
+  donorId?: string
+) => {
   const queryParams = new URLSearchParams({
     page: page?.toString() || '1',
     pageSize: pageSize?.toString() || '10',
     search: search || '',
     filter: filter || '',
     sort: sort || '',
+    donorId: donorId || '',
   });
 
   const response = await fetch(`/api/donations?${queryParams}`, {
@@ -28,16 +26,17 @@ const getDonations = async ({
   };
 };
 
-const useGetDonations = (getDonationsParams: GetParams) => {
+const useGetDonations = (getDonationsParams: GetParams, donorId?: string) => {
   return useQuery({
     queryKey: reactQueryKeys.donations.list(
       getDonationsParams.page,
       getDonationsParams.pageSize,
       getDonationsParams.search || '',
       getDonationsParams.filter || '',
-      getDonationsParams.sort || ''
+      getDonationsParams.sort || '',
+      donorId || ''
     ),
-    queryFn: () => getDonations(getDonationsParams),
+    queryFn: () => getDonations(getDonationsParams, donorId),
   });
 };
 

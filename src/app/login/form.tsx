@@ -73,7 +73,7 @@ export const LoginForm = () => {
         helperText={formik.touched.password && formik.errors.password}
       />
       <Stack direction='row' justifyContent='flex-end' sx={{ mt: 2 }}>
-        <Button type='submit' disabled={formik.isSubmitting}>
+        <Button type='submit' disabled={formik.isSubmitting} size='large'>
           Sign In
         </Button>
       </Stack>

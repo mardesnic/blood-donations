@@ -1,19 +1,39 @@
 import { reactQueryKeys } from '@/lib/const';
+import { GetParams } from '@/lib/types';
 import { Place } from '@prisma/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-const getPlaces = async () => {
-  const response = await fetch('/api/places', {
+const getPlaces = async ({
+  page,
+  pageSize,
+  search,
+  filter,
+  sort,
+}: GetParams) => {
+  const queryParams = new URLSearchParams({
+    page: page?.toString() || '1',
+    pageSize: pageSize?.toString() || '10',
+    search: search || '',
+    filter: filter || '',
+    sort: sort || '',
+  });
+  const response = await fetch(`/api/places?${queryParams}`, {
     method: 'GET',
   });
-  return (await response.json()) as Place[];
+  return (await response.json()) as { places: Place[]; count: number };
 };
 
-const useGetPlaces = () => {
+const useGetPlaces = (getPlacesParams: GetParams, enabled = true) => {
   return useQuery({
-    queryKey: reactQueryKeys.places.all(),
-    queryFn: () => getPlaces(),
-    refetchOnMount: false,
+    queryKey: reactQueryKeys.places.list(
+      getPlacesParams.page,
+      getPlacesParams.pageSize,
+      getPlacesParams.search || '',
+      getPlacesParams.filter || '',
+      getPlacesParams.sort || ''
+    ),
+    queryFn: () => getPlaces(getPlacesParams),
+    enabled,
   });
 };
 
