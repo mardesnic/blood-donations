@@ -31,8 +31,14 @@ const Form = ({ donation }: Props) => {
     donation?.donor?.fullName || ''
   );
 
-  const { closeDialog, createDonation, updateDonation, isLoading, donor } =
-    useDonationsContext();
+  const {
+    closeDialog,
+    createDonation,
+    updateDonation,
+    isLoading,
+    donor,
+    action,
+  } = useDonationsContext();
 
   const { isLoading: isDonorsLoading, data } = useGetDonors({
     page: 0,
@@ -47,7 +53,7 @@ const Form = ({ donation }: Props) => {
     initialValues: {
       donorId: donation?.donorId || donor?.id || '',
       donor: donation?.donor || donor || null,
-      actionId: donation?.actionId || '',
+      actionId: donation?.actionId || action?.id || '',
       donationDate: dayjs(donation?.donationDate) || dayjs(),
       denied: !!donation?.denied,
       denyReason: donation?.denyReason || '',

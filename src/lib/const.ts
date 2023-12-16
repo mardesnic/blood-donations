@@ -43,11 +43,12 @@ export const reactQueryKeys = {
       search: string,
       filter: string,
       sort: string,
-      donorId: string
+      donorId: string,
+      actionId: string
     ) =>
       [
         ...reactQueryKeys.donations.all(),
-        { page, pageSize, search, filter, sort, donorId },
+        { page, pageSize, search, filter, sort, donorId, actionId },
       ] as const,
   },
   donors: {

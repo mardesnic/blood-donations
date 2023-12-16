@@ -6,7 +6,7 @@ import {
   useRemoveDonation,
   useUpdateDonation,
 } from '@/hooks/useDonations';
-import { Donation, Donor, Prisma } from '@prisma/client';
+import { Action, Donation, Donor, Prisma } from '@prisma/client';
 import React, { createContext, useContext, useState } from 'react';
 import { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 import { PAGE_SIZE } from '@/lib/const';
@@ -48,6 +48,7 @@ interface DonationsContextI {
   sortModel: GridSortModel;
   changeSortModel: (sortModel: GridSortModel) => void;
   donor?: Donor;
+  action?: Action;
 }
 
 const DonationsContext = createContext({} as DonationsContextI);
@@ -55,9 +56,11 @@ const DonationsContext = createContext({} as DonationsContextI);
 export const DonationsProvider = ({
   children,
   donor,
+  action,
 }: {
   children: React.ReactNode;
   donor?: Donor;
+  action?: Action;
 }) => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
@@ -71,7 +74,8 @@ export const DonationsProvider = ({
       ...paginationModel,
       sort: generateSortString(sortModel),
     },
-    donor?.id || ''
+    donor?.id || '',
+    action?.id || ''
   );
   const { mutateAsync: createDonation, isPending: isCreatePending } =
     useCreateDonation();
@@ -104,6 +108,7 @@ export const DonationsProvider = ({
     sortModel,
     changeSortModel,
     donor,
+    action,
   };
 
   return (

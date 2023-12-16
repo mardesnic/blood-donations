@@ -6,7 +6,8 @@ import { DonationWithDonor } from '@/context/DonationsContext';
 
 const getDonations = async (
   { page, pageSize, search, filter, sort }: GetParams,
-  donorId?: string
+  donorId?: string,
+  actionId?: string
 ) => {
   const queryParams = new URLSearchParams({
     page: page?.toString() || '1',
@@ -15,6 +16,7 @@ const getDonations = async (
     filter: filter || '',
     sort: sort || '',
     donorId: donorId || '',
+    actionId: actionId || '',
   });
 
   const response = await fetch(`/api/donations?${queryParams}`, {
@@ -26,7 +28,11 @@ const getDonations = async (
   };
 };
 
-const useGetDonations = (getDonationsParams: GetParams, donorId?: string) => {
+const useGetDonations = (
+  getDonationsParams: GetParams,
+  donorId?: string,
+  actionId?: string
+) => {
   return useQuery({
     queryKey: reactQueryKeys.donations.list(
       getDonationsParams.page,
@@ -34,9 +40,10 @@ const useGetDonations = (getDonationsParams: GetParams, donorId?: string) => {
       getDonationsParams.search || '',
       getDonationsParams.filter || '',
       getDonationsParams.sort || '',
-      donorId || ''
+      donorId || '',
+      actionId || ''
     ),
-    queryFn: () => getDonations(getDonationsParams, donorId),
+    queryFn: () => getDonations(getDonationsParams, donorId, actionId),
   });
 };
 

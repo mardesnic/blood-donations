@@ -33,6 +33,9 @@ export default class ActionService {
   static async findOne(id: string) {
     return await prisma.action.findUnique({
       where: { id },
+      include: {
+        place: true,
+      },
     });
   }
 
