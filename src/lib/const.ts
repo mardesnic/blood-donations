@@ -22,6 +22,18 @@ export const reactQueryKeys = {
   },
   actions: {
     all: () => ['ACTIONS'] as const,
+    list: (
+      page: number,
+      pageSize: number,
+      search: string,
+      filter: string,
+      sort: string,
+      placeId: string
+    ) =>
+      [
+        ...reactQueryKeys.actions.all(),
+        { page, pageSize, search, filter, sort, placeId },
+      ] as const,
   },
   donations: {
     all: () => ['DONATIONS'] as const,

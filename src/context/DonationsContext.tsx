@@ -13,7 +13,7 @@ import { PAGE_SIZE } from '@/lib/const';
 import { generateSortString } from '@/lib/utils';
 
 export type DonationWithDonor = Prisma.DonationGetPayload<{
-  include: { donor: true };
+  include: { donor: true; action: true };
 }>;
 
 interface DeleteDialogI {

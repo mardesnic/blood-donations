@@ -1,16 +1,33 @@
 import { prisma } from '@/db';
-import { Action } from '@prisma/client';
+import { Action, Prisma } from '@prisma/client';
 
 export default class ActionService {
-  static async find() {
-    return await prisma.action.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
-      include: {
-        place: true,
-      },
-    });
+  static async find(
+    placeId: string,
+    take: number,
+    skip: number,
+    sortField: keyof Action = 'startDateTime',
+    sort: string = 'desc'
+  ) {
+    let whereCondition: Prisma.ActionWhereInput = {};
+    if (placeId) {
+      whereCondition = { placeId };
+    }
+
+    return Promise.all([
+      prisma.action.findMany({
+        take,
+        skip,
+        orderBy: { [sortField]: sort },
+        include: {
+          place: true,
+        },
+        where: whereCondition,
+      }),
+      prisma.action.count({
+        where: whereCondition,
+      }),
+    ]);
   }
 
   static async findOne(id: string) {

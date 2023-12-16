@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 import DonationService from '@/app/api/donations/service';
 import { generatePageTitle } from '@/lib/utils';
-import { Breadcrumbs, Link, Typography } from '@mui/material';
-import { ROUTE_PATHS } from '@/routes';
 import { notFound } from 'next/navigation';
+import { DonationDetailsHeader } from './header';
+import { DonationDetailsForm } from '../forms/details';
 
 type Props = {
   params: { id: string };
@@ -23,13 +23,11 @@ export default async function DonationDetails({ params: { id } }: Props) {
   if (!donation) {
     notFound();
   }
+
   return (
     <>
-      <Breadcrumbs>
-        <Link href={ROUTE_PATHS.PROTECTED.DONATIONS.path}>Donations</Link>
-        <Typography>{donation.id}</Typography>
-      </Breadcrumbs>
-      <pre>{JSON.stringify(donation, null, 2)}</pre>
+      <DonationDetailsHeader donation={donation} />
+      <DonationDetailsForm donation={donation} />
     </>
   );
 }

@@ -222,7 +222,7 @@ const Form = ({ donation }: Props) => {
   );
 };
 
-export const DonationForm = ({ donation }: Props) => {
+export const DonationCreateUpdateForm = ({ donation }: Props) => {
   return (
     <ActionsProvider>
       <Form donation={donation} />

@@ -33,6 +33,10 @@ export default class DonationService {
   static async findOne(id: string) {
     return await prisma.donation.findUnique({
       where: { id },
+      include: {
+        donor: true,
+        action: true,
+      },
     });
   }
 
