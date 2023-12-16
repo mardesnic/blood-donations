@@ -1,18 +1,28 @@
 'use client';
 
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import * as React from 'react';
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import { Place } from '@prisma/client';
-import { IconButton, useMediaQuery, useTheme } from '@mui/material';
+import { IconButton, useMediaQuery } from '@mui/material';
 import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
 import { usePlacesContext } from '@/context/PlacesContext';
 import { ROUTE_PATHS } from '@/routes';
+import { theme } from '@/lib/theme/theme';
+import { getEnabledGridFilterOperators } from '@/lib/clientUtils';
 
 export default function PlacesTable() {
-  const { places, isLoading, isFetching, openDialog } = usePlacesContext();
-  const theme = useTheme();
+  const {
+    places,
+    placeCount,
+    changePaginationModel,
+    changeFilterModel,
+    changeSortModel,
+    isLoading,
+    openDialog,
+  } = usePlacesContext();
   const isMdScreen = useMediaQuery(theme.breakpoints.down('md'));
 
-  const columns: GridColDef[] = [
+  const lgColumns: GridColDef[] = [
     {
       field: 'title',
       headerName: 'Title',
@@ -45,9 +55,10 @@ export default function PlacesTable() {
     },
     {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: '',
       disableColumnMenu: true,
-      hideSortIcons: true,
+      filterable: false,
+      sortable: false,
       minWidth: 135,
       renderCell: (params: { row: Place }) => (
         <>
@@ -104,12 +115,31 @@ export default function PlacesTable() {
       ),
     },
   ];
+  const columns = isMdScreen ? mdColumns : lgColumns;
+
+  columns.forEach(
+    (column) =>
+      (column.filterOperators = getEnabledGridFilterOperators(column.type))
+  );
 
   return (
     <DataGrid
-      loading={isLoading || isFetching}
-      rows={places || []}
-      columns={isMdScreen ? mdColumns : columns}
+      rows={places}
+      rowCount={placeCount}
+      columns={columns}
+      loading={isLoading}
+      paginationMode='server'
+      onPaginationModelChange={changePaginationModel}
+      filterMode='server'
+      onFilterModelChange={changeFilterModel}
+      sortingMode='server'
+      onSortModelChange={changeSortModel}
+      disableColumnFilter={true}
+      slots={{ toolbar: GridToolbar }}
+      filterDebounceMs={500}
+      localeText={{
+        toolbarQuickFilterPlaceholder: 'Search by title, city, contact',
+      }}
     />
   );
 }

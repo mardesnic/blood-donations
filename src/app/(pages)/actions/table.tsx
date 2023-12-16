@@ -48,9 +48,10 @@ export default function ActionsTable() {
     },
     {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: '',
       disableColumnMenu: true,
-      hideSortIcons: true,
+      sortable: false,
+      filterable: false,
       minWidth: 135,
       renderCell: (params: { row: Action }) => (
         <>

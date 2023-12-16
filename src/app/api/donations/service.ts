@@ -1,13 +1,18 @@
 import { prisma } from '@/db';
-import { Donation } from '@prisma/client';
+import { Donation, Prisma } from '@prisma/client';
 
 export default class DonationService {
   static async find(
+    donorId: string,
     take: number,
     skip: number,
     sortField: keyof Donation = 'donationDate',
     sort: string = 'desc'
   ) {
+    let whereCondition: Prisma.DonationWhereInput = {};
+    if (donorId) {
+      whereCondition = { donorId };
+    }
     return Promise.all([
       prisma.donation.findMany({
         take,
@@ -17,8 +22,11 @@ export default class DonationService {
           donor: true,
           action: true,
         },
+        where: whereCondition,
       }),
-      prisma.donation.count(),
+      prisma.donation.count({
+        where: whereCondition,
+      }),
     ]);
   }
 

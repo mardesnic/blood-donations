@@ -3,11 +3,22 @@ export const APP_DESCRIPTION = 'App to track blood donations.';
 
 export const DATE_TIME_FORMAT = 'DD.MM.YYYY. HH:mm';
 export const DATE_FORMAT = 'DD.MM.YYYY.';
-export const PAGE_SIZE = 10;
+export const PAGE_SIZE = 15;
 
 export const reactQueryKeys = {
   places: {
     all: () => ['PLACES'] as const,
+    list: (
+      page: number,
+      pageSize: number,
+      search: string,
+      filter: string,
+      sort: string
+    ) =>
+      [
+        ...reactQueryKeys.places.all(),
+        { page, pageSize, search, filter, sort },
+      ] as const,
   },
   actions: {
     all: () => ['ACTIONS'] as const,
@@ -19,11 +30,12 @@ export const reactQueryKeys = {
       pageSize: number,
       search: string,
       filter: string,
-      sort: string
+      sort: string,
+      donorId: string
     ) =>
       [
         ...reactQueryKeys.donations.all(),
-        { page, pageSize, search, filter, sort },
+        { page, pageSize, search, filter, sort, donorId },
       ] as const,
   },
   donors: {

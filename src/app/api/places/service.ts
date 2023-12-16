@@ -1,14 +1,47 @@
 import { prisma } from '@/db';
-import { Place } from '@prisma/client';
+import {
+  getPrismaOperatorFromGridOperator,
+  getPrismaTermFromGridOperator,
+} from '@/lib/utils';
+import { Place, Prisma } from '@prisma/client';
 
 export default class PlaceService {
-  static async find() {
-    return await prisma.place.findMany({ orderBy: { createdAt: 'desc' } });
+  static async find(
+    take: number,
+    skip: number,
+    search: string,
+    filterField: keyof Place,
+    filterOperator: string,
+    filterTerm: string,
+    sortField: keyof Place = 'createdAt',
+    sort: string = 'desc'
+  ): Promise<{ places: Place[]; count: number }> {
+    const whereCondition = this.constructWhereCondition(
+      search,
+      filterField,
+      filterOperator,
+      filterTerm
+    );
+    const places = await prisma.place.findMany({
+      take,
+      skip,
+      orderBy: { [sortField]: sort },
+      where: whereCondition,
+    });
+    const count = await prisma.place.count({ where: whereCondition });
+    return { places, count };
   }
 
   static async findOne(id: string) {
     return await prisma.place.findUnique({
       where: { id },
+      include: {
+        actions: {
+          include: {
+            donations: true,
+          },
+        },
+      },
     });
   }
 
@@ -31,5 +64,44 @@ export default class PlaceService {
       data: { placeId: null },
     });
     return await prisma.place.delete({ where: { id } });
+  }
+
+  private static constructWhereCondition(
+    search: string,
+    filterField: keyof Place,
+    filterOperator: string,
+    filterTerm: string
+  ): Prisma.PlaceWhereInput {
+    let whereCondition = {};
+    let searchCondition = {};
+    let filterCondition = {};
+    if (search?.length) {
+      searchCondition = {
+        OR: [
+          { title: { contains: search } },
+          { city: { contains: search } },
+          { contactName: { contains: search } },
+        ],
+      };
+    }
+    if (filterField && filterOperator && typeof filterTerm !== 'undefined') {
+      const prismaOperator = getPrismaOperatorFromGridOperator(filterOperator);
+      const prismaTerm = getPrismaTermFromGridOperator(
+        filterOperator,
+        filterTerm
+      );
+      if (prismaTerm !== '') {
+        filterCondition = { [filterField]: { [prismaOperator]: prismaTerm } };
+      }
+    }
+    if (
+      Object.values(searchCondition).length &&
+      Object.values(filterCondition).length
+    ) {
+      whereCondition = { AND: [searchCondition, filterCondition] };
+    } else {
+      whereCondition = { ...searchCondition, ...filterCondition };
+    }
+    return whereCondition;
   }
 }

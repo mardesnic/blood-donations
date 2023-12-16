@@ -28,7 +28,7 @@ const typography: TypographyOptions = {
   h1: {
     fontSize: 22,
     fontWeight: 700,
-    marginBlockEnd: 24,
+    marginBlockEnd: 12,
   },
   h2: {
     fontSize: 20,
@@ -48,7 +48,6 @@ export const theme = createTheme({
     MuiButton: {
       defaultProps: {
         variant: 'contained',
-        size: 'large',
       },
     },
     MuiTextField: {
@@ -73,10 +72,10 @@ export const theme = createTheme({
         hideFooterSelectedRowCount: true,
         autoHeight: true,
         density: 'compact',
-        pageSizeOptions: [10, 25, 50],
+        pageSizeOptions: [15, 50, 100],
         initialState: {
           pagination: {
-            paginationModel: { pageSize: 10, page: 0 },
+            paginationModel: { pageSize: 15, page: 0 },
           },
         },
         slotProps: {

@@ -6,7 +6,7 @@ import {
   useRemoveDonation,
   useUpdateDonation,
 } from '@/hooks/useDonations';
-import { Donation, Prisma } from '@prisma/client';
+import { Donation, Donor, Prisma } from '@prisma/client';
 import React, { createContext, useContext, useState } from 'react';
 import { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 import { PAGE_SIZE } from '@/lib/const';
@@ -47,14 +47,17 @@ interface DonationsContextI {
   changePaginationModel: (paginationModel: GridPaginationModel) => void;
   sortModel: GridSortModel;
   changeSortModel: (sortModel: GridSortModel) => void;
+  donor?: Donor;
 }
 
 const DonationsContext = createContext({} as DonationsContextI);
 
 export const DonationsProvider = ({
   children,
+  donor,
 }: {
   children: React.ReactNode;
+  donor?: Donor;
 }) => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
@@ -63,10 +66,13 @@ export const DonationsProvider = ({
   const [sortModel, setSortModel] = useState<GridSortModel>(
     {} as GridSortModel
   );
-  const { isLoading, isFetching, data } = useGetDonations({
-    ...paginationModel,
-    sort: generateSortString(sortModel),
-  });
+  const { isLoading, isFetching, data } = useGetDonations(
+    {
+      ...paginationModel,
+      sort: generateSortString(sortModel),
+    },
+    donor?.id || ''
+  );
   const { mutateAsync: createDonation, isPending: isCreatePending } =
     useCreateDonation();
   const { mutateAsync: updateDonation, isPending: isUpdatePending } =
@@ -85,11 +91,7 @@ export const DonationsProvider = ({
     donations: data?.donations || [],
     count: data?.count || 0,
     isLoading:
-      isLoading ||
-      isFetching ||
-      isDeletePending ||
-      isCreatePending ||
-      isUpdatePending,
+      isLoading || isDeletePending || isCreatePending || isUpdatePending,
     isFetching,
     createDonation,
     updateDonation,
@@ -101,6 +103,7 @@ export const DonationsProvider = ({
     changePaginationModel,
     sortModel,
     changeSortModel,
+    donor,
   };
 
   return (
