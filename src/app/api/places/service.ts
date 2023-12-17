@@ -78,9 +78,9 @@ export default class PlaceService {
     if (search?.length) {
       searchCondition = {
         OR: [
-          { title: { contains: search } },
-          { city: { contains: search } },
-          { contactName: { contains: search } },
+          { title: { contains: search, mode: 'insensitive' } },
+          { city: { contains: search, mode: 'insensitive' } },
+          { contactName: { contains: search, mode: 'insensitive' } },
         ],
       };
     }

@@ -1,4 +1,5 @@
 'use client';
+
 import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
 import React from 'react';
 import { UserDropdown } from './UserDropdown';
@@ -8,8 +9,9 @@ import { APP_TITLE } from '@/lib/const';
 import { Sidebar } from './Sidebar';
 import { usePathname } from 'next/navigation';
 
-export const TopBar = async () => {
+export const TopBar = () => {
   const pathname = usePathname();
+  const page = pathname.split('/')?.[1] || 'home';
 
   return (
     <AppBar position='sticky'>
@@ -19,21 +21,25 @@ export const TopBar = async () => {
         </Typography>
         <>
           <Box display={{ xs: 'none', md: 'flex' }} sx={{ flexGrow: 1, ml: 2 }}>
-            {Object.values(ROUTE_PATHS.PROTECTED).map((page) => (
-              <Link href={page.path} key={`${page.path}`}>
+            {Object.values(ROUTE_PATHS.PROTECTED).map((route) => (
+              <Link href={route.path} key={`${route.path}`}>
                 <Button
                   variant='text'
                   size='large'
-                  className={pathname == page.path ? 'active' : ''}
+                  className={
+                    route.label.toLowerCase().includes(page) ? 'active' : ''
+                  }
+                  disableRipple
                   sx={{
                     color: 'white',
                     '&.active': {
-                      fontWeight: 'bold',
                       textDecoration: 'underline',
+                      textDecorationThickness: '4px',
+                      textUnderlineOffset: '23px',
                     },
                   }}
                 >
-                  {page.label}
+                  {route.label}
                 </Button>
               </Link>
             ))}

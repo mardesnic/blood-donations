@@ -144,10 +144,10 @@ export default class DonorService {
     if (search?.length) {
       searchCondition = {
         OR: [
-          { fullName: { contains: search } },
-          { city: { contains: search } },
-          { email: { contains: search } },
-          { oib: { contains: search } },
+          { fullName: { contains: search, mode: 'insensitive' } },
+          { city: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { oib: { contains: search, mode: 'insensitive' } },
         ],
       };
     }

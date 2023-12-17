@@ -87,6 +87,9 @@ const useUpdateDonation = () => {
       queryClient.invalidateQueries({
         queryKey: reactQueryKeys.donations.all(),
       });
+      queryClient.invalidateQueries({
+        queryKey: reactQueryKeys.donors.all(),
+      });
     },
   });
 };
@@ -107,6 +110,9 @@ const useRemoveDonation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: reactQueryKeys.donations.all(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: reactQueryKeys.donors.all(),
       });
     },
   });

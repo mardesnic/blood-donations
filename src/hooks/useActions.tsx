@@ -75,6 +75,9 @@ const useUpdateAction = () => {
     mutationFn: (data: Partial<Action>) => updateAction(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: reactQueryKeys.actions.all() });
+      queryClient.invalidateQueries({
+        queryKey: reactQueryKeys.donations.all(),
+      });
     },
   });
 };
@@ -94,6 +97,9 @@ const useRemoveAction = () => {
     mutationFn: (id: string) => removeAction(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: reactQueryKeys.actions.all() });
+      queryClient.invalidateQueries({
+        queryKey: reactQueryKeys.donations.all(),
+      });
     },
   });
 };
