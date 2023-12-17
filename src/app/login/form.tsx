@@ -10,19 +10,23 @@ import Button from '@mui/material/Button';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useState } from 'react';
+import { useDictionary } from '@/context/DictionaryContext';
 
 export const LoginForm = () => {
   const router = useRouter();
   const [loginError, setLoginError] = useState('');
 
+  const { dictionary } = useDictionary();
   const formik = useFormik({
     initialValues: {
       email: '',
       password: '',
     },
     validationSchema: Yup.object({
-      email: Yup.string().required('Email is required').email(),
-      password: Yup.string().required('Password is required'),
+      email: Yup.string()
+        .required(dictionary?.login.errors.email)
+        .email(),
+      password: Yup.string().required(dictionary?.login.errors.password),
     }),
     onSubmit: async (values) => {
       const result = await signIn('credentials', {
@@ -32,7 +36,7 @@ export const LoginForm = () => {
       });
 
       if (!result?.ok) {
-        setLoginError('Invalid email or password.');
+        setLoginError(dictionary?.login.errors.invalid || '');
         return;
       }
       setLoginError('');
@@ -46,7 +50,7 @@ export const LoginForm = () => {
         margin='normal'
         required
         id='email'
-        label='Email Address'
+        label={dictionary?.login.email}
         name='email'
         autoComplete='email'
         autoFocus
@@ -62,7 +66,7 @@ export const LoginForm = () => {
         margin='normal'
         required
         name='password'
-        label='Password'
+        label={dictionary?.login.password}
         type='password'
         id='password'
         autoComplete='current-password'
@@ -74,7 +78,7 @@ export const LoginForm = () => {
       />
       <Stack direction='row' justifyContent='flex-end' sx={{ mt: 2 }}>
         <Button type='submit' disabled={formik.isSubmitting} size='large'>
-          Sign In
+          {dictionary?.login.signIn}
         </Button>
       </Stack>
     </Box>

@@ -1,0 +1,12 @@
+{
+  "login": {
+    "signIn": "Sign in",
+    "email": "Email Address",
+    "password": "Password",
+    "errors": {
+      "email": "Email is required",
+      "password": "Password is required",
+      "invalid": "Invalid email or password."
+    }
+  }
+}

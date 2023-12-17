@@ -1,0 +1,12 @@
+{
+  "login": {
+    "signIn": "Prijavi se",
+    "email": "Email",
+    "password": "Lozinka",
+    "errors": {
+      "email": "Email je obavezan",
+      "password": "Lozinka je obavezna",
+      "invalid": "Nevažeći email ili lozinka."
+    }
+  }
+}
