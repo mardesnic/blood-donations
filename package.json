@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "lint-staged": "lint-staged",
-    "type-check": "tsc --project tsconfig.json --pretty --noEmit && echo "
+    "type-check": "tsc --project tsconfig.json --pretty --noEmit && echo ",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
