@@ -4,7 +4,7 @@ import { useDonationsContext } from '@/context/DonationsContext';
 import { AppBar, Container, Dialog, IconButton, Toolbar } from '@mui/material';
 import React from 'react';
 import { MdClose } from 'react-icons/md';
-import { DonationForm } from '../form';
+import { DonationCreateUpdateForm } from '../forms/createUpdate';
 
 export const DonationUpdateDialog = () => {
   const { closeDialog, activeDialog } = useDonationsContext();
@@ -25,7 +25,7 @@ export const DonationUpdateDialog = () => {
         </Toolbar>
       </AppBar>
       <Container maxWidth={'sm'}>
-        <DonationForm donation={donation} />
+        <DonationCreateUpdateForm donation={donation} />
       </Container>
     </Dialog>
   );

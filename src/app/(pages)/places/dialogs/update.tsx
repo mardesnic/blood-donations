@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { MdClose } from 'react-icons/md';
-import { PlaceForm } from '../forms/form';
+import { CreateUpdatePlaceForm } from '../forms/createUpdate';
 
 export const PlaceUpdateDialog = () => {
   const { closeDialog, activeDialog } = usePlacesContext();
@@ -35,7 +35,7 @@ export const PlaceUpdateDialog = () => {
         </Toolbar>
       </AppBar>
       <Container maxWidth={'sm'} sx={{ pt: 2, pb: 3 }}>
-        <PlaceForm place={place} />
+        <CreateUpdatePlaceForm place={place} />
       </Container>
     </Dialog>
   );

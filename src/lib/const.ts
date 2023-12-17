@@ -22,6 +22,18 @@ export const reactQueryKeys = {
   },
   actions: {
     all: () => ['ACTIONS'] as const,
+    list: (
+      page: number,
+      pageSize: number,
+      search: string,
+      filter: string,
+      sort: string,
+      placeId: string
+    ) =>
+      [
+        ...reactQueryKeys.actions.all(),
+        { page, pageSize, search, filter, sort, placeId },
+      ] as const,
   },
   donations: {
     all: () => ['DONATIONS'] as const,
@@ -31,11 +43,12 @@ export const reactQueryKeys = {
       search: string,
       filter: string,
       sort: string,
-      donorId: string
+      donorId: string,
+      actionId: string
     ) =>
       [
         ...reactQueryKeys.donations.all(),
-        { page, pageSize, search, filter, sort, donorId },
+        { page, pageSize, search, filter, sort, donorId, actionId },
       ] as const,
   },
   donors: {

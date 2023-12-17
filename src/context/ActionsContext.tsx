@@ -6,8 +6,15 @@ import {
   useRemoveAction,
   useUpdateAction,
 } from '@/hooks/useActions';
-import { Action } from '@prisma/client';
+import { Action, Place, Prisma } from '@prisma/client';
 import React, { createContext, useContext, useState } from 'react';
+import { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
+import { PAGE_SIZE } from '@/lib/const';
+import { generateSortString } from '@/lib/utils';
+
+export type ActionWithPlace = Prisma.ActionGetPayload<{
+  include: { place: true };
+}>;
 
 interface DeleteDialogI {
   type: 'delete';
@@ -26,7 +33,8 @@ interface CreateDialogI {
 type DialogType = null | DeleteDialogI | UpdateDialogI | CreateDialogI;
 
 interface ActionsContextI {
-  actions: Action[];
+  actions: ActionWithPlace[];
+  count: number;
   isLoading: boolean;
   isFetching: boolean;
   activeDialog: DialogType;
@@ -35,16 +43,36 @@ interface ActionsContextI {
   updateAction: (data: Partial<Action>) => Promise<void>;
   removeAction: (id: string) => Promise<void>;
   closeDialog: () => void;
+  paginationModel: GridPaginationModel;
+  changePaginationModel: (paginationModel: GridPaginationModel) => void;
+  sortModel: GridSortModel;
+  changeSortModel: (sortModel: GridSortModel) => void;
+  place?: Place;
 }
 
 const ActionsContext = createContext({} as ActionsContextI);
 
 export const ActionsProvider = ({
   children,
+  place,
 }: {
   children: React.ReactNode;
+  place?: Place;
 }) => {
-  const { isLoading, isFetching, data: actions = [] } = useGetActions();
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: PAGE_SIZE,
+  });
+  const [sortModel, setSortModel] = useState<GridSortModel>(
+    {} as GridSortModel
+  );
+  const { isLoading, isFetching, data } = useGetActions(
+    {
+      ...paginationModel,
+      sort: generateSortString(sortModel),
+    },
+    place?.id || ''
+  );
   const { mutateAsync: createAction, isPending: isCreatePending } =
     useCreateAction();
   const { mutateAsync: updateAction, isPending: isUpdatePending } =
@@ -55,8 +83,13 @@ export const ActionsProvider = ({
   const closeDialog = () => setActiveDialog(null);
   const openDialog = (dialog: DialogType) => setActiveDialog(dialog);
 
+  const changePaginationModel = (paginationModel: GridPaginationModel) =>
+    setPaginationModel(paginationModel);
+  const changeSortModel = (sortModel: GridSortModel) => setSortModel(sortModel);
+
   const values: ActionsContextI = {
-    actions,
+    actions: data?.actions || [],
+    count: data?.count || 0,
     isLoading:
       isLoading ||
       isFetching ||
@@ -70,6 +103,11 @@ export const ActionsProvider = ({
     activeDialog,
     closeDialog,
     openDialog,
+    paginationModel,
+    changePaginationModel,
+    sortModel,
+    changeSortModel,
+    place,
   };
 
   return (
