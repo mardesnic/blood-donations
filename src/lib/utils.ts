@@ -62,12 +62,15 @@ export function generateSortFieldsFromSortString(sortString: string): {
   return { sortField, sort };
 }
 
-export function getPrismaOperatorFromGridOperator(operator: string): string {
-  const prismaOperator = DATA_GRID_PRISMA_TRANSLATION_MAP[operator];
+export function getPrismaOperatorFromGridOperator(operator: string): {
+  prismaOperator: string;
+  mode: string | undefined;
+} {
+  const { prismaOperator, mode } = DATA_GRID_PRISMA_TRANSLATION_MAP[operator];
   if (!prismaOperator) {
     throw new Error('Filter operator not implemented.');
   }
-  return prismaOperator;
+  return { prismaOperator, mode };
 }
 
 export function getPrismaTermFromGridOperator(

@@ -85,13 +85,16 @@ export default class PlaceService {
       };
     }
     if (filterField && filterOperator && typeof filterTerm !== 'undefined') {
-      const prismaOperator = getPrismaOperatorFromGridOperator(filterOperator);
+      const { prismaOperator, mode } =
+        getPrismaOperatorFromGridOperator(filterOperator);
       const prismaTerm = getPrismaTermFromGridOperator(
         filterOperator,
         filterTerm
       );
       if (prismaTerm !== '') {
-        filterCondition = { [filterField]: { [prismaOperator]: prismaTerm } };
+        filterCondition = {
+          [filterField]: { [prismaOperator]: prismaTerm, mode },
+        };
       }
     }
     if (
