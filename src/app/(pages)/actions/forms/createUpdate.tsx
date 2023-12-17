@@ -26,14 +26,14 @@ interface Props {
 }
 
 const Form = ({ action }: Props) => {
-  const { closeDialog, createAction, updateAction, isLoading } =
+  const { closeDialog, createAction, updateAction, isLoading, place } =
     useActionsContext();
   const { places } = usePlacesContext();
 
   const formik = useFormik({
     initialValues: {
       title: action?.title || '',
-      placeId: action?.placeId || '',
+      placeId: action?.placeId || place?.id || '',
       startDateTime: dayjs(action?.startDateTime) || dayjs(),
       endDateTime: dayjs(action?.endDateTime) || dayjs(),
       note: action?.note || '',
@@ -142,7 +142,7 @@ const Form = ({ action }: Props) => {
   );
 };
 
-export const ActionForm = ({ action }: Props) => {
+export const ActionCreateUpdateForm = ({ action }: Props) => {
   return (
     <PlacesProvider>
       <Form action={action} />

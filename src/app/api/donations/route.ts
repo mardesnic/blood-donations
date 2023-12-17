@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   const pageSize = searchParams.get('pageSize') || PAGE_SIZE;
 
   const donorId = searchParams.get('donorId') || '';
+  const actionId = searchParams.get('actionId') || '';
 
   const take = parseInt(pageSize.toString(), 10);
   const skip = parseInt(page.toString(), 10) * take;
@@ -18,6 +19,7 @@ export async function GET(req: NextRequest) {
   );
   const [donations, count] = await DonationService.find(
     donorId,
+    actionId,
     take,
     skip,
     sortField as keyof Donation,

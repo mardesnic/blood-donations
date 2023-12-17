@@ -9,7 +9,7 @@ interface Props {
   place?: Place;
 }
 
-export const PlaceForm = ({ place }: Props) => {
+export const CreateUpdatePlaceForm = ({ place }: Props) => {
   const { closeDialog, createPlace, updatePlace, isLoading } =
     usePlacesContext();
 
