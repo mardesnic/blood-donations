@@ -144,21 +144,27 @@ export default class DonorService {
     if (search?.length) {
       searchCondition = {
         OR: [
-          { fullName: { contains: search } },
-          { city: { contains: search } },
-          { email: { contains: search } },
-          { oib: { contains: search } },
+          { fullName: { contains: search, mode: 'insensitive' } },
+          { city: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { oib: { contains: search, mode: 'insensitive' } },
         ],
       };
     }
     if (filterField && filterOperator && typeof filterTerm !== 'undefined') {
-      const prismaOperator = getPrismaOperatorFromGridOperator(filterOperator);
+      const { prismaOperator, mode } =
+        getPrismaOperatorFromGridOperator(filterOperator);
       const prismaTerm = getPrismaTermFromGridOperator(
         filterOperator,
         filterTerm
       );
       if (prismaTerm !== '') {
-        filterCondition = { [filterField]: { [prismaOperator]: prismaTerm } };
+        filterCondition = {
+          [filterField]: {
+            [prismaOperator]: prismaTerm,
+            mode,
+          },
+        };
       }
     }
     if (

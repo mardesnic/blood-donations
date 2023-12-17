@@ -73,6 +73,9 @@ const useUpdatePlace = () => {
     mutationFn: (data: Partial<Place>) => updatePlace(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: reactQueryKeys.places.all() });
+      queryClient.invalidateQueries({
+        queryKey: reactQueryKeys.actions.all(),
+      });
     },
   });
 };
@@ -92,6 +95,9 @@ const useRemovePlace = () => {
     mutationFn: (id: string) => removePlace(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: reactQueryKeys.places.all() });
+      queryClient.invalidateQueries({
+        queryKey: reactQueryKeys.actions.all(),
+      });
     },
   });
 };

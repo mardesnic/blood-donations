@@ -68,20 +68,20 @@ export const reactQueryKeys = {
 };
 
 export const DATA_GRID_PRISMA_TRANSLATION_MAP: {
-  [key: string]: string;
+  [key: string]: { prismaOperator: string; mode?: string };
 } = {
-  '>': 'gt',
-  '<': 'lt',
-  '<=': 'lte',
-  '>=': 'gte',
-  '=': 'equals',
-  equals: 'equals',
-  contains: 'contains',
-  is: 'equals',
-  not: 'not',
-  isAnyOf: 'in',
-  after: 'gt',
-  before: 'lt',
+  '>': { prismaOperator: 'gt' },
+  '<': { prismaOperator: 'lt' },
+  '<=': { prismaOperator: 'lte' },
+  '>=': { prismaOperator: 'gte' },
+  '=': { prismaOperator: 'equals' },
+  equals: { prismaOperator: 'equals', mode: 'insensitive' },
+  contains: { prismaOperator: 'contains', mode: 'insensitive' },
+  is: { prismaOperator: 'equals' },
+  not: { prismaOperator: 'not' },
+  isAnyOf: { prismaOperator: 'in' },
+  after: { prismaOperator: 'gt' },
+  before: { prismaOperator: 'lt' },
 };
 
 export const ENABLED_GRID_NUMERIC_OPERATORS = ['>', '<', '=', '<=', '>='];

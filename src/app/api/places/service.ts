@@ -78,20 +78,23 @@ export default class PlaceService {
     if (search?.length) {
       searchCondition = {
         OR: [
-          { title: { contains: search } },
-          { city: { contains: search } },
-          { contactName: { contains: search } },
+          { title: { contains: search, mode: 'insensitive' } },
+          { city: { contains: search, mode: 'insensitive' } },
+          { contactName: { contains: search, mode: 'insensitive' } },
         ],
       };
     }
     if (filterField && filterOperator && typeof filterTerm !== 'undefined') {
-      const prismaOperator = getPrismaOperatorFromGridOperator(filterOperator);
+      const { prismaOperator, mode } =
+        getPrismaOperatorFromGridOperator(filterOperator);
       const prismaTerm = getPrismaTermFromGridOperator(
         filterOperator,
         filterTerm
       );
       if (prismaTerm !== '') {
-        filterCondition = { [filterField]: { [prismaOperator]: prismaTerm } };
+        filterCondition = {
+          [filterField]: { [prismaOperator]: prismaTerm, mode },
+        };
       }
     }
     if (

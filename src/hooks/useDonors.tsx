@@ -73,6 +73,9 @@ const useUpdateDonor = () => {
     mutationFn: (data: Partial<Donor>) => updateDonor(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: reactQueryKeys.donors.all() });
+      queryClient.invalidateQueries({
+        queryKey: reactQueryKeys.donations.all(),
+      });
     },
   });
 };
@@ -92,6 +95,9 @@ const useRemoveDonor = () => {
     mutationFn: (id: string) => removeDonor(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: reactQueryKeys.donors.all() });
+      queryClient.invalidateQueries({
+        queryKey: reactQueryKeys.donations.all(),
+      });
     },
   });
 };
