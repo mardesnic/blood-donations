@@ -12,7 +12,15 @@ import { ROUTE_PATHS } from '@/routes';
 import Link from 'next/link';
 
 export default function ActionsTable() {
-  const { actions, isLoading, isFetching, openDialog } = useActionsContext();
+  const {
+    actions,
+    count,
+    isLoading,
+    isFetching,
+    openDialog,
+    changePaginationModel,
+    changeSortModel,
+  } = useActionsContext();
   const columns: GridColDef[] = [
     {
       field: 'title',
@@ -77,9 +85,20 @@ export default function ActionsTable() {
   ];
   return (
     <DataGrid
+      initialState={{
+        sorting: {
+          sortModel: [{ field: 'startDateTime', sort: 'desc' }],
+        },
+        pagination: { paginationModel: { pageSize: 15 } },
+      }}
       rows={actions}
+      rowCount={count}
       columns={columns}
       loading={isLoading || isFetching}
+      paginationMode='server'
+      onPaginationModelChange={changePaginationModel}
+      sortingMode='server'
+      onSortModelChange={changeSortModel}
     />
   );
 }
