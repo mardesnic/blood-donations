@@ -37,7 +37,7 @@ export default function DonationsTable() {
       sortable: false,
       disableColumnMenu: true,
       flex: 1,
-      renderCell: (params) => params.value.fullName,
+      renderCell: (params) => params?.value?.fullName || '',
     },
     {
       field: 'action',
@@ -45,7 +45,7 @@ export default function DonationsTable() {
       sortable: false,
       disableColumnMenu: true,
       flex: 1,
-      renderCell: (params) => params.value.title || 'None',
+      renderCell: (params) => params?.value?.title || 'None',
     },
     {
       field: 'denied',
