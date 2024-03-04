@@ -1,6 +1,6 @@
 import { BreakpointsOptions, createTheme } from '@mui/material/styles';
 import { TypographyOptions } from '@mui/material/styles/createTypography';
-import { Roboto } from 'next/font/google';
+import { Open_Sans } from 'next/font/google';
 import type {} from '@mui/x-data-grid/themeAugmentation';
 
 const breakpoints: BreakpointsOptions = {
@@ -13,30 +13,26 @@ const breakpoints: BreakpointsOptions = {
   },
 };
 
-const roboto = Roboto({
+const openSans = Open_Sans({
   weight: ['400', '500', '700'],
   subsets: ['latin'],
   display: 'swap',
 });
 
 const typography: TypographyOptions = {
-  fontFamily: roboto.style.fontFamily,
-  body1: {
-    fontSize: 14,
-    fontWeight: 400,
-  },
+  fontSize: 16,
+  fontFamily: openSans.style.fontFamily,
   h1: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 700,
     marginBlockEnd: 12,
   },
-  h2: {
-    fontSize: 20,
-    fontWeight: 500,
-  },
   h3: {
-    fontSize: 18,
-    fontWeight: 500,
+    fontSize: 16,
+    fontWeight: 700,
+  },
+  button: {
+    fontSize: 16,
   },
 };
 
@@ -44,6 +40,11 @@ export const theme = createTheme({
   breakpoints,
   spacing: 8,
   typography,
+  palette: {
+    primary: {
+      main: '#EB4B62',
+    },
+  },
   components: {
     MuiButton: {
       defaultProps: {

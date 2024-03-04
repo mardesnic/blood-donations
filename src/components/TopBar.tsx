@@ -1,6 +1,7 @@
 'use client';
 
 import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import React from 'react';
 import { UserDropdown } from './UserDropdown';
 import { ROUTE_PATHS } from '@/routes';
@@ -16,7 +17,13 @@ export const TopBar = () => {
   return (
     <AppBar position='sticky'>
       <Toolbar>
-        <Typography variant='h3' sx={{ m: 0 }} component='div'>
+        <WaterDropIcon />
+
+        <Typography
+          variant='h3'
+          sx={{ mx: '16px', textTransform: 'uppercase' }}
+          component='div'
+        >
           <Link href={ROUTE_PATHS.PROTECTED.HOME.path}>{APP_TITLE}</Link>
         </Typography>
         <>
@@ -25,17 +32,18 @@ export const TopBar = () => {
               <Link href={route.path} key={`${route.path}`}>
                 <Button
                   variant='text'
-                  size='large'
+                  size='medium'
                   className={
                     route.label.toLowerCase().includes(page) ? 'active' : ''
                   }
                   disableRipple
                   sx={{
                     color: 'white',
+                    textTransform: 'none',
                     '&.active': {
                       textDecoration: 'underline',
-                      textDecorationThickness: '4px',
-                      textUnderlineOffset: '23px',
+                      textDecorationThickness: '2px',
+                      textUnderlineOffset: '16px',
                     },
                   }}
                 >
