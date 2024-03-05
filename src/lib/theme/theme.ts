@@ -44,6 +44,9 @@ export const theme = createTheme({
     primary: {
       main: '#EB4B62',
     },
+    secondary: {
+      main: '#1D2A43',
+    },
   },
   components: {
     MuiButton: {
