@@ -1,9 +1,6 @@
-import { Stack, Typography } from '@mui/material';
+import { redirect } from 'next/navigation';
+import { ROUTE_PATHS } from '@/routes';
 
 export default async function Home() {
-  return (
-    <Stack>
-      <Typography variant='h1'>Welcome</Typography>
-    </Stack>
-  );
+  return redirect(ROUTE_PATHS.PROTECTED.DONORS.path);
 }

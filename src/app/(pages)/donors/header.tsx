@@ -1,27 +1,21 @@
 'use client';
 
-import { useDonorsContext } from '@/context/DonorsContext';
 import { Button, Stack, Typography } from '@mui/material';
 import React from 'react';
 import { MdAdd } from 'react-icons/md';
 
 export const DonorsHeader = () => {
-  const { openDialog } = useDonorsContext();
   return (
-    <Stack
-      direction='row'
-      justifyContent='space-between'
-      alignItems='center'
-      mb={2}
-    >
+    <Stack direction='row' justifyContent='space-between' alignItems='center'>
       <Typography variant='h1'>Donors</Typography>
-      <Button
-        color='secondary'
-        startIcon={<MdAdd />}
-        onClick={() => openDialog({ type: 'create' })}
-      >
-        New Donor
-      </Button>
+      <Stack direction='row' gap={2}>
+        <Button variant='outlined' size='medium' color='inherit'>
+          Export CSV
+        </Button>
+        <Button color='secondary' size='medium' startIcon={<MdAdd />}>
+          New Donor
+        </Button>
+      </Stack>
     </Stack>
   );
 };
