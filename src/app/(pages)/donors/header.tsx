@@ -16,10 +16,11 @@ export const DonorsHeader = () => {
     >
       <Typography variant='h1'>Donors</Typography>
       <Button
+        color='secondary'
         startIcon={<MdAdd />}
         onClick={() => openDialog({ type: 'create' })}
       >
-        Create
+        New Donor
       </Button>
     </Stack>
   );

@@ -24,7 +24,7 @@ export const TopBar = () => {
           sx={{ mx: '16px', textTransform: 'uppercase' }}
           component='div'
         >
-          <Link href={ROUTE_PATHS.PROTECTED.HOME.path}>{APP_TITLE}</Link>
+          <Link href={ROUTE_PATHS.PROTECTED.DONORS.path}>{APP_TITLE}</Link>
         </Typography>
         <>
           <Box display={{ xs: 'none', md: 'flex' }} sx={{ flexGrow: 1, ml: 2 }}>

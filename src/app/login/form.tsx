@@ -36,7 +36,7 @@ export const LoginForm = () => {
         return;
       }
       setLoginError('');
-      router.push(ROUTE_PATHS.PROTECTED.HOME.path);
+      router.push(ROUTE_PATHS.PROTECTED.DONORS.path);
     },
   });
 
