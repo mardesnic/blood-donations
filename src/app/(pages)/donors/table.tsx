@@ -2,16 +2,19 @@
 
 import * as React from 'react';
 import dayjs from 'dayjs';
+import Card from '@mui/material/Card';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { BloodType, Donor, Gender } from '@prisma/client';
-import { IconButton, useMediaQuery } from '@mui/material';
+import { Button, IconButton, useMediaQuery } from '@mui/material';
 import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
 import { useDonorsContext } from '@/context/DonorsContext';
 import { DATE_FORMAT } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
 import { theme } from '@/lib/theme/theme';
 import { getEnabledGridFilterOperators } from '@/lib/clientUtils';
-import { CustomDataGridToolbar } from '@/components/CustomDataGridToolbar';
 import Link from 'next/link';
 
 export default function DonorsTable() {
@@ -19,11 +22,11 @@ export default function DonorsTable() {
     donors,
     donorCount,
     changePaginationModel,
-    changeFilterModel,
+    // changeFilterModel,
     changeSortModel,
     isLoading,
     openDialog,
-    exportDonorsDownloadLink,
+    // exportDonorsDownloadLink,
   } = useDonorsContext();
   const isMdScreen = useMediaQuery(theme.breakpoints.down('md'));
   const lgColumns: GridColDef[] = [
@@ -162,30 +165,45 @@ export default function DonorsTable() {
   );
 
   return (
-    <DataGrid
-      rows={donors}
-      rowCount={donorCount}
-      columns={columns}
-      loading={isLoading}
-      paginationMode='server'
-      onPaginationModelChange={changePaginationModel}
-      filterMode='server'
-      onFilterModelChange={changeFilterModel}
-      sortingMode='server'
-      onSortModelChange={changeSortModel}
-      disableColumnFilter={false}
-      slots={{
-        toolbar: (props) => (
-          <CustomDataGridToolbar
-            {...props}
-            exportLink={exportDonorsDownloadLink}
-          />
-        ),
-      }}
-      filterDebounceMs={500}
-      localeText={{
-        toolbarQuickFilterPlaceholder: 'Search by name, city, email, oib',
-      }}
-    />
+    <Card sx={{ mt: '30px', p: '30px 24px' }} raised={true}>
+      <Stack direction='row' justifyContent='space-between' alignItems='center'>
+        <TextField
+          color='secondary'
+          label='Search'
+          placeholder='Name, email, etc...'
+          variant='standard'
+          sx={{ width: '50%' }}
+        />
+        <Button variant='outlined' size='medium' color='inherit'>
+          Filter
+        </Button>
+      </Stack>
+      <DataGrid
+        rows={donors}
+        rowCount={donorCount}
+        columns={columns}
+        loading={isLoading}
+        paginationMode='server'
+        onPaginationModelChange={changePaginationModel}
+        // filterMode='server'
+        // onFilterModelChange={changeFilterModel}
+        sortingMode='server'
+        onSortModelChange={changeSortModel}
+        disableColumnFilter={false}
+        // slots={{
+        //   toolbar: (props) => (
+        //     <CustomDataGridToolbar
+        //       {...props}
+        //       exportLink={exportDonorsDownloadLink}
+        //     />
+        //   ),
+        // }}
+        filterDebounceMs={500}
+        localeText={{
+          toolbarQuickFilterPlaceholder: 'Search by name, city, email, oib',
+        }}
+        sx={{ border: 0, mt: '24px' }}
+      />
+    </Card>
   );
 }
