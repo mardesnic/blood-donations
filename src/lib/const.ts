@@ -1,10 +1,8 @@
 export const APP_TITLE = 'Blood Donations';
 export const APP_DESCRIPTION = 'App to track blood donations.';
-
 export const DATE_TIME_FORMAT = 'DD.MM.YYYY. HH:mm';
 export const DATE_FORMAT = 'DD.MM.YYYY.';
 export const PAGE_SIZE = 15;
-
 export const reactQueryKeys = {
   places: {
     all: () => ['PLACES'] as const,
@@ -88,3 +86,19 @@ export const ENABLED_GRID_NUMERIC_OPERATORS = ['>', '<', '=', '<=', '>='];
 export const ENABLED_GRID_STRING_OPERATORS = ['contains', 'equals'];
 export const ENABLED_GRID_DATE_OPERATORS = ['is', 'after', 'before'];
 export const ENABLED_GRID_SINGLE_SELECT_OPERATORS = ['not', 'isAnyOf'];
+
+export const BLOOD_TYPES = {
+  A_POSITIVE: 'A+',
+  A_NEGATIVE: 'A-',
+  B_POSITIVE: 'B+',
+  B_NEGATIVE: 'B-',
+  AB_POSITIVE: 'AB+',
+  AB_NEGATIVE: 'AB+',
+  O_POSITIVE: '0+',
+  O_NEGATIVE: '0+',
+};
+
+export const GENDERS = {
+  MALE: 'M',
+  FEMALE: 'F',
+};
