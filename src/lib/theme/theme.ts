@@ -82,13 +82,6 @@ export const theme = createTheme({
             paginationModel: { pageSize: 15, page: 0 },
           },
         },
-        slotProps: {
-          toolbar: {
-            showQuickFilter: true,
-            csvOptions: { disableToolbarButton: true },
-            printOptions: { disableToolbarButton: true },
-          },
-        },
       },
       styleOverrides: {
         root: {

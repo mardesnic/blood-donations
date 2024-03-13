@@ -7,14 +7,11 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { BloodType, Donor, Gender } from '@prisma/client';
-import { Button, IconButton, useMediaQuery } from '@mui/material';
-import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
+import { Donor } from '@prisma/client';
+import { Button } from '@mui/material';
 import { useDonorsContext } from '@/context/DonorsContext';
-import { DATE_FORMAT } from '@/lib/const';
+import { DATE_FORMAT, BLOOD_TYPES, GENDERS } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
-import { theme } from '@/lib/theme/theme';
-import { getEnabledGridFilterOperators } from '@/lib/clientUtils';
 import Link from 'next/link';
 
 export default function DonorsTable() {
@@ -22,61 +19,42 @@ export default function DonorsTable() {
     donors,
     donorCount,
     changePaginationModel,
-    // changeFilterModel,
+    changeFilterModel,
+    filterModel,
     changeSortModel,
     isLoading,
-    openDialog,
+    // openDialog,
     // exportDonorsDownloadLink,
   } = useDonorsContext();
-  const isMdScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const lgColumns: GridColDef[] = [
+  const columns: GridColDef[] = [
     {
       field: 'fullName',
       headerName: 'Name',
       flex: 1,
     },
     {
-      field: 'email',
-      headerName: 'Email',
+      field: 'phone',
+      headerName: 'Phone',
       flex: 1,
+      sortable: false,
     },
     {
       field: 'oib',
       headerName: 'OIB',
       flex: 1,
-    },
-    {
-      field: 'city',
-      headerName: 'City',
-      flex: 1,
-    },
-    {
-      field: 'gender',
-      headerName: 'Gender',
-      flex: 1,
-      type: 'singleSelect',
-      valueOptions: Object.values(Gender),
+      sortable: false,
     },
     {
       field: 'bloodType',
       headerName: 'Blood Type',
       flex: 1,
-      type: 'singleSelect',
-      valueOptions: Object.values(BloodType),
+      valueGetter: (params: { value: keyof typeof BLOOD_TYPES }) =>
+        BLOOD_TYPES[params.value],
     },
     {
       field: 'donationCount',
       headerName: 'Donations',
       flex: 1,
-      type: 'number',
-      valueGetter: ({ row }) => row.donationCount,
-      renderCell: (params: {
-        row: Donor & { _count: { donations: number } };
-      }) => (
-        <>
-          {params.row.donationCount} ({params.row['_count'].donations})
-        </>
-      ),
     },
     {
       field: 'lastDonation',
@@ -87,6 +65,14 @@ export default function DonorsTable() {
       type: 'date',
     },
     {
+      field: 'gender',
+      headerName: 'Gender',
+      flex: 1,
+      valueGetter: (params: { value: keyof typeof GENDERS }) =>
+        GENDERS[params.value],
+    },
+
+    {
       field: 'dob',
       headerName: 'Date of Birth',
       flex: 1,
@@ -96,73 +82,31 @@ export default function DonorsTable() {
     },
     {
       field: 'actions',
-      headerName: '',
-      disableColumnMenu: true,
-      filterable: false,
-      sortable: false,
-      minWidth: 135,
-      renderCell: (params: { row: Donor }) => (
-        <>
-          <Link href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${params.row.id}`}>
-            <IconButton>
-              <MdVisibility />
-            </IconButton>
-          </Link>
-
-          <IconButton
-            onClick={() => openDialog({ type: 'update', donor: params.row })}
-          >
-            <MdEdit />
-          </IconButton>
-          <IconButton
-            onClick={() => openDialog({ type: 'delete', donor: params.row })}
-          >
-            <MdDelete />
-          </IconButton>
-        </>
-      ),
-    },
-  ];
-
-  const mdColumns: GridColDef[] = [
-    {
-      field: 'fullName',
-      headerName: 'Name',
-      flex: 1,
-    },
-    {
-      field: 'actions',
       headerName: 'Actions',
       disableColumnMenu: true,
-      hideSortIcons: true,
-      minWidth: 135,
+      sortable: false,
+      minWidth: 200,
       renderCell: (params: { row: Donor }) => (
-        <>
-          <Link href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${params.row.id}`}>
-            <IconButton>
-              <MdVisibility />
-            </IconButton>
-          </Link>
-          <IconButton
-            onClick={() => openDialog({ type: 'update', donor: params.row })}
+        <Link
+          href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${params.row.id}/donations`}
+        >
+          <Button
+            variant='outlined'
+            size='medium'
+            color='inherit'
+            sx={{ width: '190px' }}
           >
-            <MdEdit />
-          </IconButton>
-          <IconButton
-            onClick={() => openDialog({ type: 'delete', donor: params.row })}
-          >
-            <MdDelete />
-          </IconButton>
-        </>
+            See Donations ({params.row.donationCount})
+          </Button>
+        </Link>
       ),
     },
   ];
-  const columns = isMdScreen ? mdColumns : lgColumns;
-
-  columns.forEach(
-    (column) =>
-      (column.filterOperators = getEnabledGridFilterOperators(column.type))
-  );
+  //
+  // columns.forEach(
+  //   (column) =>
+  //     (column.filterOperators = getEnabledGridFilterOperators(column.type))
+  // );
 
   return (
     <Card sx={{ mt: '30px', p: '30px 24px' }} raised={true}>
@@ -173,6 +117,12 @@ export default function DonorsTable() {
           placeholder='Name, email, etc...'
           variant='standard'
           sx={{ width: '50%' }}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            changeFilterModel({
+              ...filterModel,
+              quickFilterValues: [event.target.value || ''],
+            });
+          }}
         />
         <Button variant='outlined' size='medium' color='inherit'>
           Filter
@@ -189,7 +139,6 @@ export default function DonorsTable() {
         // onFilterModelChange={changeFilterModel}
         sortingMode='server'
         onSortModelChange={changeSortModel}
-        disableColumnFilter={false}
         // slots={{
         //   toolbar: (props) => (
         //     <CustomDataGridToolbar
@@ -203,6 +152,8 @@ export default function DonorsTable() {
           toolbarQuickFilterPlaceholder: 'Search by name, city, email, oib',
         }}
         sx={{ border: 0, mt: '24px' }}
+        getRowHeight={() => 55}
+        disableColumnFilter={true}
       />
     </Card>
   );
