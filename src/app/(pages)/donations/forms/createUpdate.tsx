@@ -21,23 +21,26 @@ import Checkbox from '@mui/material/Checkbox';
 import dayjs from 'dayjs';
 import { DATE_TIME_FORMAT } from '@/lib/const';
 import { useGetDonors } from '@/hooks/useDonors';
+import { ROUTE_PATHS } from '@/routes';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   donation?: DonationWithDonor;
 }
 
 const Form = ({ donation }: Props) => {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = React.useState(
     donation?.donor?.fullName || ''
   );
 
   const {
-    closeDialog,
     createDonation,
     updateDonation,
     isLoading,
     donor,
     action,
+    openDialog,
   } = useDonationsContext();
 
   const { isLoading: isDonorsLoading, data } = useGetDonors({
@@ -83,11 +86,11 @@ const Form = ({ donation }: Props) => {
       } else {
         await createDonation(newValues as Donation);
       }
-      closeDialog();
+      router.push(ROUTE_PATHS.PROTECTED.DONATIONS.path);
     },
   });
 
-  const onDonorInputChange = (event: React.SyntheticEvent, value: string) => {
+  const onDonorInputChange = (_: React.SyntheticEvent, value: string) => {
     setSearchQuery(value);
   };
 
@@ -211,17 +214,32 @@ const Form = ({ donation }: Props) => {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
         />
-        <Stack direction='row' justifyContent='flex-end' gap={2}>
-          <Button onClick={closeDialog} variant='outlined' disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button
-            type='submit'
-            disabled={isLoading || formik.isSubmitting || !formik.isValid}
-            startIcon={<MdEdit />}
-          >
-            Save Changes
-          </Button>
+        <Stack>
+          {!!donation && (
+            <Button
+              onClick={() => openDialog({ type: 'delete', donation })}
+              variant='outlined'
+              disabled={isLoading}
+            >
+              Delete Donation
+            </Button>
+          )}
+          <Stack direction='row' justifyContent='flex-end' gap={2} ml='auto'>
+            <Button
+              onClick={() => router.push(ROUTE_PATHS.PROTECTED.DONATIONS.path)}
+              variant='outlined'
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type='submit'
+              disabled={isLoading || formik.isSubmitting || !formik.isValid}
+              startIcon={<MdEdit />}
+            >
+              Save Changes
+            </Button>
+          </Stack>
         </Stack>
       </Box>
     </LocalizationProvider>

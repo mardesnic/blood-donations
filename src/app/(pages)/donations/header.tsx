@@ -1,26 +1,20 @@
 'use client';
 
-import { useDonationsContext } from '@/context/DonationsContext';
+import { ROUTE_PATHS } from '@/routes';
 import { Button, Stack, Typography } from '@mui/material';
 import React from 'react';
 import { MdAdd } from 'react-icons/md';
+import Link from 'next/link';
 
 export const DonationsHeader = () => {
-  const { openDialog } = useDonationsContext();
   return (
-    <Stack
-      direction='row'
-      justifyContent='space-between'
-      alignItems='center'
-      mb={2}
-    >
+    <Stack direction='row' justifyContent='space-between' alignItems='center'>
       <Typography variant='h1'>Donations</Typography>
-      <Button
-        startIcon={<MdAdd />}
-        onClick={() => openDialog({ type: 'create' })}
-      >
-        Create
-      </Button>
+      <Link href={`${ROUTE_PATHS.PROTECTED.DONATIONS.path}/create`}>
+        <Button color='secondary' size='medium' startIcon={<MdAdd />}>
+          New Donation
+        </Button>
+      </Link>
     </Stack>
   );
 };

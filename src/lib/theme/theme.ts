@@ -2,6 +2,7 @@ import { BreakpointsOptions, createTheme } from '@mui/material/styles';
 import { TypographyOptions } from '@mui/material/styles/createTypography';
 import { Open_Sans } from 'next/font/google';
 import type {} from '@mui/x-data-grid/themeAugmentation';
+import { PAGE_SIZE } from '../const';
 
 const breakpoints: BreakpointsOptions = {
   values: {
@@ -75,17 +76,30 @@ export const theme = createTheme({
         disableRowSelectionOnClick: true,
         hideFooterSelectedRowCount: true,
         autoHeight: true,
-        density: 'compact',
-        pageSizeOptions: [15, 50, 100],
+        pageSizeOptions: [PAGE_SIZE, 50, 100],
         initialState: {
           pagination: {
-            paginationModel: { pageSize: 15, page: 0 },
+            paginationModel: { pageSize: PAGE_SIZE, page: 0 },
           },
         },
       },
       styleOverrides: {
         root: {
           'input[type=search]': { minWidth: 205 },
+          '& .MuiDataGrid-row': {
+            cursor: 'pointer',
+          },
+          '& .MuiDataGrid-cell:focus': {
+            outline: 'none',
+          },
+          '& .MuiDataGrid-columnHeader:focus': {
+            outline: 'none',
+          },
+          '& .MuiDataGrid-columnHeaderTitle': {
+            fontWeight: 700,
+            fontSize: '16px',
+            lineHeight: '24px',
+          },
         },
       },
     },
