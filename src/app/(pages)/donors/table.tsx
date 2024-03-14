@@ -5,16 +5,20 @@ import dayjs from 'dayjs';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Donor } from '@prisma/client';
-import { Button } from '@mui/material';
-import { useDonorsContext } from '@/context/DonorsContext';
+import { Button, Typography } from '@mui/material';
+import Link from 'next/link';
+import { MdAdd } from 'react-icons/md';
+
 import { DATE_FORMAT, BLOOD_TYPES, GENDERS } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
-import Link from 'next/link';
+import { useDonorsContext } from '@/context/DonorsContext';
+import { useRouter } from 'next/navigation';
 
 export default function DonorsTable() {
+  const router = useRouter();
+
   const {
     donors,
     donorCount,
@@ -23,8 +27,7 @@ export default function DonorsTable() {
     filterModel,
     changeSortModel,
     isLoading,
-    // openDialog,
-    // exportDonorsDownloadLink,
+    exportDonorsDownloadLink,
   } = useDonorsContext();
   const columns: GridColDef[] = [
     {
@@ -42,7 +45,7 @@ export default function DonorsTable() {
       field: 'oib',
       headerName: 'OIB',
       flex: 1,
-      sortable: false,
+      disableColumnMenu: true,
     },
     {
       field: 'bloodType',
@@ -84,7 +87,6 @@ export default function DonorsTable() {
       field: 'actions',
       headerName: 'Actions',
       disableColumnMenu: true,
-      sortable: false,
       minWidth: 200,
       renderCell: (params: { row: Donor }) => (
         <Link
@@ -102,59 +104,71 @@ export default function DonorsTable() {
       ),
     },
   ];
-  //
-  // columns.forEach(
-  //   (column) =>
-  //     (column.filterOperators = getEnabledGridFilterOperators(column.type))
-  // );
 
   return (
-    <Card sx={{ mt: '30px', p: '30px 24px' }} raised={true}>
+    <>
       <Stack direction='row' justifyContent='space-between' alignItems='center'>
-        <TextField
-          color='secondary'
-          label='Search'
-          placeholder='Name, email, etc...'
-          variant='standard'
-          sx={{ width: '50%' }}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            changeFilterModel({
-              ...filterModel,
-              quickFilterValues: [event.target.value || ''],
-            });
-          }}
-        />
-        <Button variant='outlined' size='medium' color='inherit'>
-          Filter
-        </Button>
+        <Typography variant='h1'>Donors</Typography>
+        <Stack direction='row' gap={2}>
+          <Button
+            variant='outlined'
+            size='medium'
+            color='inherit'
+            href={exportDonorsDownloadLink}
+            target='_blank'
+          >
+            Export CSV
+          </Button>
+          <Link href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/create`}>
+            <Button color='secondary' size='medium' startIcon={<MdAdd />}>
+              New Donor
+            </Button>
+          </Link>
+        </Stack>
       </Stack>
-      <DataGrid
-        rows={donors}
-        rowCount={donorCount}
-        columns={columns}
-        loading={isLoading}
-        paginationMode='server'
-        onPaginationModelChange={changePaginationModel}
-        // filterMode='server'
-        // onFilterModelChange={changeFilterModel}
-        sortingMode='server'
-        onSortModelChange={changeSortModel}
-        // slots={{
-        //   toolbar: (props) => (
-        //     <CustomDataGridToolbar
-        //       {...props}
-        //       exportLink={exportDonorsDownloadLink}
-        //     />
-        //   ),
-        // }}
-        filterDebounceMs={500}
-        localeText={{
-          toolbarQuickFilterPlaceholder: 'Search by name, city, email, oib',
-        }}
-        sx={{ border: 0, mt: '24px' }}
-        getRowHeight={() => 55}
-        disableColumnFilter={true}
-      />
-    </Card>
+      <Card sx={{ mt: '30px', p: '30px 24px' }} raised={true}>
+        <Stack
+          direction='row'
+          justifyContent='space-between'
+          alignItems='center'
+        >
+          <TextField
+            color='secondary'
+            label='Search'
+            placeholder='Name, email, etc...'
+            variant='standard'
+            sx={{ width: '50%' }}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              changeFilterModel({
+                ...filterModel,
+                quickFilterValues: [event.target.value || ''],
+              });
+            }}
+          />
+          <Button variant='outlined' size='medium' color='inherit'>
+            Filter
+          </Button>
+        </Stack>
+        <DataGrid
+          rows={donors}
+          rowCount={donorCount}
+          columns={columns}
+          loading={isLoading}
+          paginationMode='server'
+          onPaginationModelChange={changePaginationModel}
+          // filterMode='server'
+          // onFilterModelChange={changeFilterModel}
+          sortingMode='server'
+          onSortModelChange={changeSortModel}
+          filterDebounceMs={500}
+          sx={{ border: 0, mt: '24px' }}
+          getRowHeight={() => 55}
+          disableColumnFilter={true}
+          onRowClick={(row) =>
+            router.push(`${ROUTE_PATHS.PROTECTED.DONORS.path}/${row.id}`)
+          }
+        />
+      </Card>
+    </>
   );
 }

@@ -3,14 +3,11 @@ import DonorService from '@/app/api/donors/service';
 import { generatePageTitle, getDisplayName } from '@/lib/utils';
 import { notFound } from 'next/navigation';
 import { DonorDetailsHeader } from './header';
-import { DonorDetailsForm } from '../forms/details';
-import { DonationsProvider } from '@/context/DonationsContext';
-import DonationsTable from '../../donations/table';
-import { DonationCreateDialog } from '../../donations/dialogs/create';
-import { DonationUpdateDialog } from '../../donations/dialogs/update';
-import { DonationDeleteDialog } from '../../donations/dialogs/delete';
-import { DonationsHeader } from '../../donations/header';
-import { Divider } from '@mui/material';
+
+import { Container } from '@mui/material';
+import { DonorsProvider } from '@/context/DonorsContext';
+import React from 'react';
+import UpdateDonorBody from './body';
 
 type Props = {
   params: { id: string };
@@ -33,17 +30,11 @@ export default async function DonorsDetailsPage({ params: { id } }: Props) {
     notFound();
   }
   return (
-    <>
-      <DonorDetailsHeader donor={donor} />
-      <DonorDetailsForm donor={donor} />
-      <Divider sx={{ my: 4 }} />
-      <DonationsProvider donor={donor}>
-        <DonationsHeader />
-        <DonationsTable />
-        <DonationCreateDialog />
-        <DonationUpdateDialog />
-        <DonationDeleteDialog />
-      </DonationsProvider>
-    </>
+    <DonorsProvider>
+      <Container component='main' maxWidth='sm'>
+        <DonorDetailsHeader donor={donor} />
+        <UpdateDonorBody donor={donor} />
+      </Container>
+    </DonorsProvider>
   );
 }
