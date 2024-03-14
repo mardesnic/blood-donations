@@ -2,8 +2,10 @@ import { Metadata } from 'next';
 import DonationService from '@/app/api/donations/service';
 import { generatePageTitle } from '@/lib/utils';
 import { notFound } from 'next/navigation';
-import { DonationDetailsHeader } from './header';
-import { DonationDetailsForm } from '../forms/details';
+import { UpdateDonationHeader } from './header';
+import { Container } from '@mui/material';
+import { DonationsProvider } from '@/context/DonationsContext';
+import UpdateDonationBody from './body';
 
 type Props = {
   params: { id: string };
@@ -25,9 +27,11 @@ export default async function DonationDetails({ params: { id } }: Props) {
   }
 
   return (
-    <>
-      <DonationDetailsHeader donation={donation} />
-      <DonationDetailsForm donation={donation} />
-    </>
+    <DonationsProvider>
+      <Container component='main' maxWidth='sm'>
+        <UpdateDonationHeader />
+        <UpdateDonationBody />
+      </Container>
+    </DonationsProvider>
   );
 }

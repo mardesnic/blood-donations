@@ -4,7 +4,7 @@ import Link from 'next/link';
 import React from 'react';
 import { MdArrowBack } from 'react-icons/md';
 
-export const UpdateDonationHeader = () => {
+export const CreateDonationHeader = () => {
   return (
     <Typography variant='h1'>
       <Stack direction='row' alignItems='center' gap={1}>
