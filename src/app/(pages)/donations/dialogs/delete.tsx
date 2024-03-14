@@ -34,11 +34,17 @@ export const DonationDeleteDialog = () => {
       <DialogTitle>Delete Donation</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Are you sure you want to delete this donation?
+          This action cannot be undone. Deleting the donation will permanently
+          remove all associated information.
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={closeDialog} variant='outlined' disabled={isLoading}>
+        <Button
+          onClick={closeDialog}
+          variant='outlined'
+          disabled={isLoading}
+          color='secondary'
+        >
           Cancel
         </Button>
         <Button
@@ -47,7 +53,7 @@ export const DonationDeleteDialog = () => {
           disabled={isLoading}
           startIcon={<MdDelete />}
         >
-          Delete
+          Yes, Delete Donation
         </Button>
       </DialogActions>
     </Dialog>

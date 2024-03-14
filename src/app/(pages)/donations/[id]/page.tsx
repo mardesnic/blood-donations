@@ -6,6 +6,7 @@ import { UpdateDonationHeader } from './header';
 import { Container } from '@mui/material';
 import { DonationsProvider } from '@/context/DonationsContext';
 import UpdateDonationBody from './body';
+import { DonationDeleteDialog } from '../dialogs/delete';
 
 type Props = {
   params: { id: string };
@@ -29,9 +30,10 @@ export default async function DonationDetails({ params: { id } }: Props) {
   return (
     <DonationsProvider>
       <Container component='main' maxWidth='sm'>
-        <UpdateDonationHeader />
-        <UpdateDonationBody />
+        <UpdateDonationHeader donation={donation} />
+        <UpdateDonationBody donation={donation} />
       </Container>
+      <DonationDeleteDialog />
     </DonationsProvider>
   );
 }

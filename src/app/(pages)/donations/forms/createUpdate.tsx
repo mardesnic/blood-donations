@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import * as Yup from 'yup';
 import {
@@ -8,7 +10,6 @@ import { useActionsContext, ActionsProvider } from '@/context/ActionsContext';
 import { Box, Button, MenuItem, Stack } from '@mui/material';
 import { Donation, Donor, DenyReasonType } from '@prisma/client';
 import { useFormik } from 'formik';
-import { MdEdit } from 'react-icons/md';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import TextField from '@mui/material/TextField';
@@ -214,7 +215,7 @@ const Form = ({ donation }: Props) => {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
         />
-        <Stack>
+        <Stack direction='row' justifyContent='space-between' mt={3}>
           {!!donation && (
             <Button
               onClick={() => openDialog({ type: 'delete', donation })}
@@ -226,16 +227,18 @@ const Form = ({ donation }: Props) => {
           )}
           <Stack direction='row' justifyContent='flex-end' gap={2} ml='auto'>
             <Button
-              onClick={() => router.push(ROUTE_PATHS.PROTECTED.DONATIONS.path)}
+              onClick={() => router.back()}
               variant='outlined'
               disabled={isLoading}
+              color='secondary'
             >
               Cancel
             </Button>
             <Button
               type='submit'
               disabled={isLoading || formik.isSubmitting || !formik.isValid}
-              startIcon={<MdEdit />}
+              color='secondary'
+              size='medium'
             >
               Save Changes
             </Button>
