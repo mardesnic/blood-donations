@@ -70,7 +70,7 @@ export default function DonorsTable() {
     {
       field: 'gender',
       headerName: 'Gender',
-      flex: 1,
+      flex: 0,
       valueGetter: (params: { value: keyof typeof GENDERS }) =>
         GENDERS[params.value],
     },
@@ -87,6 +87,7 @@ export default function DonorsTable() {
       field: 'actions',
       headerName: 'Actions',
       disableColumnMenu: true,
+      sortable: false,
       minWidth: 200,
       renderCell: (params: { row: Donor }) => (
         <Link
@@ -126,11 +127,12 @@ export default function DonorsTable() {
           </Link>
         </Stack>
       </Stack>
-      <Card sx={{ mt: '30px', p: '30px 24px' }} raised={true}>
+      <Card sx={{ mt: 4 }} elevation={2}>
         <Stack
           direction='row'
           justifyContent='space-between'
           alignItems='center'
+          sx={{ p: '30px 24px' }}
         >
           <TextField
             color='secondary'

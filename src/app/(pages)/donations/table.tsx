@@ -2,12 +2,17 @@
 
 import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Card } from '@mui/material';
+import { Card, Stack, useTheme } from '@mui/material';
 import { useDonationsContext } from '@/context/DonationsContext';
 import { useRouter } from 'next/navigation';
 import { ROUTE_PATHS } from '@/routes';
+import { GoDotFill } from 'react-icons/go';
+import dayjs from 'dayjs';
+import { DATE_FORMAT } from '@/lib/const';
+import { getDenyReasonDescription } from '@/lib/utils';
 
 export default function DonationsTable() {
+  const theme = useTheme();
   const router = useRouter();
   const {
     donations,
@@ -28,42 +33,56 @@ export default function DonationsTable() {
     },
     {
       field: 'donationDate',
-      headerName: 'Donation Date',
+      headerName: 'Date',
       sortable: false,
       flex: 1,
+      renderCell: (params) => dayjs(params.value).format(DATE_FORMAT),
+      valueGetter: ({ value }) => value && new Date(value),
+      type: 'date',
+      disableColumnMenu: true,
     },
     {
       field: 'action',
       headerName: 'Action',
-      sortable: false,
       disableColumnMenu: true,
+      sortable: false,
       flex: 1,
       renderCell: (params) => params?.value?.title || 'None',
     },
     {
       field: 'denied',
-      headerName: 'Denied',
-      sortable: false,
+      headerName: 'Status',
       disableColumnMenu: true,
+      sortable: false,
       flex: 1,
       renderCell: (params) => {
-        if (!params.value) {
-          return '-';
+        if (params.value) {
+          return (
+            <Stack direction='row' alignItems='center' gap={0.5}>
+              <GoDotFill color={theme.palette.primary.main} />
+              <span>Denied</span>
+            </Stack>
+          );
         }
-
-        return params?.row?.denyReason;
+        return (
+          <Stack direction='row' alignItems='center' gap={0.5}>
+            <GoDotFill color={theme.palette.success.main} />
+            <span>Completed</span>
+          </Stack>
+        );
       },
     },
     {
-      field: 'note',
-      headerName: 'Note',
-      sortable: false,
+      field: 'denyReason',
+      headerName: 'Reason',
       disableColumnMenu: true,
+      sortable: false,
       flex: 1,
+      renderCell: (params) => getDenyReasonDescription(params.value),
     },
   ];
   return (
-    <Card sx={{ mt: '30px', p: '30px 24px' }} raised={true}>
+    <Card sx={{ mt: 4 }} elevation={2}>
       <DataGrid
         rows={donations}
         rowCount={count}

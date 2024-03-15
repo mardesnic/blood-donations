@@ -52,6 +52,9 @@ export default class DonationService {
   }
 
   static async update(id: string, data: Partial<Donation>) {
+    if (!data.denied) {
+      data.denyReason = null;
+    }
     return await prisma.donation.update({
       where: { id },
       data,

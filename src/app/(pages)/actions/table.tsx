@@ -89,7 +89,6 @@ export default function ActionsTable() {
         sorting: {
           sortModel: [{ field: 'startDateTime', sort: 'desc' }],
         },
-        pagination: { paginationModel: { pageSize: 15 } },
       }}
       rows={actions}
       rowCount={count}

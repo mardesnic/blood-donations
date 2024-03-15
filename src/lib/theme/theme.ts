@@ -48,6 +48,9 @@ export const theme = createTheme({
     secondary: {
       main: '#1D2A43',
     },
+    success: {
+      main: '#01BBAA',
+    },
   },
   components: {
     MuiButton: {
@@ -92,6 +95,23 @@ export const theme = createTheme({
           '& .MuiDataGrid-cell:focus': {
             outline: 'none',
           },
+          '& .MuiTablePagination-root': {
+            padding: '0 16px 0 0',
+          },
+          '& .MuiDataGrid-cell:nth-child(1)': {
+            padding: '0 0 0 24px',
+            boxSizing: 'border-box',
+          },
+          '& .MuiDataGrid-cell:nth-last-child(1)': {
+            padding: '0 24px 0 0',
+            boxSizing: 'border-box',
+          },
+          '& .MuiDataGrid-columnHeader:nth-child(1)': {
+            padding: '0 0 0 24px',
+          },
+          '& .MuiDataGrid-columnHeader:nth-last-child(1)': {
+            padding: '0 24px 0 0',
+          },
           '& .MuiDataGrid-columnHeader:focus': {
             outline: 'none',
           },
@@ -99,6 +119,9 @@ export const theme = createTheme({
             fontWeight: 700,
             fontSize: '16px',
             lineHeight: '24px',
+          },
+          '& .MuiDataGrid-columnSeparator': {
+            display: 'none',
           },
         },
       },
