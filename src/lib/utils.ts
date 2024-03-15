@@ -7,6 +7,7 @@ import {
   ENABLED_GRID_STRING_OPERATORS,
 } from '@/lib/const';
 import { GridFilterModel, GridSortModel } from '@mui/x-data-grid';
+import { DenyReasonType } from '@prisma/client';
 
 export function generatePageTitle(title: string = '') {
   return `${title ? `${title} | ` : ''}${APP_TITLE}`;
@@ -127,4 +128,17 @@ export function generateExportDownloadLink(
   );
 
   return `${baseUrl}?${queryStringParts.join('&')}`;
+}
+
+export function getDenyReasonDescription(denyReason: DenyReasonType): string {
+  const descriptions: Record<DenyReasonType, string> = {
+    [DenyReasonType.SEVEN_DAYS]: '7 Days',
+    [DenyReasonType.FIFTEEN_DAYS]: '15 Days',
+    [DenyReasonType.ONE_MONTH]: '1 Month',
+    [DenyReasonType.SIX_MONTHS]: '6 Months',
+    [DenyReasonType.ONE_YEAR]: '1 Year',
+    [DenyReasonType.LONGER]: 'Longer',
+    [DenyReasonType.PERMANENT]: 'Permanent',
+  };
+  return descriptions[denyReason] || denyReason;
 }

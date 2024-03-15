@@ -17,7 +17,7 @@ export async function generateMetadata({
 }: Props): Promise<Metadata> {
   const donation = await DonationService.findOne(id);
   return {
-    title: generatePageTitle(donation?.id),
+    title: generatePageTitle(`Donation - ${donation?.donor?.fullName}`),
   };
 }
 

@@ -24,6 +24,7 @@ import { DATE_TIME_FORMAT } from '@/lib/const';
 import { useGetDonors } from '@/hooks/useDonors';
 import { ROUTE_PATHS } from '@/routes';
 import { useRouter } from 'next/navigation';
+import { getDenyReasonDescription } from '@/lib/utils';
 
 interface Props {
   donation?: DonationWithDonor;
@@ -105,65 +106,64 @@ const Form = ({ donation }: Props) => {
   }, []);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box component='form' onSubmit={formik.handleSubmit} noValidate>
-        <Autocomplete
-          disablePortal
-          fullWidth
-          id='donors-selector'
-          options={data?.donors || []}
-          value={formik.values.donor}
-          onChange={(event, value) => {
-            formik.setFieldValue('donorId', value?.id);
-            formik.setFieldValue('donor', value);
-          }}
-          onBlur={formik.handleBlur}
-          onInputChange={searchDonorDelayed}
-          getOptionKey={(option: Donor) => option.id}
-          getOptionLabel={(option) => option.fullName || ''}
-          isOptionEqualToValue={(option, value) => option.id === value?.id}
-          loading={isDonorsLoading}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label='Donor'
-              onBlur={formik.handleBlur}
-              error={formik.touched.donorId && Boolean(formik.errors.donorId)}
-              helperText={formik.touched.donorId && formik.errors.donorId}
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <React.Fragment>
-                    {isDonorsLoading ? (
-                      <CircularProgress color='inherit' size={20} />
-                    ) : null}
-                    {params.InputProps.endAdornment}
-                  </React.Fragment>
-                ),
-              }}
-            />
-          )}
-        />
-
-        {!!actions.length && (
+    <Box component='form' onSubmit={formik.handleSubmit} noValidate>
+      <Autocomplete
+        disablePortal
+        fullWidth
+        id='donors-selector'
+        options={data?.donors || []}
+        value={formik.values.donor}
+        onChange={(event, value) => {
+          formik.setFieldValue('donorId', value?.id);
+          formik.setFieldValue('donor', value);
+        }}
+        onBlur={formik.handleBlur}
+        onInputChange={searchDonorDelayed}
+        getOptionKey={(option: Donor) => option.id}
+        getOptionLabel={(option) => option.fullName || ''}
+        isOptionEqualToValue={(option, value) => option.id === value?.id}
+        loading={isDonorsLoading}
+        renderInput={(params) => (
           <TextField
-            label='Action'
-            name='actionId'
-            value={formik.values.actionId}
-            onChange={formik.handleChange}
+            {...params}
+            label='Donor'
             onBlur={formik.handleBlur}
-            error={formik.touched.actionId && Boolean(formik.errors.actionId)}
-            helperText={formik.touched.actionId && formik.errors.actionId}
-            select
-          >
-            {actions.map((action) => (
-              <MenuItem key={action.id} value={action.id}>
-                {action.title}
-              </MenuItem>
-            ))}
-          </TextField>
+            error={formik.touched.donorId && Boolean(formik.errors.donorId)}
+            helperText={formik.touched.donorId && formik.errors.donorId}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <React.Fragment>
+                  {isDonorsLoading ? (
+                    <CircularProgress color='inherit' size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </React.Fragment>
+              ),
+            }}
+          />
         )}
+      />
 
+      {!!actions.length && (
+        <TextField
+          label='Action'
+          name='actionId'
+          value={formik.values.actionId}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.actionId && Boolean(formik.errors.actionId)}
+          helperText={formik.touched.actionId && formik.errors.actionId}
+          select
+        >
+          {actions.map((action) => (
+            <MenuItem key={action.id} value={action.id}>
+              {action.title}
+            </MenuItem>
+          ))}
+        </TextField>
+      )}
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DateTimePicker
           label='Donation date'
           value={formik.values.donationDate}
@@ -173,79 +173,76 @@ const Form = ({ donation }: Props) => {
           format={DATE_TIME_FORMAT}
           ampm={false}
         />
+      </LocalizationProvider>
+      <TextField
+        label='Note'
+        name='note'
+        value={formik.values.note}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+      />
 
-        <FormControlLabel
-          control={
-            <Checkbox
-              name='denied'
-              checked={formik.values.denied}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              inputProps={{ 'aria-label': 'controlled' }}
-            />
-          }
-          label='Denied'
-        />
-
-        {formik.values.denied && (
-          <TextField
-            label='Denied reason'
-            name='denyReason'
-            value={formik.values.denyReason}
+      <FormControlLabel
+        control={
+          <Checkbox
+            name='denied'
+            checked={formik.values.denied}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            error={
-              formik.touched.denyReason && Boolean(formik.errors.denyReason)
-            }
-            helperText={formik.touched.denyReason && formik.errors.denyReason}
-            select
-          >
-            {deniedReasons.map((reason) => (
-              <MenuItem key={reason} value={reason}>
-                {reason}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
+            inputProps={{ 'aria-label': 'controlled' }}
+          />
+        }
+        label='Denied'
+      />
 
+      {formik.values.denied && (
         <TextField
-          label='Note'
-          name='note'
-          value={formik.values.note}
+          label='Denied reason'
+          name='denyReason'
+          value={formik.values.denyReason}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-        />
-        <Stack direction='row' justifyContent='space-between' mt={3}>
-          {!!donation && (
-            <Button
-              onClick={() => openDialog({ type: 'delete', donation })}
-              variant='outlined'
-              disabled={isLoading}
-            >
-              Delete Donation
-            </Button>
-          )}
-          <Stack direction='row' justifyContent='flex-end' gap={2} ml='auto'>
-            <Button
-              onClick={() => router.back()}
-              variant='outlined'
-              disabled={isLoading}
-              color='secondary'
-            >
-              Cancel
-            </Button>
-            <Button
-              type='submit'
-              disabled={isLoading || formik.isSubmitting || !formik.isValid}
-              color='secondary'
-              size='medium'
-            >
-              Save Changes
-            </Button>
-          </Stack>
+          error={formik.touched.denyReason && Boolean(formik.errors.denyReason)}
+          helperText={formik.touched.denyReason && formik.errors.denyReason}
+          select
+        >
+          {deniedReasons.map((reason) => (
+            <MenuItem key={reason} value={reason}>
+              {getDenyReasonDescription(reason as DenyReasonType)}
+            </MenuItem>
+          ))}
+        </TextField>
+      )}
+      <Stack direction='row' justifyContent='space-between' mt={3}>
+        {!!donation && (
+          <Button
+            onClick={() => openDialog({ type: 'delete', donation })}
+            variant='outlined'
+            disabled={isLoading}
+          >
+            Delete Donation
+          </Button>
+        )}
+        <Stack direction='row' justifyContent='flex-end' gap={2} ml='auto'>
+          <Button
+            onClick={() => router.back()}
+            variant='outlined'
+            disabled={isLoading}
+            color='secondary'
+          >
+            Cancel
+          </Button>
+          <Button
+            type='submit'
+            disabled={isLoading || formik.isSubmitting || !formik.isValid}
+            color='secondary'
+            size='medium'
+          >
+            Save Changes
+          </Button>
         </Stack>
-      </Box>
-    </LocalizationProvider>
+      </Stack>
+    </Box>
   );
 };
 
