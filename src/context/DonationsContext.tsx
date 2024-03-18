@@ -86,7 +86,6 @@ export const DonationsProvider = ({
   const [activeDialog, setActiveDialog] = useState<null | DialogType>(null);
   const closeDialog = () => setActiveDialog(null);
   const openDialog = (dialog: DialogType) => setActiveDialog(dialog);
-
   const changePaginationModel = (paginationModel: GridPaginationModel) =>
     setPaginationModel(paginationModel);
   const changeSortModel = (sortModel: GridSortModel) => setSortModel(sortModel);

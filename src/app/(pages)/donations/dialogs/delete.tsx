@@ -11,8 +11,12 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { MdDelete } from 'react-icons/md';
+import { useRouter } from 'next/navigation';
+import { ROUTE_PATHS } from '@/routes';
 
 export const DonationDeleteDialog = () => {
+  const router = useRouter();
+
   const { closeDialog, activeDialog, removeDonation, isLoading } =
     useDonationsContext();
 
@@ -27,6 +31,7 @@ export const DonationDeleteDialog = () => {
   const onSubmit = async () => {
     await removeDonation(id);
     closeDialog();
+    router.push(`${ROUTE_PATHS.PROTECTED.DONATIONS.path}`);
   };
 
   return (

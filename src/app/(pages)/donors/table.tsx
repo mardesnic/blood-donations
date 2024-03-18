@@ -72,7 +72,7 @@ export default function DonorsTable() {
       headerName: 'Gender',
       flex: 0,
       valueGetter: (params: { value: keyof typeof GENDERS }) =>
-        GENDERS[params.value],
+        GENDERS[params.value].short,
     },
 
     {
