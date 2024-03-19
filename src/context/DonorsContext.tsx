@@ -25,27 +25,16 @@ interface DeleteDialogI {
   donor: Donor;
 }
 
-interface UpdateDialogI {
-  type: 'update';
-  donor: Donor;
-}
-
-interface CreateDialogI {
-  type: 'create';
-}
-
-type DialogType = null | DeleteDialogI | UpdateDialogI | CreateDialogI;
-
 interface DonorsContextI {
   donors: Donor[];
   donorCount: number;
   isLoading: boolean;
   isFetching: boolean;
-  activeDialog: DialogType;
+  activeDialog: DeleteDialogI | null;
   paginationModel: GridPaginationModel;
   filterModel: GridFilterModel;
   sortModel: GridSortModel;
-  openDialog: (dialog: DialogType) => void;
+  openDialog: (dialog: DeleteDialogI) => void;
   createDonor: (data: Partial<Donor>) => Promise<void>;
   updateDonor: (data: Partial<Donor>) => Promise<void>;
   removeDonor: (id: string) => Promise<void>;
@@ -59,7 +48,7 @@ interface DonorsContextI {
 const DonorsContext = createContext({} as DonorsContextI);
 
 export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
-  const [activeDialog, setActiveDialog] = useState<null | DialogType>(null);
+  const [activeDialog, setActiveDialog] = useState<null | DeleteDialogI>(null);
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: PAGE_SIZE,
@@ -84,7 +73,7 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
   const { mutateAsync: removeDonor, isPending: isDeletePending } =
     useRemoveDonor();
   const closeDialog = () => setActiveDialog(null);
-  const openDialog = (dialog: DialogType) => setActiveDialog(dialog);
+  const openDialog = (dialog: DeleteDialogI) => setActiveDialog(dialog);
   const donors = data?.donors || [];
   const donorCount = data?.count || 0;
   const changePaginationModel = (paginationModel: GridPaginationModel) =>

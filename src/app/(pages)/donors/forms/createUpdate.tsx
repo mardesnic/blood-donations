@@ -1,28 +1,35 @@
+'use client';
 import { useDonorsContext } from '@/context/DonorsContext';
 import { Box, Button, MenuItem, Stack, TextField } from '@mui/material';
-import { BloodType, Donor, Gender } from '@prisma/client';
+import { Donor } from '@prisma/client';
 import { useFormik } from 'formik';
 import dayjs from 'dayjs';
 import React from 'react';
-import { MdEdit } from 'react-icons/md';
 import * as Yup from 'yup';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DATE_FORMAT } from '@/lib/const';
+import { DATE_FORMAT, GENDERS, BLOOD_TYPES } from '@/lib/const';
 import { DatePicker } from '@mui/x-date-pickers';
+import { useRouter } from 'next/navigation';
+import { ROUTE_PATHS } from '@/routes';
 
 interface Props {
   donor?: Donor;
 }
 
 export const DonorCreateUpdateForm = ({ donor }: Props) => {
-  const { closeDialog, createDonor, updateDonor, isLoading } =
+  const router = useRouter();
+
+  const goToDonorsTable = () => {
+    router.push(`${ROUTE_PATHS.PROTECTED.DONORS.path}`);
+  };
+
+  const { createDonor, updateDonor, isLoading, openDialog } =
     useDonorsContext();
 
   const formik = useFormik({
     initialValues: {
-      firstName: donor?.firstName || '',
-      lastName: donor?.lastName || '',
+      fullName: `${donor?.firstName || ''} ${donor?.lastName || ''}`,
       fatherName: donor?.fatherName || '',
       email: donor?.email || '',
       phone: donor?.phone || '',
@@ -35,14 +42,10 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
       donationCount: donor?.donationCount || 0,
       lastDonation: dayjs(donor?.lastDonation) || dayjs(),
       active: donor?.active || true,
-      note: donor?.note || '',
     },
     validationSchema: Yup.object({
-      firstName: Yup.string()
-        .required('First Name is required')
-        .min(2, 'Must be 2 characters or more'),
-      lastName: Yup.string()
-        .required('Last Name is required')
+      fullName: Yup.string()
+        .required('Full Name is required')
         .min(2, 'Must be 2 characters or more'),
       oib: Yup.string()
         .required('OIB is required')
@@ -50,33 +53,31 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
         .max(11, 'Must be exactly 11 digits'),
       gender: Yup.string().required('Gender is required'),
       bloodType: Yup.string().required('Blood type is required'),
-      email: Yup.string()
-        .required('Email is required')
-        .email('Email must be a valid email'),
+      email: Yup.string().email('Email must be a valid email'),
       donationCount: Yup.number().min(
         0,
         'Donation count must greater than or equal to 0'
       ),
     }),
     onSubmit: async (values) => {
+      const names: string[] = values.fullName.split(' ');
       const newValues = {
         ...values,
+        firstName: names[0] || '',
+        lastName: names[1] || '',
         dob: values.dob.toDate(),
         lastDonation: values.lastDonation.toDate(),
       };
-      try {
-        if (donor?.id) {
-          await updateDonor({
-            ...newValues,
-            id: donor.id,
-          } as Donor);
-        } else {
-          await createDonor(newValues as Donor);
-        }
-        closeDialog();
-      } catch (error) {
-        console.log(error);
+      if (donor?.id) {
+        await updateDonor({
+          ...newValues,
+          id: donor.id,
+        } as Donor);
+      } else {
+        await createDonor(newValues as Donor);
       }
+
+      goToDonorsTable();
     },
   });
 
@@ -84,25 +85,24 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box component='form' onSubmit={formik.handleSubmit} noValidate>
         <TextField
-          label='First Name'
-          name='firstName'
-          value={formik.values.firstName}
+          label='Full Name'
+          name='fullName'
+          value={formik.values.fullName}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={formik.touched.firstName && Boolean(formik.errors.firstName)}
-          helperText={formik.touched.firstName && formik.errors.firstName}
+          error={formik.touched.fullName && Boolean(formik.errors.fullName)}
+          helperText={formik.touched.fullName && formik.errors.fullName}
           required
         />
 
         <TextField
-          label='Last Name'
-          name='lastName'
-          value={formik.values.lastName}
+          label='Email'
+          name='email'
+          value={formik.values.email}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={formik.touched.lastName && Boolean(formik.errors.lastName)}
-          helperText={formik.touched.lastName && formik.errors.lastName}
-          required
+          error={formik.touched.email && Boolean(formik.errors.email)}
+          helperText={formik.touched.email && formik.errors.email}
         />
 
         <TextField
@@ -123,9 +123,9 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
           select
           required
         >
-          {Object.values(Gender).map((gender) => (
+          {Object.keys(GENDERS).map((gender) => (
             <MenuItem key={gender} value={gender}>
-              {gender}
+              {GENDERS[gender].full}
             </MenuItem>
           ))}
         </TextField>
@@ -141,9 +141,9 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
           select
           required
         >
-          {Object.values(BloodType).map((bloodType) => (
+          {Object.keys(BLOOD_TYPES).map((bloodType) => (
             <MenuItem key={bloodType} value={bloodType}>
-              {bloodType}
+              {BLOOD_TYPES[bloodType]}
             </MenuItem>
           ))}
         </TextField>
@@ -159,17 +159,10 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
           required
         />
 
-        <DatePicker
-          label='Date of Birth'
-          value={formik.values.dob}
-          onChange={(value) => formik.setFieldValue('dob', dayjs(value))}
-          format={DATE_FORMAT}
-        />
-
         <TextField
-          label='City'
-          name='city'
-          value={formik.values.city}
+          label='Phone'
+          name='phone'
+          value={formik.values.phone}
           onChange={formik.handleChange}
         />
 
@@ -181,21 +174,17 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
         />
 
         <TextField
-          label='Phone'
-          name='phone'
-          value={formik.values.phone}
+          label='City'
+          name='city'
+          value={formik.values.city}
           onChange={formik.handleChange}
         />
 
-        <TextField
-          label='Email'
-          name='email'
-          value={formik.values.email}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.email && Boolean(formik.errors.email)}
-          helperText={formik.touched.email && formik.errors.email}
-          required
+        <DatePicker
+          label='Date of Birth'
+          value={formik.values.dob}
+          onChange={(value) => formik.setFieldValue('dob', dayjs(value))}
+          format={DATE_FORMAT}
         />
 
         <DatePicker
@@ -223,21 +212,37 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
           }
         />
 
-        <TextField
-          label='Note'
-          name='note'
-          value={formik.values.note}
-          onChange={formik.handleChange}
-          multiline
-        />
+        <Stack direction='row' justifyContent='space-between'>
+          <Stack>
+            {donor?.id && (
+              <Button
+                onClick={() => openDialog({ type: 'delete', donor })}
+                variant='outlined'
+                disabled={isLoading}
+              >
+                Delete Account
+              </Button>
+            )}
+          </Stack>
 
-        <Stack direction='row' justifyContent='flex-end' gap={2}>
-          <Button onClick={closeDialog} variant='outlined' disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button type='submit' disabled={isLoading} startIcon={<MdEdit />}>
-            Save Changes
-          </Button>
+          <Stack direction='row' gap={2}>
+            <Button
+              onClick={goToDonorsTable}
+              variant='outlined'
+              color='secondary'
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type='submit'
+              disabled={isLoading}
+              color='secondary'
+              size='medium'
+            >
+              {donor?.id ? 'Save Changes' : 'Add Donor'}
+            </Button>
+          </Stack>
         </Stack>
       </Box>
     </LocalizationProvider>

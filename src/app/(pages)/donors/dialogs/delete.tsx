@@ -11,8 +11,12 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { MdDelete } from 'react-icons/md';
+import { useRouter } from 'next/navigation';
+import { ROUTE_PATHS } from '@/routes';
 
 export const DonorDeleteDialog = () => {
+  const router = useRouter();
+
   const { closeDialog, activeDialog, removeDonor, isLoading } =
     useDonorsContext();
 
@@ -21,28 +25,34 @@ export const DonorDeleteDialog = () => {
   }
 
   const {
-    donor: { id, firstName },
+    donor: { id, firstName, lastName },
   } = activeDialog;
 
   const onSubmit = async () => {
     await removeDonor(id);
     closeDialog();
+    router.push(`${ROUTE_PATHS.PROTECTED.DONORS.path}`);
   };
 
   return (
     <Dialog open={true} onClose={closeDialog}>
-      <DialogTitle>Delete Donor</DialogTitle>
+      <DialogTitle>
+        Delete {firstName} {lastName} Account?
+      </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Are you sure you want to delete donor
-          <strong>{` ${firstName}` || ''}</strong>?
-        </DialogContentText>
-        <DialogContentText>
-          This will delete all donor donations and communications.
+          This action cannot be undone. Deleting the donor will permanently
+          remove all associated information, including donations and contact
+          details.
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={closeDialog} variant='outlined' disabled={isLoading}>
+        <Button
+          onClick={closeDialog}
+          variant='outlined'
+          disabled={isLoading}
+          color='secondary'
+        >
           Cancel
         </Button>
         <Button
@@ -51,7 +61,7 @@ export const DonorDeleteDialog = () => {
           disabled={isLoading}
           startIcon={<MdDelete />}
         >
-          Delete
+          Yes, Delete Account
         </Button>
       </DialogActions>
     </Dialog>

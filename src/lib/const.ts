@@ -87,7 +87,10 @@ export const ENABLED_GRID_STRING_OPERATORS = ['contains', 'equals'];
 export const ENABLED_GRID_DATE_OPERATORS = ['is', 'after', 'before'];
 export const ENABLED_GRID_SINGLE_SELECT_OPERATORS = ['not', 'isAnyOf'];
 
-export const BLOOD_TYPES = {
+interface BloodTypes {
+  [key: string]: string;
+}
+export const BLOOD_TYPES: BloodTypes = {
   A_POSITIVE: 'A+',
   A_NEGATIVE: 'A-',
   B_POSITIVE: 'B+',
@@ -98,7 +101,18 @@ export const BLOOD_TYPES = {
   O_NEGATIVE: '0+',
 };
 
-export const GENDERS = {
-  MALE: 'M',
-  FEMALE: 'F',
+interface Gender {
+  short: string;
+  full: string;
+}
+
+export const GENDERS: { [key: string]: Gender } = {
+  MALE: {
+    short: 'M',
+    full: 'Male',
+  },
+  FEMALE: {
+    short: 'F',
+    full: 'Female',
+  },
 };

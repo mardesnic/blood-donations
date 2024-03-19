@@ -4,10 +4,10 @@ import { generatePageTitle, getDisplayName } from '@/lib/utils';
 import { notFound } from 'next/navigation';
 import { DonorDetailsHeader } from './header';
 
-import { Container } from '@mui/material';
+import { Card, Container } from '@mui/material';
 import { DonorsProvider } from '@/context/DonorsContext';
-import React from 'react';
-import UpdateDonorBody from './body';
+import { DonorCreateUpdateForm } from '@/app/(pages)/donors/forms/createUpdate';
+import { DonorDeleteDialog } from '@/app/(pages)/donors/dialogs/delete';
 
 type Props = {
   params: { id: string };
@@ -33,8 +33,11 @@ export default async function DonorsDetailsPage({ params: { id } }: Props) {
     <DonorsProvider>
       <Container component='main' maxWidth='sm'>
         <DonorDetailsHeader donor={donor} />
-        <UpdateDonorBody donor={donor} />
+        <Card sx={{ mt: '30px', p: '30px 24px' }} raised={true}>
+          <DonorCreateUpdateForm donor={donor} />
+        </Card>
       </Container>
+      <DonorDeleteDialog />
     </DonorsProvider>
   );
 }
