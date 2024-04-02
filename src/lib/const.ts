@@ -55,7 +55,7 @@ export const reactQueryKeys = {
       page: number,
       pageSize: number,
       search: string,
-      filter: string,
+      filter: string[],
       sort: string
     ) =>
       [
@@ -96,9 +96,9 @@ export const BLOOD_TYPES: BloodTypes = {
   B_POSITIVE: 'B+',
   B_NEGATIVE: 'B-',
   AB_POSITIVE: 'AB+',
-  AB_NEGATIVE: 'AB+',
+  AB_NEGATIVE: 'AB-',
   O_POSITIVE: '0+',
-  O_NEGATIVE: '0+',
+  O_NEGATIVE: '0-',
 };
 
 interface Gender {

@@ -1,6 +1,7 @@
 import { prisma } from '@/db';
 import { DATE_FORMAT } from '@/lib/const';
 import {
+  generateFilterFieldsFromFilterString,
   getPrismaOperatorFromGridOperator,
   getPrismaTermFromGridOperator,
 } from '@/lib/utils';
@@ -14,18 +15,12 @@ export default class DonorService {
     take: number,
     skip: number,
     search: string,
-    filterField: keyof Donor,
-    filterOperator: string,
-    filterTerm: string,
+    filters: string[],
     sortField: keyof Donor = 'createdAt',
     sort: string = 'desc'
   ): Promise<{ donors: Donor[]; count: number }> {
-    const whereCondition = this.constructWhereCondition(
-      search,
-      filterField,
-      filterOperator,
-      filterTerm
-    );
+    const whereCondition = this.constructWhereCondition(search, filters);
+
     const donors = await prisma.donor.findMany({
       take,
       skip,
@@ -76,18 +71,12 @@ export default class DonorService {
 
   static async generateExport(
     search: string,
-    filterField: keyof Donor,
-    filterOperator: string,
-    filterTerm: string,
+    filters: string[],
     sortField: keyof Donor = 'createdAt',
     sort: string = 'desc'
   ): Promise<string> {
-    const whereCondition = this.constructWhereCondition(
-      search,
-      filterField,
-      filterOperator,
-      filterTerm
-    );
+    const whereCondition = this.constructWhereCondition(search, filters);
+
     const donors = await prisma.donor.findMany({
       orderBy: { [sortField]: sort },
       where: whereCondition,
@@ -134,9 +123,7 @@ export default class DonorService {
 
   private static constructWhereCondition(
     search: string,
-    filterField: keyof Donor,
-    filterOperator: string,
-    filterTerm: string
+    filters: string[]
   ): Prisma.DonorWhereInput {
     let whereCondition = {};
     let searchCondition = {};
@@ -151,22 +138,35 @@ export default class DonorService {
         ],
       };
     }
-    if (filterField && filterOperator && typeof filterTerm !== 'undefined') {
-      const { prismaOperator, mode } =
-        getPrismaOperatorFromGridOperator(filterOperator);
-      const prismaTerm = getPrismaTermFromGridOperator(
-        filterOperator,
-        filterTerm
-      );
-      if (prismaTerm !== '') {
-        filterCondition = {
-          [filterField]: {
-            [prismaOperator]: prismaTerm,
-            mode,
-          },
-        };
-      }
+    if (filters.length) {
+      filters.forEach((filter) => {
+        const { filterField, filterOperator, filterTerm } =
+          generateFilterFieldsFromFilterString(filter || '');
+
+        if (
+          filterField &&
+          filterOperator &&
+          typeof filterTerm !== 'undefined'
+        ) {
+          const { prismaOperator, mode } =
+            getPrismaOperatorFromGridOperator(filterOperator);
+          const prismaTerm = getPrismaTermFromGridOperator(
+            filterOperator,
+            filterTerm
+          );
+          if (prismaTerm !== '') {
+            filterCondition = {
+              ...filterCondition,
+              [filterField]: {
+                [prismaOperator]: prismaTerm,
+                mode,
+              },
+            };
+          }
+        }
+      });
     }
+
     if (
       Object.values(searchCondition).length &&
       Object.values(filterCondition).length
@@ -175,6 +175,7 @@ export default class DonorService {
     } else {
       whereCondition = { ...searchCondition, ...filterCondition };
     }
+
     return whereCondition;
   }
 }

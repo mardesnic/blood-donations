@@ -3,18 +3,18 @@ import DonorService from './service';
 import { Donor } from '@prisma/client';
 import { PAGE_SIZE } from '@/lib/const';
 import {
-  generateFilterFieldsFromFilterString,
   generateSortFieldsFromSortString,
   getDateFromDateTime,
 } from '@/lib/utils';
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
+
   const page = searchParams.get('page') || 0;
   const pageSize = searchParams.get('pageSize') || PAGE_SIZE;
   const search = searchParams?.get('search') || '';
-  const { filterField, filterOperator, filterTerm } =
-    generateFilterFieldsFromFilterString(searchParams?.get('filter') || '');
+  const filters = searchParams?.getAll('filter') || [];
+
   const { sortField, sort } = generateSortFieldsFromSortString(
     searchParams?.get('sort') || ''
   );
@@ -24,9 +24,7 @@ export async function GET(req: NextRequest) {
     take,
     skip,
     search,
-    filterField as keyof Donor,
-    filterOperator,
-    filterTerm,
+    filters,
     sortField as keyof Donor,
     sort
   );

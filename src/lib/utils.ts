@@ -27,6 +27,17 @@ export function generateFilterString(filterModel: GridFilterModel): string {
   }`;
 }
 
+export function generateFilterStringForItems(
+  filterModel: GridFilterModel
+): string[] {
+  return filterModel?.items?.map(
+    (filterItem) =>
+      `${filterItem?.field || ''}|${filterItem?.operator || ''}|${
+        filterItem?.value || ''
+      }`
+  );
+}
+
 export function generateSortString(sortModel: GridSortModel): string {
   const sortItem = sortModel?.[0];
   if (!sortItem) {
