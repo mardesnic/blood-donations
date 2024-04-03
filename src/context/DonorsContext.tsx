@@ -9,7 +9,7 @@ import {
 import { PAGE_SIZE } from '@/lib/const';
 import {
   generateExportDownloadLink,
-  generateFilterString,
+  generateFilterStringForItems,
   generateSortString,
 } from '@/lib/utils';
 import {
@@ -60,10 +60,11 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
     {} as GridSortModel
   );
   const search = filterModel?.quickFilterValues?.join(' ') || '';
+
   const { isLoading, isFetching, data } = useGetDonors({
     ...paginationModel,
     search,
-    filter: generateFilterString(filterModel),
+    filters: generateFilterStringForItems(filterModel),
     sort: generateSortString(sortModel),
   });
   const { mutateAsync: createDonor, isPending: isCreatePending } =

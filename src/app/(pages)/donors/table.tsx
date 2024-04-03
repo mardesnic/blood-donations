@@ -15,9 +15,13 @@ import { DATE_FORMAT, BLOOD_TYPES, GENDERS } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
 import { useDonorsContext } from '@/context/DonorsContext';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { DonorsFilters } from '@/app/(pages)/donors/filters';
 
 export default function DonorsTable() {
   const router = useRouter();
+
+  const [showFilters, setShowFilters] = useState(false);
 
   const {
     donors,
@@ -29,6 +33,7 @@ export default function DonorsTable() {
     isLoading,
     exportDonorsDownloadLink,
   } = useDonorsContext();
+
   const columns: GridColDef[] = [
     {
       field: 'fullName',
@@ -90,18 +95,20 @@ export default function DonorsTable() {
       sortable: false,
       minWidth: 200,
       renderCell: (params: { row: Donor }) => (
-        <Link
-          href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${params.row.id}/donations`}
+        <Button
+          variant='outlined'
+          size='medium'
+          color='inherit'
+          sx={{ width: '190px' }}
+          onClick={(event) => {
+            event.stopPropagation();
+            router.push(
+              `${ROUTE_PATHS.PROTECTED.DONORS.path}/${params.row.id}/donations`
+            );
+          }}
         >
-          <Button
-            variant='outlined'
-            size='medium'
-            color='inherit'
-            sx={{ width: '190px' }}
-          >
-            See Donations ({params.row.donationCount})
-          </Button>
-        </Link>
+          See Donations ({params.row.donationCount})
+        </Button>
       ),
     },
   ];
@@ -147,10 +154,21 @@ export default function DonorsTable() {
               });
             }}
           />
-          <Button variant='outlined' size='medium' color='inherit'>
+          <Button
+            variant='outlined'
+            size='medium'
+            color='inherit'
+            onClick={() => setShowFilters(!showFilters)}
+          >
             Filter
           </Button>
         </Stack>
+        {showFilters && (
+          <DonorsFilters
+            filterModel={filterModel}
+            changeFilterModel={changeFilterModel}
+          />
+        )}
         <DataGrid
           rows={donors}
           rowCount={donorCount}
