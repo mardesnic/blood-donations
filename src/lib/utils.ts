@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 import {
   APP_TITLE,
   DATA_GRID_PRISMA_TRANSLATION_MAP,
@@ -30,12 +32,15 @@ export function generateFilterString(filterModel: GridFilterModel): string {
 export function generateFilterStringForItems(
   filterModel: GridFilterModel
 ): string[] {
-  return filterModel?.items?.map(
-    (filterItem) =>
-      `${filterItem?.field || ''}|${filterItem?.operator || ''}|${
-        filterItem?.value || ''
-      }`
-  );
+  return filterModel?.items?.map((filterItem) => {
+    let value = filterItem?.value || '';
+
+    if (dayjs.isDayjs(value)) {
+      value = `${dayjs(value).format('YYYY-MM-DD')}T00:00:00.000Z`;
+    }
+
+    return `${filterItem?.field || ''}|${filterItem?.operator || ''}|${value}`;
+  });
 }
 
 export function generateSortString(sortModel: GridSortModel): string {

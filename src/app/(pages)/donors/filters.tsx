@@ -6,7 +6,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import { GENDERS, BLOOD_TYPES, DATE_FORMAT } from '@/lib/const';
 import { DatePicker } from '@mui/x-date-pickers';
-import dayjs from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 interface Props {
@@ -116,6 +115,29 @@ export const DonorsFilters = (props: Props) => {
           InputLabelProps={{ shrink: true }}
         />
 
+        <TextField
+          label='City'
+          name='city'
+          value={getValueFromFilterModel('city') || ''}
+          onChange={(event) => {
+            const items = [...(filterModel?.items || [])].filter(
+              (item) => item.field !== 'city'
+            );
+
+            items.push({
+              field: 'city',
+              operator: 'equals',
+              value: event.target.value,
+            });
+
+            changeFilterModel({
+              ...filterModel,
+              items,
+            });
+          }}
+          InputLabelProps={{ shrink: true }}
+        />
+
         <DatePicker
           label='Last donation date'
           value={getValueFromFilterModel('lastDonation') || ''}
@@ -128,7 +150,36 @@ export const DonorsFilters = (props: Props) => {
               items.push({
                 field: 'lastDonation',
                 operator: 'is',
-                value: dayjs(value),
+                value,
+              });
+            }
+
+            changeFilterModel({
+              ...filterModel,
+              items,
+            });
+          }}
+          format={DATE_FORMAT}
+          slotProps={{
+            actionBar: {
+              actions: ['clear'],
+            },
+          }}
+        />
+
+        <DatePicker
+          label='Date of Birth'
+          value={getValueFromFilterModel('dob') || ''}
+          onChange={(value) => {
+            const items = [...(filterModel?.items || [])].filter(
+              (item) => item.field !== 'dob'
+            );
+
+            if (value) {
+              items.push({
+                field: 'dob',
+                operator: 'is',
+                value,
               });
             }
 
