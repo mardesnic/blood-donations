@@ -80,9 +80,6 @@ export const DonorsFilters = (props: Props) => {
             });
           }}
           select
-          SelectProps={{
-            multiple: true,
-          }}
         >
           {Object.keys(GENDERS).map((gender) => (
             <MenuItem key={gender} value={gender}>
