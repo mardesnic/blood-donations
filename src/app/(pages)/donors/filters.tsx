@@ -36,11 +36,10 @@ export const DonorsFilters = (props: Props) => {
             const items = [...(filterModel?.items || [])].filter(
               (item) => item.field !== 'bloodType'
             );
-
             items.push({
               field: 'bloodType',
               operator: 'isAnyOf',
-              value: [event.target.value as string],
+              value: event.target.value,
             });
 
             changeFilterModel({
