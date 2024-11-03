@@ -19,6 +19,7 @@ export const DonorsFilters = (props: Props) => {
   const getValueFromFilterModel = (field: string) =>
     filterModel?.items?.find((item) => item.field === field)?.value;
 
+  console.log('filterModel ', filterModel);
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='de'>
       <Stack
