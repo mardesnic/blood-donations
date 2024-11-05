@@ -17,6 +17,7 @@ import { useDonorsContext } from '@/context/DonorsContext';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { DonorsFilters } from '@/app/(pages)/donors/filters';
+import { debounce } from '@mui/material/utils';
 
 export default function DonorsTable() {
   const router = useRouter();
@@ -113,6 +114,15 @@ export default function DonorsTable() {
     },
   ];
 
+  const searchDonorsDelayed = React.useMemo(() => {
+    return debounce((event) => {
+      changeFilterModel({
+        ...filterModel,
+        quickFilterValues: [event.target.value || ''],
+      });
+    }, 500);
+  }, []);
+
   return (
     <>
       <Stack direction='row' justifyContent='space-between' alignItems='center'>
@@ -147,12 +157,7 @@ export default function DonorsTable() {
             placeholder='Name, email, etc...'
             variant='standard'
             sx={{ width: '50%' }}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              changeFilterModel({
-                ...filterModel,
-                quickFilterValues: [event.target.value || ''],
-              });
-            }}
+            onChange={searchDonorsDelayed}
           />
           <Button
             variant='outlined'

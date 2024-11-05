@@ -4,7 +4,7 @@ import { MenuItem, TextField, Stack } from '@mui/material';
 import { GridFilterModel } from '@mui/x-data-grid';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
-import { GENDERS, BLOOD_TYPES, DATE_FORMAT } from '@/lib/const';
+import { GENDERS, BLOOD_TYPES, DATE_FORMAT, STATUSES } from '@/lib/const';
 import { DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
@@ -36,11 +36,10 @@ export const DonorsFilters = (props: Props) => {
             const items = [...(filterModel?.items || [])].filter(
               (item) => item.field !== 'bloodType'
             );
-
             items.push({
               field: 'bloodType',
               operator: 'isAnyOf',
-              value: [event.target.value as string],
+              value: event.target.value,
             });
 
             changeFilterModel({
@@ -62,7 +61,7 @@ export const DonorsFilters = (props: Props) => {
         <TextField
           label='Gender'
           name='gender'
-          value={getValueFromFilterModel('gender') || []}
+          value={getValueFromFilterModel('gender') || ''}
           onChange={(event) => {
             const items = [...(filterModel?.items || [])].filter(
               (item) => item.field !== 'gender'
@@ -70,8 +69,8 @@ export const DonorsFilters = (props: Props) => {
 
             items.push({
               field: 'gender',
-              operator: 'isAnyOf',
-              value: [event.target.value as string],
+              operator: 'is',
+              value: event.target.value,
             });
 
             changeFilterModel({
@@ -80,9 +79,6 @@ export const DonorsFilters = (props: Props) => {
             });
           }}
           select
-          SelectProps={{
-            multiple: true,
-          }}
         >
           {Object.keys(GENDERS).map((gender) => (
             <MenuItem key={gender} value={gender}>
@@ -104,29 +100,6 @@ export const DonorsFilters = (props: Props) => {
             items.push({
               field: 'donationCount',
               operator: '=',
-              value: event.target.value,
-            });
-
-            changeFilterModel({
-              ...filterModel,
-              items,
-            });
-          }}
-          InputLabelProps={{ shrink: true }}
-        />
-
-        <TextField
-          label='City'
-          name='city'
-          value={getValueFromFilterModel('city') || ''}
-          onChange={(event) => {
-            const items = [...(filterModel?.items || [])].filter(
-              (item) => item.field !== 'city'
-            );
-
-            items.push({
-              field: 'city',
-              operator: 'equals',
               value: event.target.value,
             });
 
@@ -167,6 +140,29 @@ export const DonorsFilters = (props: Props) => {
           }}
         />
 
+        <TextField
+          label='City'
+          name='city'
+          value={getValueFromFilterModel('city') || ''}
+          onChange={(event) => {
+            const items = [...(filterModel?.items || [])].filter(
+              (item) => item.field !== 'city'
+            );
+
+            items.push({
+              field: 'city',
+              operator: 'equals',
+              value: event.target.value,
+            });
+
+            changeFilterModel({
+              ...filterModel,
+              items,
+            });
+          }}
+          InputLabelProps={{ shrink: true }}
+        />
+
         <DatePicker
           label='Date of Birth'
           value={getValueFromFilterModel('dob') || ''}
@@ -195,6 +191,35 @@ export const DonorsFilters = (props: Props) => {
             },
           }}
         />
+
+        <TextField
+          label='Status'
+          name='status'
+          value={getValueFromFilterModel('active') || ''}
+          onChange={(event) => {
+            const items = [...(filterModel?.items || [])].filter(
+              (item) => item.field !== 'active'
+            );
+
+            items.push({
+              field: 'active',
+              operator: 'is',
+              value: event.target.value,
+            });
+
+            changeFilterModel({
+              ...filterModel,
+              items,
+            });
+          }}
+          select
+        >
+          {Object.keys(STATUSES).map((status) => (
+            <MenuItem key={status} value={status}>
+              {STATUSES[status]}
+            </MenuItem>
+          ))}
+        </TextField>
       </Stack>
     </LocalizationProvider>
   );

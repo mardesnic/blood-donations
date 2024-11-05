@@ -135,6 +135,7 @@ export default class DonorService {
           { city: { contains: search, mode: 'insensitive' } },
           { email: { contains: search, mode: 'insensitive' } },
           { oib: { contains: search, mode: 'insensitive' } },
+          { phone: { contains: search, mode: 'insensitive' } },
         ],
       };
     }
