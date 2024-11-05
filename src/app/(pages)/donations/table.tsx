@@ -26,7 +26,7 @@ export default function DonationsTable() {
     {
       field: 'donor',
       headerName: 'Donor',
-      sortable: false,
+      sortable: true,
       disableColumnMenu: true,
       flex: 1,
       renderCell: (params) => params?.value?.fullName || '',
@@ -34,7 +34,7 @@ export default function DonationsTable() {
     {
       field: 'donationDate',
       headerName: 'Date',
-      sortable: false,
+      sortable: true,
       flex: 1,
       renderCell: (params) => dayjs(params.value).format(DATE_FORMAT),
       valueGetter: ({ value }) => value && new Date(value),

@@ -7,8 +7,8 @@ export default class DonationService {
     actionId: string,
     take: number,
     skip: number,
-    sortField: keyof Donation = 'donationDate',
-    sort: string = 'desc'
+    sortField: keyof Donation | 'donor' = 'donationDate',
+    sort: 'asc' | 'desc' = 'desc'
   ) {
     let whereCondition: Prisma.DonationWhereInput = {};
     if (donorId) {
@@ -18,11 +18,18 @@ export default class DonationService {
     if (actionId) {
       whereCondition = { actionId };
     }
+
+    // Determine the orderBy condition
+    const orderByCondition =
+      sortField === 'donor'
+        ? { donor: { fullName: sort } } // Sort by donor name
+        : { [sortField]: sort }; // Sort by other fields
+
     return Promise.all([
       prisma.donation.findMany({
         take,
         skip,
-        orderBy: { [sortField]: sort },
+        orderBy: orderByCondition,
         include: {
           donor: true,
           action: true,
