@@ -66,9 +66,13 @@ export const DonationsProvider = ({
     page: 0,
     pageSize: PAGE_SIZE,
   });
-  const [sortModel, setSortModel] = useState<GridSortModel>(
-    {} as GridSortModel
-  );
+  const [sortModel, setSortModel] = useState<GridSortModel>([
+    {
+      field: 'donationDate',
+      sort: 'desc',
+    },
+  ] as GridSortModel);
+
   const { isLoading, isFetching, data } = useGetDonations(
     {
       ...paginationModel,
