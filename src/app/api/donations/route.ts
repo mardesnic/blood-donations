@@ -4,6 +4,10 @@ import { PAGE_SIZE } from '@/lib/const';
 import { generateSortFieldsFromSortString } from '@/lib/utils';
 import { Donation } from '@prisma/client';
 
+function isValidSortOrder(value: string | undefined): value is 'asc' | 'desc' {
+  return value === 'asc' || value === 'desc';
+}
+
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const page = searchParams.get('page') || 0;
@@ -14,9 +18,12 @@ export async function GET(req: NextRequest) {
 
   const take = parseInt(pageSize.toString(), 10);
   const skip = parseInt(page.toString(), 10) * take;
-  const { sortField, sort } = generateSortFieldsFromSortString(
+  const { sortField, sort: sortParam } = generateSortFieldsFromSortString(
     searchParams?.get('sort') || ''
   );
+
+  const sort = isValidSortOrder(sortParam) ? sortParam : undefined;
+
   const [donations, count] = await DonationService.find(
     donorId,
     actionId,
