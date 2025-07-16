@@ -1,76 +1,76 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { generateSeedData } from './seedData';
+import { seedDonorsFromCsv } from './csvSeed';
 
 const prisma = new PrismaClient();
 
-async function main() {
-  // Seed the admin user
+async function seedAdmin() {
+  console.log('🌱 Seeding admin user...');
   const adminEmail = 'admin@admin.admin';
   const adminPassword = 'AdminPassword123';
   const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
-  // Seed a User
-  const adminData = {
-    email: adminEmail,
-    password: hashedPassword,
-  };
-
   await prisma.user.upsert({
-    where: { email: adminData.email },
+    where: { email: adminEmail },
     update: {},
-    create: adminData,
+    create: {
+      email: adminEmail,
+      password: hashedPassword,
+    },
   });
+  console.log('✅ Admin user seeded');
+}
 
-  // Iterate over the seed data to create places, actions, donors, donations, and communications
+async function seedFakerData() {
+  console.log('🌱 Seeding faker-generated places, actions, donors...');
+
   const seedData = generateSeedData();
+
   for (const place of seedData) {
     const { actions, ...placeData } = place;
-    await prisma.place.create({ data: placeData });
 
-    for (const action of place.actions) {
+    const createdPlace = await prisma.place.create({
+      data: {
+        ...placeData,
+        id: place.id,
+      },
+    });
+    console.log(`🏢 Created place: ${createdPlace.title}`);
+
+    for (const action of actions) {
       const { donors, ...actionData } = action;
-      await prisma.action.create({
+
+      const createdAction = await prisma.action.create({
         data: {
           ...actionData,
-          placeId: place.id,
+          id: action.id,
+          placeId: createdPlace.id,
         },
       });
-
-      for (const donor of action.donors) {
-        const { communications, donations, ...donorData } = donor;
-        await prisma.donor.create({
-          data: donorData,
-        });
-
-        for (const donation of donor.donations) {
-          await prisma.donation.create({
-            data: {
-              ...donation,
-              donorId: donor.id,
-              actionId: action.id,
-            },
-          });
-        }
-
-        for (const communication of donor.communications) {
-          await prisma.communication.create({
-            data: {
-              ...communication,
-              donorId: donor.id,
-            },
-          });
-        }
-      }
+      console.log(`📅 Created action: ${createdAction.title}`);
     }
+  }
+
+  console.log('✅ Faker data seeded');
+}
+
+async function main() {
+  try {
+    await seedAdmin();
+
+    // Run CSV donors and faker data sequentially
+    await seedDonorsFromCsv();
+
+    await seedFakerData();
+
+    console.log('🎉 All seeding complete!');
+  } catch (error) {
+    console.error('❌ Error during seeding:', error);
+    process.exit(1);
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
-main()
-  .catch(async (e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main();

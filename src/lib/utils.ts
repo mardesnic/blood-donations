@@ -67,16 +67,24 @@ export function generateFilterFieldsFromFilterString(filterString: string): {
 }
 
 export function generateSortFieldsFromSortString(sortString: string): {
-  sortField?: string;
-  sort?: string;
+  sortField: string;
+  sort: 'asc' | 'desc';
 } {
-  let sortField = undefined;
-  let sort = undefined;
+  const DEFAULT_FIELD = 'createdAt';
+  const DEFAULT_SORT: 'asc' | 'desc' = 'desc';
+
   if (!sortString) {
-    return { sortField, sort };
+    return { sortField: DEFAULT_FIELD, sort: DEFAULT_SORT };
   }
-  [sortField, sort] = sortString.split('|');
-  return { sortField, sort };
+
+  const [sortField, sortDirection] = sortString.split('|');
+
+  const safeSort: 'asc' | 'desc' = sortDirection === 'asc' ? 'asc' : 'desc';
+
+  return {
+    sortField: sortField || DEFAULT_FIELD,
+    sort: safeSort,
+  };
 }
 
 export function getPrismaOperatorFromGridOperator(operator: string): {

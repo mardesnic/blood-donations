@@ -113,7 +113,9 @@ export default class DonorService {
         stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
         stream.on('error', reject);
         stream.on('end', () =>
-          resolve(Buffer.concat(chunks).toString('utf-8'))
+          resolve(
+            Buffer.concat(chunks as unknown as Uint8Array[]).toString('utf-8')
+          )
         );
       });
     };
