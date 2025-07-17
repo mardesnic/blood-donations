@@ -57,14 +57,14 @@ model Donor {
   lastName       String          @db.VarChar(100)
   fullName       String?         @db.VarChar(100)
   fatherName     String?         @db.VarChar(100)
-  email          String          @unique @db.VarChar(100)
+  email          String          @db.VarChar(100)
   phone          String?         @db.VarChar(100)
-  dob            DateTime
-  oib            String          @unique @db.VarChar(11)
+  dob            DateTime?
+  oib            String?         @db.VarChar(11)
   address        String?         @db.VarChar(100)
   city           String?         @db.VarChar(100)
   gender         Gender
-  bloodType      BloodType
+  bloodType      BloodType?
   donationCount  Int             @default(0)
   lastDonation   DateTime?
   active         Boolean         @default(true)
