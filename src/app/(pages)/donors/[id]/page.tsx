@@ -10,12 +10,11 @@ import { DonorCreateUpdateForm } from '@/app/(pages)/donors/forms/createUpdate';
 import { DonorDeleteDialog } from '@/app/(pages)/donors/dialogs/delete';
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-export async function generateMetadata({
-  params: { id },
-}: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
   const donor = await DonorService.findOne(id);
   return {
     title: generatePageTitle(
@@ -24,7 +23,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function DonorsDetailsPage({ params: { id } }: Props) {
+export default async function DonorsDetailsPage({ params }: Props) {
+  const { id } = await params;
   const donor = await DonorService.findOne(id);
   if (!donor) {
     notFound();
