@@ -1,7 +1,12 @@
 import { prisma } from '@/db';
 import { DATE_FORMAT } from '@/lib/const';
 import { buildDonorFilter } from '@/lib/donorFilters';
-import { formatDay } from '@/lib/dates';
+import { formatDay, toAppDay } from '@/lib/dates';
+import {
+  computeEligibility,
+  Eligibility,
+  eligibilityLabel,
+} from '@/lib/eligibility';
 import { donorDataFromBody } from './body';
 import { refreshActionStats, refreshDonorStats } from './stats';
 
@@ -11,6 +16,17 @@ import dayjs from 'dayjs';
 import { format } from 'fast-csv';
 import { Readable } from 'stream';
 
+// Denied attempts, which the eligibility rules need.
+const DENIALS = {
+  where: { denied: true },
+  select: { donationDate: true, denyReason: true },
+} as const;
+
+export type DonorWithEligibility = Donor & {
+  eligibility: Eligibility;
+  _count: { donations: number };
+};
+
 export default class DonorService {
   static async find(
     take: number,
@@ -19,8 +35,9 @@ export default class DonorService {
     filters: string[],
     sortField: keyof Donor = 'createdAt',
     sort: string = 'desc'
-  ): Promise<{ donors: Donor[]; count: number }> {
-    const whereCondition = this.constructWhereCondition(search, filters);
+  ): Promise<{ donors: DonorWithEligibility[]; count: number }> {
+    const today = toAppDay(new Date()) as Date;
+    const whereCondition = this.constructWhereCondition(search, filters, today);
 
     const donors = await prisma.donor.findMany({
       take,
@@ -31,10 +48,20 @@ export default class DonorService {
         _count: {
           select: { donations: true },
         },
+        donations: DENIALS,
       },
     });
     const count = await prisma.donor.count({ where: whereCondition });
-    return { donors, count };
+    return {
+      donors: donors.map(({ donations, ...donor }) => ({
+        ...donor,
+        eligibility: computeEligibility(
+          { ...donor, denials: donations },
+          today
+        ),
+      })),
+      count,
+    };
   }
 
   static async findOne(id: string) {
@@ -87,11 +114,13 @@ export default class DonorService {
     sortField: keyof Donor = 'createdAt',
     sort: string = 'desc'
   ): Promise<string> {
-    const whereCondition = this.constructWhereCondition(search, filters);
+    const today = toAppDay(new Date()) as Date;
+    const whereCondition = this.constructWhereCondition(search, filters, today);
 
     const donors = await prisma.donor.findMany({
       orderBy: { [sortField]: sort },
       where: whereCondition,
+      include: { donations: DENIALS },
     });
 
     const csvData = donors.map((donor) => ({
@@ -106,6 +135,9 @@ export default class DonorService {
       'Blood Type': donor.bloodType,
       Donations: donor.donationCount,
       'Last Donation': formatDay(donor.lastDonation),
+      'Next Eligible': eligibilityLabel(
+        computeEligibility({ ...donor, denials: donor.donations }, today)
+      ),
       'Date of Birth': formatDay(donor.dob),
       Note: donor.note,
       'Created At': dayjs(donor.createdAt).format(DATE_FORMAT),
@@ -137,11 +169,12 @@ export default class DonorService {
 
   private static constructWhereCondition(
     search: string,
-    filters: string[]
+    filters: string[],
+    today: Date
   ): Prisma.DonorWhereInput {
     let whereCondition = {};
     let searchCondition = {};
-    const filterCondition = buildDonorFilter(filters);
+    const filterCondition = buildDonorFilter(filters, today);
     if (search?.length) {
       searchCondition = {
         OR: [

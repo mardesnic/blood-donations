@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildDonorFilter, parseFilterString } from '@/lib/donorFilters';
+import { generateFilterStringForItems } from '@/lib/utils';
 
 describe('parseFilterString', () => {
   it('returns null for null, undefined, empty and incomplete input', () => {
@@ -91,5 +92,23 @@ describe('buildDonorFilter', () => {
     expect(
       buildDonorFilter(['gender|is|MALE', 'active|is|ACTIVE']).AND
     ).toHaveLength(2);
+  });
+});
+
+describe('eligible filter', () => {
+  it('turns the dropdown value into the eligibility query', () => {
+    const filter = buildDonorFilter(
+      generateFilterStringForItems({
+        items: [{ field: 'eligible', operator: 'is', value: 'NOW' }],
+      }),
+      new Date('2026-10-16T00:00:00.000Z')
+    );
+    expect(filter.AND).toHaveLength(1);
+    expect(JSON.stringify(filter)).toContain('"active":true');
+  });
+
+  it('ignores other values', () => {
+    expect(buildDonorFilter(['eligible|is|LATER'])).toEqual({});
+    expect(buildDonorFilter(['eligible|isAnyOf|NOW'])).toEqual({});
   });
 });

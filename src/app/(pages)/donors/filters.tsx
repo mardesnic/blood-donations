@@ -220,6 +220,34 @@ export const DonorsFilters = (props: Props) => {
             </MenuItem>
           ))}
         </TextField>
+
+        <TextField
+          label='Eligibility'
+          name='eligible'
+          value={getValueFromFilterModel('eligible') || ''}
+          onChange={(event) => {
+            const items = [...(filterModel?.items || [])].filter(
+              (item) => item.field !== 'eligible'
+            );
+            if (event.target.value) {
+              items.push({
+                field: 'eligible',
+                operator: 'is',
+                value: event.target.value,
+              });
+            }
+            changeFilterModel({
+              ...filterModel,
+              items,
+            });
+          }}
+          select
+        >
+          <MenuItem value=''>
+            <em>Any</em>
+          </MenuItem>
+          <MenuItem value='NOW'>Eligible now</MenuItem>
+        </TextField>
       </Stack>
     </LocalizationProvider>
   );

@@ -1,5 +1,18 @@
-import { BloodType, Gender, Prisma } from '@/generated/prisma/client';
-import { parseDay } from '@/lib/dates';
+import {
+  BloodType,
+  DenyReasonType,
+  Gender,
+  Prisma,
+} from '@/generated/prisma/client';
+import {
+  addDays,
+  addMonths,
+  appDayStart,
+  latestStartEndingBy,
+  parseDay,
+  toAppDay,
+} from '@/lib/dates';
+import { DENIAL_END, GAP_MONTHS, MAX_AGE, MIN_AGE } from '@/lib/eligibility';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -122,16 +135,84 @@ function fieldCondition(
   }
 }
 
+// The same rules as computeEligibility, as a query: active, aged 18-65, past
+// the gap after the last donation and not blocked by a denial. Each "latest
+// start" is the last day whose wait is over by today.
+export function eligibleNowWhere(today: Date): Prisma.DonorWhereInput {
+  const latestStart = (months: number) =>
+    latestStartEndingBy(
+      today,
+      (start) => addMonths(start, months),
+      addMonths(today, -months)
+    );
+  const denialBlocks = Object.entries(DENIAL_END).flatMap(([reason, end]) => {
+    if (!end) {
+      return [];
+    }
+    const lastOver = latestStartEndingBy(today, end, addMonths(today, -12));
+    // A denial still blocks if it happened after lastOver.
+    return [
+      {
+        donations: {
+          none: {
+            denied: true,
+            denyReason: reason as DenyReasonType,
+            donationDate: { gte: appDayStart(addDays(lastOver, 1)) },
+          },
+        },
+      },
+    ];
+  });
+  return {
+    AND: [
+      { active: true },
+      {
+        dob: {
+          not: null,
+          lte: latestStart(MIN_AGE * 12),
+          gt: latestStart((MAX_AGE + 1) * 12),
+        },
+      },
+      {
+        OR: [
+          { lastDonation: null },
+          {
+            gender: 'MALE',
+            lastDonation: { lte: latestStart(GAP_MONTHS.MALE) },
+          },
+          {
+            gender: 'FEMALE',
+            lastDonation: { lte: latestStart(GAP_MONTHS.FEMALE) },
+          },
+        ],
+      },
+      {
+        donations: {
+          none: { denied: true, denyReason: { in: ['PERMANENT', 'LONGER'] } },
+        },
+      },
+      ...denialBlocks,
+    ],
+  };
+}
+
 export function buildDonorFilter(
-  filters: string[] | null | undefined
+  filters: string[] | null | undefined,
+  today: Date = toAppDay(new Date()) as Date
 ): Prisma.DonorWhereInput {
   const conditions = (filters || [])
     .map(parseFilterString)
-    .map((parsed) =>
-      parsed
-        ? fieldCondition(parsed.field, parsed.operator, parsed.value)
-        : null
-    )
+    .map((parsed) => {
+      if (!parsed) {
+        return null;
+      }
+      if (parsed.field === 'eligible') {
+        return parsed.operator === 'is' && parsed.value === 'NOW'
+          ? eligibleNowWhere(today)
+          : null;
+      }
+      return fieldCondition(parsed.field, parsed.operator, parsed.value);
+    })
     .filter((condition): condition is Prisma.DonorWhereInput => !!condition);
   return conditions.length ? { AND: conditions } : {};
 }
