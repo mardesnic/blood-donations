@@ -46,8 +46,10 @@ Seed the database:
 npx prisma db seed
 ```
 
-The seed creates an admin user (`admin@admin.admin` / `AdminPassword123`, for
-local use only) plus fake places and actions. It imports donors from a CSV file
+The seed creates an admin user plus fake places and actions. On a local
+database the admin defaults to `admin@admin.admin` / `AdminPassword123`; for any
+other database set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`, or the seed
+refuses to run. It imports donors from a CSV file
 if one exists at `prisma/donors.csv` or at the path in `DONORS_CSV`; without
 one it creates fake donors and donations instead. The file contains real
 personal data, so it is ignored by git and must never be committed.
