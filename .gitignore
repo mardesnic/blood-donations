@@ -43,3 +43,6 @@ dev.db*
 
 #intelij idea
 *.iml
+
+# real donor data, never commit
+prisma/*.csv

@@ -43,7 +43,9 @@ function mapGender(gender: string | undefined): Gender | null {
   return null;
 }
 
-function mapBloodType(bt: string | undefined): BloodType {
+// Unknown or missing values stay null so a donor is never shown with a guessed
+// blood type.
+export function mapBloodType(bt: string | null | undefined): BloodType | null {
   const value = bt?.trim().toUpperCase().replace(/^0/, 'O'); // fix "0+" → "O+"
   switch (value) {
     case 'A+':
@@ -63,13 +65,21 @@ function mapBloodType(bt: string | undefined): BloodType {
     case 'O-':
       return BloodType.O_NEGATIVE;
     default:
-      console.log('value undefined', value);
-      return BloodType.A_POSITIVE;
+      if (value) {
+        console.warn('Unknown blood type, leaving it empty:', value);
+      }
+      return null;
   }
 }
 
 export async function seedDonorsFromCsv() {
-  const csvFilePath = path.join(__dirname, 'donors.csv');
+  // Real donor data must never be committed, so the file lives outside git.
+  const csvFilePath =
+    process.env.DONORS_CSV || path.join(__dirname, 'donors.csv');
+  if (!fs.existsSync(csvFilePath)) {
+    console.log(`⏭️ No donor CSV at ${csvFilePath}, skipping CSV import`);
+    return;
+  }
   const records: DonorCsvRecord[] = [];
 
   await new Promise<void>((resolve, reject) => {

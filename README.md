@@ -34,6 +34,10 @@ Seed the database:
 npx prisma db seed
 ```
 
+The seed imports donors from a CSV file if one exists at `prisma/donors.csv`
+or at the path in `DONORS_CSV`. The file contains real personal data, so it is
+ignored by git and must never be committed.
+
 Reset database (also seeds database):
 
 ```bash
