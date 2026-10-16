@@ -3,6 +3,8 @@ export const APP_DESCRIPTION = 'App to track blood donations.';
 export const DATE_TIME_FORMAT = 'DD.MM.YYYY. HH:mm';
 export const DATE_FORMAT = 'DD.MM.YYYY.';
 export const PAGE_SIZE = 10;
+// Largest page the API returns; also the most options a dropdown loads.
+export const MAX_PAGE_SIZE = 100;
 export const reactQueryKeys = {
   places: {
     all: () => ['PLACES'] as const,

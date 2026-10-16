@@ -1,9 +1,17 @@
 'use client';
 import { useDonorsContext } from '@/context/DonorsContext';
-import { Box, Button, MenuItem, Stack, TextField } from '@mui/material';
+import {
+  Box,
+  Button,
+  FormControlLabel,
+  MenuItem,
+  Stack,
+  Switch,
+  TextField,
+} from '@mui/material';
 import { Donor } from '@prisma/client';
 import { useFormik } from 'formik';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
 import * as Yup from 'yup';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -12,6 +20,11 @@ import { DATE_FORMAT, GENDERS, BLOOD_TYPES } from '@/lib/const';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useRouter } from 'next/navigation';
 import { ROUTE_PATHS } from '@/routes';
+import { toDayString } from '@/lib/dates';
+
+// Stored calendar dates (UTC midnight) as a local day for the date pickers.
+const toDayjs = (value: Date | null | undefined): Dayjs | null =>
+  value ? dayjs(toDayString(value)) : null;
 
 interface Props {
   donor?: Donor;
@@ -29,52 +42,50 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
 
   const formik = useFormik({
     initialValues: {
-      fullName: `${donor?.firstName || ''} ${donor?.lastName || ''}`,
+      firstName: donor?.firstName || '',
+      lastName: donor?.lastName || '',
       fatherName: donor?.fatherName || '',
       email: donor?.email || '',
       phone: donor?.phone || '',
-      dob: dayjs(donor?.dob) || dayjs(),
+      dob: toDayjs(donor?.dob),
       oib: donor?.oib || '',
       address: donor?.address || '',
       city: donor?.city || '',
       gender: donor?.gender || '',
       bloodType: donor?.bloodType || '',
-      donationCount: donor?.donationCount || 0,
-      lastDonation: dayjs(donor?.lastDonation) || dayjs(),
-      active: donor?.active || true,
+      initialDonationCount: donor?.initialDonationCount ?? 0,
+      initialLastDonation: toDayjs(donor?.initialLastDonation),
+      active: donor?.active ?? true,
     },
     validationSchema: Yup.object({
-      fullName: Yup.string()
-        .required('Full Name is required')
-        .min(2, 'Must be 2 characters or more'),
-      oib: Yup.string()
-        .required('OIB is required')
-        .min(11, 'Must be exactly 11 digits')
-        .max(11, 'Must be exactly 11 digits'),
+      firstName: Yup.string().trim().required('First name is required'),
+      lastName: Yup.string().trim().required('Last name is required'),
+      oib: Yup.string().matches(/^\d{11}$/, {
+        message: 'Must be exactly 11 digits',
+        excludeEmptyString: true,
+      }),
       gender: Yup.string().required('Gender is required'),
-      bloodType: Yup.string().required('Blood type is required'),
       email: Yup.string().email('Email must be a valid email'),
-      donationCount: Yup.number().min(
-        0,
-        'Donation count must greater than or equal to 0'
-      ),
+      initialDonationCount: Yup.number()
+        .integer('Must be a whole number')
+        .min(0, 'Donation count must greater than or equal to 0'),
     }),
     onSubmit: async (values) => {
-      const names: string[] = values.fullName.split(' ');
       const newValues = {
         ...values,
-        firstName: names[0] || '',
-        lastName: names[1] || '',
-        dob: values.dob.toDate(),
-        lastDonation: values.lastDonation.toDate(),
+        // Calendar days are sent as YYYY-MM-DD so no time zone can shift them.
+        dob: values.dob?.isValid() ? values.dob.format('YYYY-MM-DD') : '',
+        initialLastDonation: values.initialLastDonation?.isValid()
+          ? values.initialLastDonation.format('YYYY-MM-DD')
+          : '',
       };
       if (donor?.id) {
         await updateDonor({
           ...newValues,
           id: donor.id,
-        } as Donor);
+        } as unknown as Donor);
       } else {
-        await createDonor(newValues as Donor);
+        await createDonor(newValues as unknown as Donor);
       }
 
       goToDonorsTable();
@@ -85,13 +96,24 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box component='form' onSubmit={formik.handleSubmit} noValidate>
         <TextField
-          label='Full Name'
-          name='fullName'
-          value={formik.values.fullName}
+          label='First Name'
+          name='firstName'
+          value={formik.values.firstName}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={formik.touched.fullName && Boolean(formik.errors.fullName)}
-          helperText={formik.touched.fullName && formik.errors.fullName}
+          error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+          helperText={formik.touched.firstName && formik.errors.firstName}
+          required
+        />
+
+        <TextField
+          label='Last Name'
+          name='lastName'
+          value={formik.values.lastName}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+          helperText={formik.touched.lastName && formik.errors.lastName}
           required
         />
 
@@ -136,11 +158,11 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
           value={formik.values.bloodType}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={formik.touched.bloodType && Boolean(formik.errors.bloodType)}
-          helperText={formik.touched.bloodType && formik.errors.bloodType}
           select
-          required
         >
+          <MenuItem value=''>
+            <em>Unknown</em>
+          </MenuItem>
           {Object.keys(BLOOD_TYPES).map((bloodType) => (
             <MenuItem key={bloodType} value={bloodType}>
               {BLOOD_TYPES[bloodType]}
@@ -156,7 +178,6 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
           onBlur={formik.handleBlur}
           error={formik.touched.oib && Boolean(formik.errors.oib)}
           helperText={formik.touched.oib && formik.errors.oib}
-          required
         />
 
         <TextField
@@ -183,33 +204,51 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
         <DatePicker
           label='Date of Birth'
           value={formik.values.dob}
-          onChange={(value) => formik.setFieldValue('dob', dayjs(value))}
+          onChange={(value) => formik.setFieldValue('dob', value)}
           format={DATE_FORMAT}
-        />
-
-        <DatePicker
-          label='Last donation date'
-          value={formik.values.lastDonation}
-          onChange={(value) =>
-            formik.setFieldValue('lastDonation', dayjs(value))
-          }
-          format={DATE_FORMAT}
+          slotProps={{ actionBar: { actions: ['clear'] } }}
         />
 
         <TextField
-          label='Donation count'
-          name='donationCount'
-          value={formik.values.donationCount}
+          label='Donations before records'
+          name='initialDonationCount'
+          value={formik.values.initialDonationCount}
           onChange={formik.handleChange}
           type='number'
           InputLabelProps={{ shrink: true }}
           onBlur={formik.handleBlur}
           error={
-            formik.touched.donationCount && Boolean(formik.errors.donationCount)
+            formik.touched.initialDonationCount &&
+            Boolean(formik.errors.initialDonationCount)
           }
           helperText={
-            formik.touched.donationCount && formik.errors.donationCount
+            (formik.touched.initialDonationCount &&
+              formik.errors.initialDonationCount) ||
+            (donor
+              ? `Total with recorded donations: ${donor.donationCount}`
+              : 'Donations made before they were recorded in this app')
           }
+        />
+
+        <DatePicker
+          label='Last donation before records'
+          value={formik.values.initialLastDonation}
+          onChange={(value) =>
+            formik.setFieldValue('initialLastDonation', value)
+          }
+          format={DATE_FORMAT}
+          slotProps={{ actionBar: { actions: ['clear'] } }}
+        />
+
+        <FormControlLabel
+          control={
+            <Switch
+              name='active'
+              checked={formik.values.active}
+              onChange={formik.handleChange}
+            />
+          }
+          label='Active'
         />
 
         <Stack direction='row' justifyContent='space-between'>

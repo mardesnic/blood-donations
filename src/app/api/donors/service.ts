@@ -1,10 +1,11 @@
 import { prisma } from '@/db';
 import { DATE_FORMAT } from '@/lib/const';
-import {
-  generateFilterFieldsFromFilterString,
-  getPrismaOperatorFromGridOperator,
-  getPrismaTermFromGridOperator,
-} from '@/lib/utils';
+import { buildDonorFilter } from '@/lib/donorFilters';
+import { formatDay } from '@/lib/dates';
+import { donorDataFromBody } from './body';
+import { refreshActionStats, refreshDonorStats } from './stats';
+
+type DonorInput = ReturnType<typeof donorDataFromBody>;
 import { Donor, Prisma } from '@prisma/client';
 import dayjs from 'dayjs';
 import { format } from 'fast-csv';
@@ -46,27 +47,38 @@ export default class DonorService {
     });
   }
 
-  static async create(data: Partial<Donor>): Promise<Donor> {
-    return await prisma.donor.create({
-      data: data as Donor,
+  static async create(data: DonorInput): Promise<Donor> {
+    return prisma.$transaction(async (tx) => {
+      const donor = await tx.donor.create({ data });
+      await refreshDonorStats(tx, donor.id);
+      return tx.donor.findUniqueOrThrow({ where: { id: donor.id } });
     });
   }
 
-  static async update(id: string, data: Partial<Donor>) {
-    return await prisma.donor.update({
-      where: { id },
-      data,
+  static async update(id: string, data: DonorInput) {
+    return prisma.$transaction(async (tx) => {
+      await tx.donor.update({ where: { id }, data });
+      await refreshDonorStats(tx, id);
+      return tx.donor.findUniqueOrThrow({ where: { id } });
     });
   }
 
   static async delete(id: string) {
-    await prisma.donation.deleteMany({
-      where: { donorId: id },
+    return prisma.$transaction(async (tx) => {
+      const donations = await tx.donation.findMany({
+        where: { donorId: id },
+        select: { actionId: true },
+      });
+      await tx.donation.deleteMany({ where: { donorId: id } });
+      await tx.communication.deleteMany({ where: { donorId: id } });
+      const donor = await tx.donor.delete({ where: { id } });
+      for (const actionId of Array.from(
+        new Set(donations.map((d) => d.actionId))
+      )) {
+        await refreshActionStats(tx, actionId);
+      }
+      return donor;
     });
-    await prisma.communication.deleteMany({
-      where: { donorId: id },
-    });
-    return await prisma.donor.delete({ where: { id } });
   }
 
   static async generateExport(
@@ -93,8 +105,8 @@ export default class DonorService {
       Gender: donor.gender,
       'Blood Type': donor.bloodType,
       Donations: donor.donationCount,
-      'Last Donation': dayjs(donor.lastDonation).format(DATE_FORMAT),
-      'Date of Birth': dayjs(donor.dob).format(DATE_FORMAT),
+      'Last Donation': formatDay(donor.lastDonation),
+      'Date of Birth': formatDay(donor.dob),
       Note: donor.note,
       'Created At': dayjs(donor.createdAt).format(DATE_FORMAT),
       'Updated At': dayjs(donor.updatedAt).format(DATE_FORMAT),
@@ -129,7 +141,7 @@ export default class DonorService {
   ): Prisma.DonorWhereInput {
     let whereCondition = {};
     let searchCondition = {};
-    let filterCondition = {};
+    const filterCondition = buildDonorFilter(filters);
     if (search?.length) {
       searchCondition = {
         OR: [
@@ -141,35 +153,6 @@ export default class DonorService {
         ],
       };
     }
-    if (filters.length) {
-      filters.forEach((filter) => {
-        const { filterField, filterOperator, filterTerm } =
-          generateFilterFieldsFromFilterString(filter || '');
-
-        if (
-          filterField &&
-          filterOperator &&
-          typeof filterTerm !== 'undefined'
-        ) {
-          const { prismaOperator, mode } =
-            getPrismaOperatorFromGridOperator(filterOperator);
-          const prismaTerm = getPrismaTermFromGridOperator(
-            filterOperator,
-            filterTerm
-          );
-          if (prismaTerm !== '') {
-            filterCondition = {
-              ...filterCondition,
-              [filterField]: {
-                [prismaOperator]: prismaTerm,
-                mode,
-              },
-            };
-          }
-        }
-      });
-    }
-
     if (
       Object.values(searchCondition).length &&
       Object.values(filterCondition).length

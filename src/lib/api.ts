@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { ValidationError } from 'yup';
 import { getCurrentSession } from '@/app/api/auth/service';
-import { PAGE_SIZE } from '@/lib/const';
+import { MAX_PAGE_SIZE, PAGE_SIZE } from '@/lib/const';
 import { generateSortFieldsFromSortString } from '@/lib/utils';
-
-export const MAX_PAGE_SIZE = 100;
 
 export const DONOR_SORT_FIELDS = [
   'fullName',

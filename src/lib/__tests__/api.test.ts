@@ -4,12 +4,11 @@ import { ValidationError } from 'yup';
 import { getCurrentSession } from '@/app/api/auth/service';
 import {
   DONOR_SORT_FIELDS,
-  MAX_PAGE_SIZE,
   parsePagination,
   parseSort,
   withAuth,
 } from '@/lib/api';
-import { PAGE_SIZE } from '@/lib/const';
+import { MAX_PAGE_SIZE, PAGE_SIZE } from '@/lib/const';
 
 vi.mock('@/app/api/auth/service', () => ({
   getCurrentSession: vi.fn(),

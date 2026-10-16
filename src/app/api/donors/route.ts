@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import DonorService from './service';
-import { Donor } from '@prisma/client';
-import { getDateFromDateTime } from '@/lib/utils';
+import { donorDataFromBody } from './body';
 import {
   DONOR_SORT_FIELDS,
   parsePagination,
@@ -36,29 +35,8 @@ export const GET = withAuth(async (req: NextRequest) => {
 });
 
 export const POST = withAuth(async (req: NextRequest) => {
-  const body = await req.json();
-  const lastDonationDate = body?.lastDonation
-    ? getDateFromDateTime(body?.lastDonation)
-    : undefined;
-  const dob = body?.dob ? getDateFromDateTime(body?.dob) : undefined;
-  const donor: Partial<Donor> = {
-    firstName: body?.firstName || '',
-    lastName: body?.lastName || '',
-    fullName: `${body?.firstName || ''} ${body?.lastName || ''}`,
-    fatherName: body?.fatherName || '',
-    email: body?.email || '',
-    phone: body?.phone || '',
-    dob,
-    oib: body?.oib || '',
-    address: body?.address || '',
-    city: body?.city || '',
-    gender: body?.gender || '',
-    bloodType: body?.bloodType || '',
-    donationCount: body?.donationCount || 0,
-    lastDonation: lastDonationDate,
-    active: body?.active || true,
-    note: body?.note || '',
-  };
-  const newDonor = await DonorService.create(donor);
+  const newDonor = await DonorService.create(
+    donorDataFromBody(await req.json())
+  );
   return NextResponse.json(newDonor);
 });

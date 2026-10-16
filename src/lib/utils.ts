@@ -130,28 +130,20 @@ export function getPrismaTermFromGridOperator(
   throw new Error('Filter term invalid.');
 }
 
-export function getDateFromDateTime(date: Date | string): Date {
-  return new Date(new Date(date).toISOString().split('T')[0]);
-}
-
 export function generateExportDownloadLink(
   baseUrl: string,
   search: string,
   filterModel: GridFilterModel,
   sortModel: GridSortModel
 ): string {
-  const searchString = `search=${encodeURIComponent(search || '')}`;
-  const filterString = `filter=${encodeURIComponent(
-    generateFilterString(filterModel) || ''
-  )}`;
-  const sortString = `sort=${encodeURIComponent(
-    generateSortString(sortModel) || ''
-  )}`;
-  const queryStringParts = [searchString, filterString, sortString].filter(
-    Boolean
-  );
-
-  return `${baseUrl}?${queryStringParts.join('&')}`;
+  // Same parameters as the donors list, so the export matches the table.
+  const params = new URLSearchParams();
+  params.append('search', search || '');
+  for (const filter of generateFilterStringForItems(filterModel) || []) {
+    params.append('filter', filter);
+  }
+  params.append('sort', generateSortString(sortModel) || '');
+  return `${baseUrl}?${params.toString()}`;
 }
 
 export function getDenyReasonDescription(denyReason: DenyReasonType): string {

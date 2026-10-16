@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import dayjs from 'dayjs';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
@@ -11,7 +10,8 @@ import { Button, Typography } from '@mui/material';
 import Link from 'next/link';
 import { MdAdd } from 'react-icons/md';
 
-import { DATE_FORMAT, BLOOD_TYPES, GENDERS } from '@/lib/const';
+import { BLOOD_TYPES, GENDERS } from '@/lib/const';
+import { formatDay } from '@/lib/dates';
 import { ROUTE_PATHS } from '@/routes';
 import { useDonorsContext } from '@/context/DonorsContext';
 import { useRouter } from 'next/navigation';
@@ -68,7 +68,7 @@ export default function DonorsTable() {
       field: 'lastDonation',
       headerName: 'Last Donation',
       flex: 1,
-      renderCell: (params) => dayjs(params.value).format(DATE_FORMAT),
+      renderCell: (params) => formatDay(params.value),
       valueGetter: (value) => value && new Date(value),
       type: 'date',
     },
@@ -83,7 +83,7 @@ export default function DonorsTable() {
       field: 'dob',
       headerName: 'Date of Birth',
       flex: 1,
-      renderCell: (params) => dayjs(params.value).format(DATE_FORMAT),
+      renderCell: (params) => formatDay(params.value),
       valueGetter: (value) => value && new Date(value),
       type: 'date',
     },

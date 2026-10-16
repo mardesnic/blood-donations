@@ -52,27 +52,32 @@ model User {
 }
 
 model Donor {
-  id             String          @id @default(uuid())
-  firstName      String          @db.VarChar(100)
-  lastName       String          @db.VarChar(100)
-  fullName       String?         @db.VarChar(100)
-  fatherName     String?         @db.VarChar(100)
-  email          String          @db.VarChar(100)
-  phone          String?         @db.VarChar(100)
-  dob            DateTime?
-  oib            String?         @db.VarChar(11)
-  address        String?         @db.VarChar(100)
-  city           String?         @db.VarChar(100)
-  gender         Gender
-  bloodType      BloodType?
-  donationCount  Int             @default(0)
-  lastDonation   DateTime?
-  active         Boolean         @default(true)
-  note           String?         @db.Text
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  donations      Donation[]
-  communications Communication[]
+  id                   String          @id @default(uuid())
+  firstName            String          @db.VarChar(100)
+  lastName             String          @db.VarChar(100)
+  fullName             String?         @db.VarChar(100)
+  fatherName           String?         @db.VarChar(100)
+  email                String          @db.VarChar(100)
+  phone                String?         @db.VarChar(100)
+  dob                  DateTime?
+  oib                  String?         @db.VarChar(11)
+  address              String?         @db.VarChar(100)
+  city                 String?         @db.VarChar(100)
+  gender               Gender
+  bloodType            BloodType?
+  // Totals maintained by the app: the initial values plus recorded
+  // successful donations.
+  donationCount        Int             @default(0)
+  lastDonation         DateTime?
+  // Donations before records started (CSV import or typed in).
+  initialDonationCount Int             @default(0)
+  initialLastDonation  DateTime?
+  active               Boolean         @default(true)
+  note                 String?         @db.Text
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  donations            Donation[]
+  communications       Communication[]
 
   @@index([firstName])
   @@index([lastName])
