@@ -123,7 +123,7 @@ export function getPrismaTermFromGridOperator(
     try {
       const date = new Date(term).toJSON().slice(0, 10);
       return new Date(date);
-    } catch (error) {
+    } catch {
       return '';
     }
   }
