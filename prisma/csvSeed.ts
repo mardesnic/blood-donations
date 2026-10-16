@@ -73,7 +73,13 @@ export function mapBloodType(bt: string | null | undefined): BloodType | null {
 }
 
 export async function seedDonorsFromCsv() {
-  const csvFilePath = path.join(__dirname, 'donors.csv');
+  // Real donor data must never be committed, so the file lives outside git.
+  const csvFilePath =
+    process.env.DONORS_CSV || path.join(__dirname, 'donors.csv');
+  if (!fs.existsSync(csvFilePath)) {
+    console.log(`⏭️ No donor CSV at ${csvFilePath}, skipping CSV import`);
+    return;
+  }
   const records: DonorCsvRecord[] = [];
 
   await new Promise<void>((resolve, reject) => {
