@@ -4,17 +4,29 @@ App to track blood donations.
 
 ## Installation
 
-Clone the repository and install the dependencies:
+Clone the repository, switch to Node 22 (with its bundled npm 10, the same as
+CI) and install the dependencies. With nvm, `.nvmrc` selects the version:
 
 ```bash
+nvm install
+nvm use
 npm install
 ```
+
+Other npm versions write the lock file differently, which breaks `npm ci` in
+CI.
 
 ## Environment Setup
 
 Copy the .env.example file to a new file named .env and fill in the environment variables with your own settings.
 
 ## Database
+
+Start a local Postgres with Docker (credentials match `.env.example`):
+
+```bash
+docker compose up -d
+```
 
 Generate prisma client (run on schema changes):
 
@@ -34,9 +46,11 @@ Seed the database:
 npx prisma db seed
 ```
 
-The seed imports donors from a CSV file if one exists at `prisma/donors.csv`
-or at the path in `DONORS_CSV`. The file contains real personal data, so it is
-ignored by git and must never be committed.
+The seed creates an admin user (`admin@admin.admin` / `AdminPassword123`, for
+local use only) plus fake places and actions. It imports donors from a CSV file
+if one exists at `prisma/donors.csv` or at the path in `DONORS_CSV`; without
+one it creates fake donors and donations instead. The file contains real
+personal data, so it is ignored by git and must never be committed.
 
 Reset database (also seeds database):
 
@@ -59,3 +73,23 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Testing
+
+Unit tests:
+
+```bash
+npm test
+```
+
+End-to-end smoke test against a running app with a freshly seeded local
+database (it creates and deletes records, so never run it against production):
+
+```bash
+npm run build && npm start
+node scripts/smoke-test.mjs http://localhost:3000
+```
+
+CI (`.github/workflows/ci.yml`) runs lint, type-check, unit tests, migrations
+against Postgres, a schema drift check, the build and the smoke test on every
+pull request.

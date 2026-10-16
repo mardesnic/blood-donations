@@ -1,12 +1,18 @@
 import { faker } from '@faker-js/faker';
-import { Action, Communication, Donation, Donor, Place } from '@prisma/client';
+import {
+  Action,
+  BloodType,
+  DenyReasonType,
+  Donation,
+  Donor,
+  Gender,
+  Place,
+} from '@prisma/client';
 
 // Define types for the partial structures that will be generated
-type GeneratedCommunication = Omit<Communication, 'createdAt' | 'updatedAt'>;
 type GeneratedDonation = Omit<Donation, 'createdAt' | 'updatedAt'>;
 type GeneratedDonor = Omit<Donor, 'createdAt' | 'updatedAt'> & {
   donations: GeneratedDonation[];
-  communications: GeneratedCommunication[];
 };
 type GeneratedAction = Omit<Action, 'createdAt' | 'updatedAt'> & {
   donors: GeneratedDonor[];
@@ -17,76 +23,61 @@ type GeneratedPlace = Omit<Place, 'createdAt' | 'updatedAt'> & {
 export type SeedDataType = GeneratedPlace[];
 
 // Helper function to generate a random enum value
-// function randomEnum<T extends Record<string, number | string>>(
-//   anEnum: T
-// ): T[keyof T] {
-//   const enumValues = Object.values(anEnum);
-//   const randomIndex = Math.floor(Math.random() * enumValues.length);
-//   return enumValues[randomIndex] as T[keyof T];
-// }
+function randomEnum<T extends Record<string, string>>(anEnum: T): T[keyof T] {
+  const enumValues = Object.values(anEnum);
+  const randomIndex = Math.floor(Math.random() * enumValues.length);
+  return enumValues[randomIndex] as T[keyof T];
+}
+
+function dateOnly(date: Date): Date {
+  return new Date(date.toISOString().split('T')[0]);
+}
 
 // Generate a single donation
-// function generateDonation(
-//   donorId: string,
-//   actionId: string
-// ): GeneratedDonation {
-//   const denied = faker.datatype.boolean();
-//   const denyReason = denied ? randomEnum(DenyReasonType) : null;
-//   return {
-//     id: faker.string.uuid(),
-//     denied,
-//     denyReason,
-//     donationDate: faker.date.recent(),
-//     note: faker.lorem.sentence(),
-//     donorId,
-//     actionId,
-//   };
-// }
+function generateDonation(
+  donorId: string,
+  actionId: string,
+  donationDate: Date
+): GeneratedDonation {
+  const denied = Math.random() < 0.15;
+  return {
+    id: faker.string.uuid(),
+    denied,
+    denyReason: denied ? randomEnum(DenyReasonType) : null,
+    donationDate,
+    note: faker.lorem.sentence(),
+    donorId,
+    actionId,
+  };
+}
 
-// Generate a single donor with donations and communications
-// function generateDonor(actionId: string): GeneratedDonor {
-//   const donorId = faker.string.uuid();
-//   const dob = new Date(
-//     faker.date
-//       .past({ years: 30, refDate: new Date('2000-01-01') })
-//       .toISOString()
-//       .split('T')[0]
-//   );
-//   const lastDonation = new Date(
-//     faker.date
-//       .past({ years: 3, refDate: new Date() })
-//       .toISOString()
-//       .split('T')[0]
-//   );
-//   lastDonation.setHours(0, 0, 0, 0);
-//   const firstName = faker.person.firstName();
-//   const lastName = faker.person.lastName();
-//   return {
-//     id: donorId,
-//     firstName: firstName,
-//     lastName: lastName,
-//     fullName: `${firstName} ${lastName}`,
-//     fatherName: faker.person.firstName(),
-//     email: faker.internet.email(),
-//     phone: faker.phone.number(),
-//     dob,
-//     oib: faker.number.int({ min: 10000000000, max: 99999999999 }).toString(),
-//     address: faker.location.streetAddress(),
-//     city: faker.location.city(),
-//     gender: randomEnum(Gender),
-//     bloodType: randomEnum(BloodType),
-//     donationCount: faker.number.int({ min: 0, max: 100 }),
-//     lastDonation,
-//     active: faker.datatype.boolean(),
-//     note: faker.lorem.sentence(),
-//     donations: Array.from({ length: 5 }, () =>
-//       generateDonation(donorId, actionId)
-//     ),
-//     communications: Array.from({ length: 3 }, () =>
-//       generateCommunication(donorId)
-//     ),
-//   };
-// }
+// Generate a single donor whose donation belongs to the given action
+function generateDonor(actionId: string, actionDate: Date): GeneratedDonor {
+  const donorId = faker.string.uuid();
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.lastName();
+  const donations = [generateDonation(donorId, actionId, actionDate)];
+  return {
+    id: donorId,
+    firstName,
+    lastName,
+    fullName: `${firstName} ${lastName}`,
+    fatherName: faker.person.firstName(),
+    email: faker.internet.email({ firstName, lastName }),
+    phone: faker.phone.number(),
+    dob: dateOnly(faker.date.birthdate({ min: 18, max: 65, mode: 'age' })),
+    oib: faker.string.numeric(11),
+    address: faker.location.streetAddress(),
+    city: faker.location.city(),
+    gender: randomEnum(Gender),
+    bloodType: randomEnum(BloodType),
+    donationCount: donations.length,
+    lastDonation: dateOnly(actionDate),
+    active: true,
+    note: null,
+    donations,
+  };
+}
 
 // Generate a single action with donors
 function generateAction(placeId: string): GeneratedAction {
@@ -97,16 +88,21 @@ function generateAction(placeId: string): GeneratedAction {
     startDateTime.getTime() +
       faker.number.int({ min: 1, max: 72 }) * 60 * 60 * 1000
   );
+  // Only actions that already happened have donors and donations.
+  const donors =
+    startDateTime < new Date()
+      ? Array.from({ length: 4 }, () => generateDonor(actionId, startDateTime))
+      : [];
 
   return {
     id: actionId,
     title: faker.company.name(),
     startDateTime,
     endDateTime,
-    donationCount: faker.number.int({ min: 0, max: 100 }),
+    donationCount: donors.length,
     note: faker.lorem.sentence(),
     placeId,
-    donors: [],
+    donors,
   };
 }
 
