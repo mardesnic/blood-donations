@@ -5,6 +5,8 @@ export const DATE_FORMAT = 'DD.MM.YYYY.';
 export const PAGE_SIZE = 10;
 // Largest page the API returns; also the most options a dropdown loads.
 export const MAX_PAGE_SIZE = 100;
+// Error code the sign-in returns when too many attempts failed.
+export const TOO_MANY_ATTEMPTS = 'TooManyAttempts';
 export const reactQueryKeys = {
   places: {
     all: () => ['PLACES'] as const,

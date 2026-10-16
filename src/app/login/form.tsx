@@ -10,6 +10,7 @@ import Button from '@mui/material/Button';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useState } from 'react';
+import { TOO_MANY_ATTEMPTS } from '@/lib/const';
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -32,7 +33,11 @@ export const LoginForm = () => {
       });
 
       if (!result?.ok) {
-        setLoginError('Invalid email or password.');
+        setLoginError(
+          result?.error === TOO_MANY_ATTEMPTS
+            ? 'Too many failed attempts. Please try again in 15 minutes.'
+            : 'Invalid email or password.'
+        );
         return;
       }
       setLoginError('');
