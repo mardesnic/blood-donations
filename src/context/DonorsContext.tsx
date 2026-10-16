@@ -17,7 +17,7 @@ import {
   GridPaginationModel,
   GridSortModel,
 } from '@mui/x-data-grid';
-import { Donor } from '@prisma/client';
+import { Donor } from '@/generated/prisma/browser';
 import React, { createContext, useContext, useState } from 'react';
 
 interface DeleteDialogI {

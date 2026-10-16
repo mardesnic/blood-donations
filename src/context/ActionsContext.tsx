@@ -6,7 +6,7 @@ import {
   useRemoveAction,
   useUpdateAction,
 } from '@/hooks/useActions';
-import { Action, Place, Prisma } from '@prisma/client';
+import { Action, Place, Prisma } from '@/generated/prisma/browser';
 import React, { createContext, useContext, useState } from 'react';
 import { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 import { PAGE_SIZE } from '@/lib/const';

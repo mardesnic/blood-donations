@@ -13,7 +13,7 @@ import {
   GridPaginationModel,
   GridSortModel,
 } from '@mui/x-data-grid';
-import { Place } from '@prisma/client';
+import { Place } from '@/generated/prisma/browser';
 import React, { createContext, useContext, useState } from 'react';
 
 interface DeleteDialogI {

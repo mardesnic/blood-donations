@@ -1,4 +1,4 @@
-import { BloodType, Gender, Prisma } from '@prisma/client';
+import { BloodType, Gender, Prisma } from '@/generated/prisma/client';
 import { parseDay } from '@/lib/dates';
 
 const DAY_MS = 24 * 60 * 60 * 1000;

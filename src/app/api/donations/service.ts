@@ -1,5 +1,5 @@
 import { prisma } from '@/db';
-import { Donation, Prisma } from '@prisma/client';
+import { Donation, Prisma } from '@/generated/prisma/client';
 import { refreshActionStats, refreshDonorStats } from '../donors/stats';
 
 export default class DonationService {

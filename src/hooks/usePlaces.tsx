@@ -1,6 +1,6 @@
 import { reactQueryKeys } from '@/lib/const';
 import { GetParams } from '@/lib/types';
-import { Place } from '@prisma/client';
+import { Place } from '@/generated/prisma/browser';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const getPlaces = async ({

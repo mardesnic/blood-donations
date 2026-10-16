@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { BloodType } from '@prisma/client';
+import { BloodType } from '../../src/generated/prisma/client';
 import { mapBloodType, parseCroatianDate } from '../csvSeed';
 
 describe('mapBloodType', () => {

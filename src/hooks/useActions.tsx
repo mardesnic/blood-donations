@@ -1,5 +1,5 @@
 import { reactQueryKeys } from '@/lib/const';
-import { Action } from '@prisma/client';
+import { Action } from '@/generated/prisma/browser';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { GetParams } from '@/lib/types';
 import { ActionWithPlace } from '@/context/ActionsContext';

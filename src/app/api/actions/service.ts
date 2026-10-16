@@ -1,5 +1,5 @@
 import { prisma } from '@/db';
-import { Action, Prisma } from '@prisma/client';
+import { Action, Prisma } from '@/generated/prisma/client';
 
 export default class ActionService {
   static async find(

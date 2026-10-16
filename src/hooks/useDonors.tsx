@@ -1,5 +1,5 @@
 import { reactQueryKeys } from '@/lib/const';
-import { Donor } from '@prisma/client';
+import { Donor } from '@/generated/prisma/browser';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 type GetDonorsParams = {

@@ -28,7 +28,8 @@ Start a local Postgres with Docker (credentials match `.env.example`):
 docker compose up -d
 ```
 
-Generate prisma client (run on schema changes):
+Generate the Prisma client into `src/generated/prisma` (runs on `npm install`;
+run again after schema changes):
 
 ```bash
 npx prisma generate
@@ -54,10 +55,12 @@ if one exists at `prisma/donors.csv` or at the path in `DONORS_CSV`; without
 one it creates fake donors and donations instead. The file contains real
 personal data, so it is ignored by git and must never be committed.
 
-Reset database (also seeds database):
+Reset the database (wipes all data, then re-applies the migrations; seed again
+afterwards):
 
 ```bash
 npx prisma migrate reset
+npx prisma db seed
 ```
 
 To interact with the database using a GUI, open Prisma Studio:

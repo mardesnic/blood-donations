@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import PlaceService from './service';
-import { Place } from '@prisma/client';
+import { Place } from '@/generated/prisma/client';
 import { generateFilterFieldsFromFilterString } from '@/lib/utils';
 import { parsePagination, parseSort, withAuth } from '@/lib/api';
 import { parseBody, placeSchema } from '@/lib/schemas';
