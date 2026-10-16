@@ -5,10 +5,46 @@ import { seedDonorsFromCsv } from './csvSeed';
 
 const prisma = new PrismaClient();
 
+// Local development and CI default; documented in the README.
+const DEFAULT_ADMIN_EMAIL = 'admin@admin.admin';
+const DEFAULT_ADMIN_PASSWORD = 'AdminPassword123';
+
+export function isLocalDatabase(url: string | null | undefined): boolean {
+  if (!url) {
+    return false;
+  }
+  try {
+    const { hostname } = new URL(url);
+    return ['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname);
+  } catch {
+    return false;
+  }
+}
+
+// The default password is only allowed for a database on this machine, so a
+// real environment can't end up with a publicly known admin login.
+export function adminCredentials(env: Record<string, string | undefined>): {
+  email: string;
+  password: string;
+} {
+  const email = env.SEED_ADMIN_EMAIL?.trim() || DEFAULT_ADMIN_EMAIL;
+  const password = env.SEED_ADMIN_PASSWORD || '';
+  if (password) {
+    return { email, password };
+  }
+  if (!isLocalDatabase(env.POSTGRES_PRISMA_URL)) {
+    throw new Error(
+      'SEED_ADMIN_PASSWORD must be set when seeding a database that is not on localhost.'
+    );
+  }
+  return { email, password: DEFAULT_ADMIN_PASSWORD };
+}
+
 async function seedAdmin() {
   console.log('🌱 Seeding admin user...');
-  const adminEmail = 'admin@admin.admin';
-  const adminPassword = 'AdminPassword123';
+  const { email: adminEmail, password: adminPassword } = adminCredentials(
+    process.env
+  );
   const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
   await prisma.user.upsert({
@@ -87,4 +123,7 @@ async function main() {
   }
 }
 
-main();
+// Only seed when run as a script, not when imported by tests.
+if (require.main === module) {
+  main();
+}

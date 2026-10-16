@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import PlaceService from '../service';
-import { Place } from '@prisma/client';
 import { withAuth } from '@/lib/api';
+import { parseBody, placeSchema } from '@/lib/schemas';
 
 export const PUT = withAuth(
   async (req: NextRequest, contex: { params: Promise<{ id: string }> }) => {
     const { id } = await contex.params;
-    const body = await req.json();
-    const data: Partial<Place> = {
-      title: body?.title || '',
-      address: body?.address || '',
-      city: body?.city || '',
-      phone: body?.phone || '',
-      email: body?.email || '',
-      contactName: body?.contactName || '',
-      note: body?.note || '',
-    };
+    const data = await parseBody(placeSchema, await req.json());
     const place = await PlaceService.update(id, data);
     return NextResponse.json(place);
   }
