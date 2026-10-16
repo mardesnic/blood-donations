@@ -74,7 +74,10 @@ const Form = ({ donation }: Props) => {
       donorId: donation?.donorId || donor?.id || '',
       donor: donation?.donor || donor || null,
       actionId: donation?.actionId || action?.id || '',
-      donationDate: dayjs(donation?.donationDate) || dayjs(),
+      // New donations default to "now", set in the browser after hydration:
+      // this page is prerendered, so a server-side "now" would be the build
+      // time and wouldn't match what the browser renders.
+      donationDate: donation ? dayjs(donation.donationDate) : null,
       denied: !!donation?.denied,
       denyReason: donation?.denyReason || '',
       note: donation?.note || '',
@@ -93,7 +96,7 @@ const Form = ({ donation }: Props) => {
         denied: values.denied,
         note: values.note,
         denyReason: values.denyReason || null,
-        donationDate: values.donationDate.toDate(),
+        donationDate: (values.donationDate ?? dayjs()).toDate(),
       } as Donation;
       if (donation?.id) {
         await updateDonation({
@@ -117,6 +120,9 @@ const Form = ({ donation }: Props) => {
   );
 
   React.useEffect(() => {
+    if (!donation) {
+      formik.setFieldValue('donationDate', dayjs());
+    }
     (() => formik.validateForm())();
   }, []);
 
