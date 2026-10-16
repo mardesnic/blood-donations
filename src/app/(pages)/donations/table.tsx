@@ -37,7 +37,7 @@ export default function DonationsTable() {
       sortable: true,
       flex: 1,
       renderCell: (params) => dayjs(params.value).format(DATE_FORMAT),
-      valueGetter: ({ value }) => value && new Date(value),
+      valueGetter: (value) => value && new Date(value),
       type: 'date',
       disableColumnMenu: true,
     },

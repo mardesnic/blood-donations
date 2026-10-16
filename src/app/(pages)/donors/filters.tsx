@@ -113,7 +113,7 @@ export const DonorsFilters = (props: Props) => {
 
         <DatePicker
           label='Last donation date'
-          value={getValueFromFilterModel('lastDonation') || ''}
+          value={getValueFromFilterModel('lastDonation') || null}
           onChange={(value) => {
             const items = [...(filterModel?.items || [])].filter(
               (item) => item.field !== 'lastDonation'
@@ -165,7 +165,7 @@ export const DonorsFilters = (props: Props) => {
 
         <DatePicker
           label='Date of Birth'
-          value={getValueFromFilterModel('dob') || ''}
+          value={getValueFromFilterModel('dob') || null}
           onChange={(value) => {
             const items = [...(filterModel?.items || [])].filter(
               (item) => item.field !== 'dob'

@@ -9,19 +9,19 @@ import UpdateDonationBody from './body';
 import { DonationDeleteDialog } from '../dialogs/delete';
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-export async function generateMetadata({
-  params: { id },
-}: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
   const donation = await DonationService.findOne(id);
   return {
     title: generatePageTitle(`Donation - ${donation?.donor?.fullName}`),
   };
 }
 
-export default async function DonationDetails({ params: { id } }: Props) {
+export default async function DonationDetails({ params }: Props) {
+  const { id } = await params;
   const donation = await DonationService.findOne(id);
   if (!donation) {
     notFound();
