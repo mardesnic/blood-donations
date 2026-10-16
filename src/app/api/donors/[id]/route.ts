@@ -5,8 +5,8 @@ import { getDateFromDateTime } from '@/lib/utils';
 import { withAuth } from '@/lib/api';
 
 export const PUT = withAuth(
-  async (req: NextRequest, contex: { params: { id: string } }) => {
-    const id = contex.params.id;
+  async (req: NextRequest, contex: { params: Promise<{ id: string }> }) => {
+    const { id } = await contex.params;
     const body = await req.json();
     const lastDonationDate = body?.lastDonation
       ? getDateFromDateTime(body?.lastDonation)
@@ -36,8 +36,8 @@ export const PUT = withAuth(
 );
 
 export const DELETE = withAuth(
-  async (_: NextRequest, contex: { params: { id: string } }) => {
-    const id = contex.params.id;
+  async (_: NextRequest, contex: { params: Promise<{ id: string }> }) => {
+    const { id } = await contex.params;
     await DonorService.delete(id);
     return NextResponse.json({ message: `Successfully deleted donor ${id}.` });
   }

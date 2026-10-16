@@ -57,8 +57,7 @@ export default function DonorsTable() {
       field: 'bloodType',
       headerName: 'Blood Type',
       flex: 1,
-      valueGetter: (params: { value: keyof typeof BLOOD_TYPES }) =>
-        BLOOD_TYPES[params.value],
+      valueGetter: (value: keyof typeof BLOOD_TYPES) => BLOOD_TYPES[value],
     },
     {
       field: 'donationCount',
@@ -70,15 +69,14 @@ export default function DonorsTable() {
       headerName: 'Last Donation',
       flex: 1,
       renderCell: (params) => dayjs(params.value).format(DATE_FORMAT),
-      valueGetter: ({ value }) => value && new Date(value),
+      valueGetter: (value) => value && new Date(value),
       type: 'date',
     },
     {
       field: 'gender',
       headerName: 'Gender',
       flex: 0,
-      valueGetter: (params: { value: keyof typeof GENDERS }) =>
-        GENDERS[params.value].short,
+      valueGetter: (value: keyof typeof GENDERS) => GENDERS[value].short,
     },
 
     {
@@ -86,7 +84,7 @@ export default function DonorsTable() {
       headerName: 'Date of Birth',
       flex: 1,
       renderCell: (params) => dayjs(params.value).format(DATE_FORMAT),
-      valueGetter: ({ value }) => value && new Date(value),
+      valueGetter: (value) => value && new Date(value),
       type: 'date',
     },
     {

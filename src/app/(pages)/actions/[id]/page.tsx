@@ -13,19 +13,19 @@ import { ActionDetailsHeader } from '@/app/(pages)/actions/[id]/header';
 import { ActionDetailsForm } from '@/app/(pages)/actions/forms/details';
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-export async function generateMetadata({
-  params: { id },
-}: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
   const action = await ActionService.findOne(id);
   return {
     title: generatePageTitle(action?.title),
   };
 }
 
-export default async function ActionDetails({ params: { id } }: Props) {
+export default async function ActionDetails({ params }: Props) {
+  const { id } = await params;
   const action = await ActionService.findOne(id);
   if (!action) {
     notFound();

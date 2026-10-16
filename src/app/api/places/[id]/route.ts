@@ -4,8 +4,8 @@ import { Place } from '@prisma/client';
 import { withAuth } from '@/lib/api';
 
 export const PUT = withAuth(
-  async (req: NextRequest, contex: { params: { id: string } }) => {
-    const id = contex.params.id;
+  async (req: NextRequest, contex: { params: Promise<{ id: string }> }) => {
+    const { id } = await contex.params;
     const body = await req.json();
     const data: Partial<Place> = {
       title: body?.title || '',
@@ -22,8 +22,8 @@ export const PUT = withAuth(
 );
 
 export const DELETE = withAuth(
-  async (_: NextRequest, contex: { params: { id: string } }) => {
-    const id = contex.params.id;
+  async (_: NextRequest, contex: { params: Promise<{ id: string }> }) => {
+    const { id } = await contex.params;
     await PlaceService.delete(id);
     return NextResponse.json({ message: `Successfully deleted place ${id}.` });
   }
