@@ -1,3 +1,4 @@
+import { connection } from 'next/server';
 import type { Metadata } from 'next';
 import './globals.css';
 import { NextAuthSessionProvider } from './providers/NextAuthSessionProvider';
@@ -12,11 +13,13 @@ export const metadata: Metadata = {
   description: APP_DESCRIPTION,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Render every page per request: script nonces only exist at request time.
+  await connection();
   return (
     <html lang='en'>
       <body>
