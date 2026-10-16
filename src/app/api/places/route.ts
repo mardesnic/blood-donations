@@ -3,6 +3,7 @@ import PlaceService from './service';
 import { Place } from '@prisma/client';
 import { generateFilterFieldsFromFilterString } from '@/lib/utils';
 import { parsePagination, parseSort, withAuth } from '@/lib/api';
+import { parseBody, placeSchema } from '@/lib/schemas';
 
 const SORT_FIELDS = [
   'title',
@@ -42,16 +43,7 @@ export const GET = withAuth(async (req: NextRequest) => {
 });
 
 export const POST = withAuth(async (req: NextRequest) => {
-  const body = await req.json();
-  const place: Partial<Place> = {
-    title: body?.title || '',
-    address: body?.address || '',
-    city: body?.city || '',
-    phone: body?.phone || '',
-    email: body?.email || '',
-    contactName: body?.contactName || '',
-    note: body?.note || '',
-  };
-  const newPlace = await PlaceService.create(place);
+  const data = await parseBody(placeSchema, await req.json());
+  const newPlace = await PlaceService.create(data);
   return NextResponse.json(newPlace);
 });

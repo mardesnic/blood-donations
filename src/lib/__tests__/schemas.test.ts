@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { actionSchema, donationSchema, parseBody } from '@/lib/schemas';
+import {
+  actionSchema,
+  donationSchema,
+  parseBody,
+  placeSchema,
+} from '@/lib/schemas';
 
 describe('parseBody', () => {
   it('rejects null, undefined and empty bodies', async () => {
@@ -45,6 +50,42 @@ describe('parseBody', () => {
         denyReason: 'FOREVER',
         donationDate: '2026-10-01T08:00:00.000Z',
       })
+    ).rejects.toThrow();
+  });
+});
+
+describe('placeSchema', () => {
+  it('rejects null, undefined and empty bodies', async () => {
+    for (const body of [null, undefined, {}, { title: '   ' }]) {
+      await expect(parseBody(placeSchema, body)).rejects.toThrow();
+    }
+  });
+
+  it('stores empty optional fields as null and strips unknown fields', async () => {
+    expect(
+      await parseBody(placeSchema, {
+        id: 'attacker-chosen-id',
+        title: ' Town hall ',
+        city: '',
+        email: '',
+      })
+    ).toEqual({
+      title: 'Town hall',
+      address: null,
+      city: null,
+      phone: null,
+      email: null,
+      contactName: null,
+      note: null,
+    });
+  });
+
+  it('rejects an invalid email and text longer than the column', async () => {
+    await expect(
+      parseBody(placeSchema, { title: 'x', email: 'not-an-email' })
+    ).rejects.toThrow();
+    await expect(
+      parseBody(placeSchema, { title: 'x'.repeat(101) })
     ).rejects.toThrow();
   });
 });

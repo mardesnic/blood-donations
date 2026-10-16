@@ -10,6 +10,25 @@ const optionalId = () =>
 
 const optionalText = () => Yup.string().nullable().default(null);
 
+// Optional text for a VarChar(100) column; empty input is stored as null.
+const optionalShortText = () =>
+  Yup.string()
+    .trim()
+    .max(100)
+    .nullable()
+    .default(null)
+    .transform((value) => (value === '' ? null : value));
+
+export const placeSchema = Yup.object({
+  title: Yup.string().trim().required().max(100),
+  address: optionalShortText(),
+  city: optionalShortText(),
+  phone: optionalShortText(),
+  email: optionalShortText().email(),
+  contactName: optionalShortText(),
+  note: optionalText(),
+});
+
 export const actionSchema = Yup.object({
   title: Yup.string().trim().required().max(100),
   placeId: optionalId(),
