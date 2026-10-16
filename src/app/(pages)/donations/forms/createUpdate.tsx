@@ -6,7 +6,7 @@ import {
   useDonationsContext,
   DonationWithDonor,
 } from '@/context/DonationsContext';
-import { useActionsContext, ActionsProvider } from '@/context/ActionsContext';
+import { useGetActions } from '@/hooks/useActions';
 import { Box, Button, MenuItem, Stack } from '@mui/material';
 import { Donation, Donor, DenyReasonType } from '@prisma/client';
 import { useFormik } from 'formik';
@@ -20,11 +20,12 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import dayjs from 'dayjs';
-import { DATE_TIME_FORMAT } from '@/lib/const';
+import { DATE_TIME_FORMAT, MAX_PAGE_SIZE } from '@/lib/const';
 import { useGetDonors } from '@/hooks/useDonors';
 import { ROUTE_PATHS } from '@/routes';
 import { useRouter } from 'next/navigation';
 import { getDenyReasonDescription } from '@/lib/utils';
+import { useGoBack } from '@/hooks/useGoBack';
 
 interface Props {
   donation?: DonationWithDonor;
@@ -32,6 +33,7 @@ interface Props {
 
 const Form = ({ donation }: Props) => {
   const router = useRouter();
+  const goBack = useGoBack(ROUTE_PATHS.PROTECTED.DONATIONS.path);
   const [searchQuery, setSearchQuery] = React.useState(
     donation?.donor?.fullName || ''
   );
@@ -51,7 +53,20 @@ const Form = ({ donation }: Props) => {
     search: searchQuery,
   });
 
-  const { actions } = useActionsContext();
+  // Up to MAX_PAGE_SIZE most recent actions, plus the donation's own action
+  // if it is older than those.
+  const { data: actionsData } = useGetActions({
+    page: 0,
+    pageSize: MAX_PAGE_SIZE,
+    sort: 'startDateTime|desc',
+  });
+  const actions = React.useMemo(() => {
+    const list = actionsData?.actions || [];
+    const current = donation?.action;
+    return current && !list.some((a) => a.id === current.id)
+      ? [current, ...list]
+      : list;
+  }, [actionsData, donation]);
 
   const deniedReasons = Object.keys(DenyReasonType);
   const formik = useFormik({
@@ -88,7 +103,7 @@ const Form = ({ donation }: Props) => {
       } else {
         await createDonation(newValues as Donation);
       }
-      router.push(ROUTE_PATHS.PROTECTED.DONATIONS.path);
+      goBack();
     },
   });
 
@@ -145,24 +160,25 @@ const Form = ({ donation }: Props) => {
         )}
       />
 
-      {!!actions.length && (
-        <TextField
-          label='Action'
-          name='actionId'
-          value={formik.values.actionId}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.actionId && Boolean(formik.errors.actionId)}
-          helperText={formik.touched.actionId && formik.errors.actionId}
-          select
-        >
-          {actions.map((action) => (
-            <MenuItem key={action.id} value={action.id}>
-              {action.title}
-            </MenuItem>
-          ))}
-        </TextField>
-      )}
+      <TextField
+        label='Action'
+        name='actionId'
+        value={formik.values.actionId}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.actionId && Boolean(formik.errors.actionId)}
+        helperText={formik.touched.actionId && formik.errors.actionId}
+        select
+      >
+        <MenuItem value=''>
+          <em>None</em>
+        </MenuItem>
+        {actions.map((action) => (
+          <MenuItem key={action.id} value={action.id}>
+            {action.title}
+          </MenuItem>
+        ))}
+      </TextField>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DateTimePicker
           label='Donation date'
@@ -247,9 +263,5 @@ const Form = ({ donation }: Props) => {
 };
 
 export const DonationCreateUpdateForm = ({ donation }: Props) => {
-  return (
-    <ActionsProvider>
-      <Form donation={donation} />
-    </ActionsProvider>
-  );
+  return <Form donation={donation} />;
 };

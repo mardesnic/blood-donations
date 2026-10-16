@@ -18,8 +18,8 @@ import * as Yup from 'yup';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { DATE_TIME_FORMAT } from '@/lib/const';
-import { PlacesProvider, usePlacesContext } from '@/context/PlacesContext';
+import { DATE_TIME_FORMAT, MAX_PAGE_SIZE } from '@/lib/const';
+import { useGetPlaces } from '@/hooks/usePlaces';
 
 interface Props {
   action?: Action;
@@ -28,7 +28,12 @@ interface Props {
 const Form = ({ action }: Props) => {
   const { closeDialog, createAction, updateAction, isLoading, place } =
     useActionsContext();
-  const { places } = usePlacesContext();
+  const { data: placesData } = useGetPlaces({
+    page: 0,
+    pageSize: MAX_PAGE_SIZE,
+    sort: 'title|asc',
+  });
+  const places = placesData?.places || [];
 
   const formik = useFormik({
     initialValues: {
@@ -143,9 +148,5 @@ const Form = ({ action }: Props) => {
 };
 
 export const ActionCreateUpdateForm = ({ action }: Props) => {
-  return (
-    <PlacesProvider>
-      <Form action={action} />
-    </PlacesProvider>
-  );
+  return <Form action={action} />;
 };
