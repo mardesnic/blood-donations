@@ -9,6 +9,7 @@
     "lint": "next lint",
     "lint-staged": "lint-staged",
     "type-check": "tsc --project tsconfig.json --pretty --noEmit && echo ",
+    "test": "vitest run",
     "postinstall": "prisma generate"
   },
   "prisma": {
@@ -40,7 +41,7 @@
     "@tanstack/eslint-plugin-query": "^5.8.4",
     "@tanstack/react-query-devtools": "^5.8.9",
     "@types/bcrypt": "^5.0.1",
-    "@types/node": "^20.8.10",
+    "@types/node": "^20.19.43",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
@@ -57,6 +58,7 @@
     "prisma": "^5.5.2",
     "tailwindcss": "^3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.12"
   }
 }

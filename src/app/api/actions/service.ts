@@ -39,7 +39,9 @@ export default class ActionService {
     });
   }
 
-  static async create(data: Action): Promise<Action> {
+  static async create(
+    data: Prisma.ActionUncheckedCreateInput
+  ): Promise<Action> {
     return prisma.action.create({
       data,
     });

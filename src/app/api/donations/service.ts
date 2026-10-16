@@ -52,7 +52,9 @@ export default class DonationService {
     });
   }
 
-  static async create(data: Donation): Promise<Donation> {
+  static async create(
+    data: Prisma.DonationUncheckedCreateInput
+  ): Promise<Donation> {
     return prisma.donation.create({
       data,
     });

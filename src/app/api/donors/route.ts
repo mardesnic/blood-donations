@@ -1,37 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import DonorService from './service';
 import { Donor } from '@prisma/client';
-import { PAGE_SIZE } from '@/lib/const';
+import { getDateFromDateTime } from '@/lib/utils';
 import {
-  generateSortFieldsFromSortString,
-  getDateFromDateTime,
-} from '@/lib/utils';
+  DONOR_SORT_FIELDS,
+  parsePagination,
+  parseSort,
+  withAuth,
+} from '@/lib/api';
 
-export async function GET(req: NextRequest) {
+export const GET = withAuth(async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
 
-  const page = searchParams.get('page') || 0;
-  const pageSize = searchParams.get('pageSize') || PAGE_SIZE;
   const search = searchParams?.get('search') || '';
   const filters = searchParams?.getAll('filter') || [];
 
-  const { sortField, sort } = generateSortFieldsFromSortString(
-    searchParams?.get('sort') || ''
+  const { take, skip } = parsePagination(
+    searchParams.get('page'),
+    searchParams.get('pageSize')
   );
-  const take = parseInt(pageSize.toString(), 10);
-  const skip = parseInt(page.toString(), 10) * take;
+  const { sortField, sort } = parseSort(
+    searchParams.get('sort'),
+    DONOR_SORT_FIELDS,
+    'createdAt'
+  );
   const { donors, count } = await DonorService.find(
     take,
     skip,
     search,
     filters,
-    sortField as keyof Donor,
+    sortField,
     sort
   );
   return NextResponse.json({ donors, count });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req: NextRequest) => {
   const body = await req.json();
   const lastDonationDate = body?.lastDonation
     ? getDateFromDateTime(body?.lastDonation)
@@ -57,4 +61,4 @@ export async function POST(req: NextRequest) {
   };
   const newDonor = await DonorService.create(donor);
   return NextResponse.json(newDonor);
-}
+});
