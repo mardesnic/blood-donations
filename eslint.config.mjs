@@ -1,17 +1,9 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
+import nextTypescript from 'eslint-config-next/typescript';
 import prettierRecommended from 'eslint-plugin-prettier/recommended';
 
-// eslint-config-next 15 still ships the legacy format, so it is loaded
-// through FlatCompat.
-const compat = new FlatCompat({
-  baseDirectory: dirname(fileURLToPath(import.meta.url)),
-});
-
-export default tseslint.config(
+const config = [
   {
     ignores: [
       '.next/**',
@@ -22,8 +14,8 @@ export default tseslint.config(
     ],
   },
   js.configs.recommended,
-  ...compat.extends('next/core-web-vitals'),
-  ...tseslint.configs.recommended,
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   prettierRecommended,
   {
     rules: {
@@ -34,5 +26,7 @@ export default tseslint.config(
       ],
       'react-hooks/exhaustive-deps': 'off',
     },
-  }
-);
+  },
+];
+
+export default config;
