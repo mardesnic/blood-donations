@@ -5,7 +5,7 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Donor } from '@prisma/client';
+import { Donor } from '@/generated/prisma/browser';
 import { Button, Typography } from '@mui/material';
 import Link from 'next/link';
 import { MdAdd } from 'react-icons/md';

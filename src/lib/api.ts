@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@/generated/prisma/client';
 import { ValidationError } from 'yup';
 import { getCurrentSession } from '@/app/api/auth/service';
 import { MAX_PAGE_SIZE, PAGE_SIZE } from '@/lib/const';

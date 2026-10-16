@@ -7,7 +7,7 @@ import {
   Donor,
   Gender,
   Place,
-} from '@prisma/client';
+} from '../src/generated/prisma/client';
 import { toAppDay } from '../src/lib/dates';
 
 // Define types for the partial structures that will be generated

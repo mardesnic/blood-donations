@@ -9,7 +9,7 @@ import {
   ENABLED_GRID_STRING_OPERATORS,
 } from '@/lib/const';
 import { GridFilterModel, GridSortModel } from '@mui/x-data-grid';
-import { DenyReasonType } from '@prisma/client';
+import { DenyReasonType } from '@/generated/prisma/browser';
 
 export function generatePageTitle(title: string = '') {
   return `${title ? `${title} | ` : ''}${APP_TITLE}`;

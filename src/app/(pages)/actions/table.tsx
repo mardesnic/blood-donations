@@ -3,7 +3,7 @@
 import * as React from 'react';
 import dayjs from 'dayjs';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Action } from '@prisma/client';
+import { Action } from '@/generated/prisma/browser';
 import { IconButton } from '@mui/material';
 import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
 import { useActionsContext } from '@/context/ActionsContext';

@@ -1,7 +1,7 @@
 import { ROUTE_PATHS } from '@/routes';
 import { Stack, Typography } from '@mui/material';
 import Link from 'next/link';
-import { Donor } from '@prisma/client';
+import { Donor } from '@/generated/prisma/browser';
 import React from 'react';
 import { MdArrowBack } from 'react-icons/md';
 

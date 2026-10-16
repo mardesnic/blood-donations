@@ -1,4 +1,4 @@
-import { DenyReasonType } from '@prisma/client';
+import { DenyReasonType } from '@/generated/prisma/browser';
 import * as Yup from 'yup';
 
 // An empty string from a "None" select option means no relation.

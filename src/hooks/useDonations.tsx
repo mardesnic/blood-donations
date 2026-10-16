@@ -1,6 +1,6 @@
 import { reactQueryKeys } from '@/lib/const';
 import { GetParams } from '@/lib/types';
-import { Donation } from '@prisma/client';
+import { Donation } from '@/generated/prisma/browser';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DonationWithDonor } from '@/context/DonationsContext';
 

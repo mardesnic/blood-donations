@@ -1,4 +1,4 @@
-import { BloodType, Gender } from '@prisma/client';
+import { BloodType, Gender } from '@/generated/prisma/client';
 import { ValidationError } from 'yup';
 import { parseDay } from '@/lib/dates';
 

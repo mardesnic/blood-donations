@@ -8,7 +8,7 @@ import {
 } from '@/context/DonationsContext';
 import { useGetActions } from '@/hooks/useActions';
 import { Box, Button, MenuItem, Stack } from '@mui/material';
-import { Donation, Donor, DenyReasonType } from '@prisma/client';
+import { Donation, Donor, DenyReasonType } from '@/generated/prisma/browser';
 import { useFormik } from 'formik';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';

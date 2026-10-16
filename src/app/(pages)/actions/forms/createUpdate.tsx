@@ -9,7 +9,7 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
-import { Action } from '@prisma/client';
+import { Action } from '@/generated/prisma/browser';
 import { useFormik } from 'formik';
 import dayjs from 'dayjs';
 import React from 'react';

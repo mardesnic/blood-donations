@@ -9,7 +9,7 @@ import {
   Switch,
   TextField,
 } from '@mui/material';
-import { Donor } from '@prisma/client';
+import { Donor } from '@/generated/prisma/browser';
 import { useFormik } from 'formik';
 import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';

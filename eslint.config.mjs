@@ -11,6 +11,7 @@ const config = [
       'next-env.d.ts',
       'coverage/**',
       'prisma/seed.ts',
+      'src/generated/**',
     ],
   },
   js.configs.recommended,

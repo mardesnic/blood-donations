@@ -6,7 +6,7 @@ import { donorDataFromBody } from './body';
 import { refreshActionStats, refreshDonorStats } from './stats';
 
 type DonorInput = ReturnType<typeof donorDataFromBody>;
-import { Donor, Prisma } from '@prisma/client';
+import { Donor, Prisma } from '@/generated/prisma/client';
 import dayjs from 'dayjs';
 import { format } from 'fast-csv';
 import { Readable } from 'stream';

@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse';
-import { PrismaClient, Gender, BloodType } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { Gender, BloodType } from '../src/generated/prisma/client';
+import { prisma } from '../src/db';
 
 interface DonorCsvRecord {
   IME: string;
@@ -80,7 +79,7 @@ export function mapBloodType(bt: string | null | undefined): BloodType | null {
 export async function seedDonorsFromCsv(): Promise<boolean> {
   // Real donor data must never be committed, so the file lives outside git.
   const csvFilePath =
-    process.env.DONORS_CSV || path.join(__dirname, 'donors.csv');
+    process.env.DONORS_CSV || path.join(import.meta.dirname, 'donors.csv');
   if (!fs.existsSync(csvFilePath)) {
     console.log(`⏭️ No donor CSV at ${csvFilePath}, skipping CSV import`);
     return false;

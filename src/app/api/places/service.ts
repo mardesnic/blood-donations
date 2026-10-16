@@ -3,7 +3,7 @@ import {
   getPrismaOperatorFromGridOperator,
   getPrismaTermFromGridOperator,
 } from '@/lib/utils';
-import { Place, Prisma } from '@prisma/client';
+import { Place, Prisma } from '@/generated/prisma/client';
 
 export default class PlaceService {
   static async find(

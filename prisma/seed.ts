@@ -1,9 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import { pathToFileURL } from 'url';
 import bcrypt from 'bcrypt';
 import { generateSeedData } from './seedData';
 import { seedDonorsFromCsv } from './csvSeed';
-
-const prisma = new PrismaClient();
+import { prisma } from '../src/db';
 
 // Local development and CI default; documented in the README.
 const DEFAULT_ADMIN_EMAIL = 'admin@admin.admin';
@@ -124,6 +123,6 @@ async function main() {
 }
 
 // Only seed when run as a script, not when imported by tests.
-if (require.main === module) {
+if (import.meta.url === pathToFileURL(process.argv[1] || '').href) {
   main();
 }
