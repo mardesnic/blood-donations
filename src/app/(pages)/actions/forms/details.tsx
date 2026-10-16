@@ -37,7 +37,7 @@ export const ActionDetailsForm = ({ action }: Props) => {
   return (
     <Grid container spacing={2}>
       {fields.map((field) => (
-        <Grid item xs={12} sm={6} md={4} key={field.label}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={field.label}>
           <TextField
             label={field.label}
             value={field.value}

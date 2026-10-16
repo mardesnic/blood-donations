@@ -1,7 +1,11 @@
-import { BreakpointsOptions, createTheme } from '@mui/material/styles';
-import { TypographyOptions } from '@mui/material/styles/createTypography';
+import {
+  BreakpointsOptions,
+  createTheme,
+  TypographyVariantsOptions,
+} from '@mui/material/styles';
 import { Open_Sans } from 'next/font/google';
 import type {} from '@mui/x-data-grid/themeAugmentation';
+import type {} from '@mui/x-date-pickers/themeAugmentation';
 import { PAGE_SIZE } from '../const';
 
 const breakpoints: BreakpointsOptions = {
@@ -20,7 +24,7 @@ const openSans = Open_Sans({
   display: 'swap',
 });
 
-const typography: TypographyOptions = {
+const typography: TypographyVariantsOptions = {
   fontSize: 16,
   fontFamily: openSans.style.fontFamily,
   h1: {
@@ -59,6 +63,16 @@ export const theme = createTheme({
       },
     },
     MuiTextField: {
+      defaultProps: {
+        variant: 'outlined',
+        InputLabelProps: { shrink: true },
+        fullWidth: true,
+        margin: 'normal',
+      },
+    },
+    // Date pickers v8 render their own field component, which doesn't
+    // inherit the MuiTextField defaults above.
+    MuiPickersTextField: {
       defaultProps: {
         variant: 'outlined',
         InputLabelProps: { shrink: true },
