@@ -1,10 +1,6 @@
 import { prisma } from '@/db';
 import { DATE_FORMAT } from '@/lib/const';
-import {
-  generateFilterFieldsFromFilterString,
-  getPrismaOperatorFromGridOperator,
-  getPrismaTermFromGridOperator,
-} from '@/lib/utils';
+import { buildDonorFilter } from '@/lib/donorFilters';
 import { Donor, Prisma } from '@prisma/client';
 import dayjs from 'dayjs';
 import { format } from 'fast-csv';
@@ -129,7 +125,7 @@ export default class DonorService {
   ): Prisma.DonorWhereInput {
     let whereCondition = {};
     let searchCondition = {};
-    let filterCondition = {};
+    const filterCondition = buildDonorFilter(filters);
     if (search?.length) {
       searchCondition = {
         OR: [
@@ -141,35 +137,6 @@ export default class DonorService {
         ],
       };
     }
-    if (filters.length) {
-      filters.forEach((filter) => {
-        const { filterField, filterOperator, filterTerm } =
-          generateFilterFieldsFromFilterString(filter || '');
-
-        if (
-          filterField &&
-          filterOperator &&
-          typeof filterTerm !== 'undefined'
-        ) {
-          const { prismaOperator, mode } =
-            getPrismaOperatorFromGridOperator(filterOperator);
-          const prismaTerm = getPrismaTermFromGridOperator(
-            filterOperator,
-            filterTerm
-          );
-          if (prismaTerm !== '') {
-            filterCondition = {
-              ...filterCondition,
-              [filterField]: {
-                [prismaOperator]: prismaTerm,
-                mode,
-              },
-            };
-          }
-        }
-      });
-    }
-
     if (
       Object.values(searchCondition).length &&
       Object.values(filterCondition).length
