@@ -22,7 +22,9 @@ async function seedAdmin() {
   console.log('✅ Admin user seeded');
 }
 
-async function seedFakerData() {
+// Fake donors are only added when no real donors were imported, so the two
+// never mix in one database.
+async function seedFakerData(withDonors: boolean) {
   console.log('🌱 Seeding faker-generated places, actions, donors...');
 
   const seedData = generateSeedData();
@@ -49,6 +51,18 @@ async function seedFakerData() {
         },
       });
       console.log(`📅 Created action: ${createdAction.title}`);
+
+      if (!withDonors) continue;
+      for (const { donations, ...donorData } of donors) {
+        await prisma.donor.create({
+          data: {
+            ...donorData,
+            donations: {
+              create: donations.map(({ donorId, ...donation }) => donation),
+            },
+          },
+        });
+      }
     }
   }
 
@@ -60,9 +74,9 @@ async function main() {
     await seedAdmin();
 
     // Run CSV donors and faker data sequentially
-    await seedDonorsFromCsv();
+    const importedCsv = await seedDonorsFromCsv();
 
-    await seedFakerData();
+    await seedFakerData(!importedCsv);
 
     console.log('🎉 All seeding complete!');
   } catch (error) {

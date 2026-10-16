@@ -16,6 +16,12 @@ Copy the .env.example file to a new file named .env and fill in the environment 
 
 ## Database
 
+Start a local Postgres with Docker (credentials match `.env.example`):
+
+```bash
+docker compose up -d
+```
+
 Generate prisma client (run on schema changes):
 
 ```bash
@@ -34,9 +40,11 @@ Seed the database:
 npx prisma db seed
 ```
 
-The seed imports donors from a CSV file if one exists at `prisma/donors.csv`
-or at the path in `DONORS_CSV`. The file contains real personal data, so it is
-ignored by git and must never be committed.
+The seed creates an admin user (`admin@admin.admin` / `AdminPassword123`, for
+local use only) plus fake places and actions. It imports donors from a CSV file
+if one exists at `prisma/donors.csv` or at the path in `DONORS_CSV`; without
+one it creates fake donors and donations instead. The file contains real
+personal data, so it is ignored by git and must never be committed.
 
 Reset database (also seeds database):
 
@@ -59,3 +67,23 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Testing
+
+Unit tests:
+
+```bash
+npm test
+```
+
+End-to-end smoke test against a running app with a freshly seeded local
+database (it creates and deletes records, so never run it against production):
+
+```bash
+npm run build && npm start
+node scripts/smoke-test.mjs http://localhost:3000
+```
+
+CI (`.github/workflows/ci.yml`) runs lint, type-check, unit tests, migrations
+against Postgres, a schema drift check, the build and the smoke test on every
+pull request.

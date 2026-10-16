@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: username
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: blood_donations
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U username -d blood_donations"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      POSTGRES_PRISMA_URL: postgresql://username:password@localhost:5432/blood_donations
+      POSTGRES_URL_NON_POOLING: postgresql://username:password@localhost:5432/blood_donations
+      NEXTAUTH_SECRET: ci-only-secret
+      NEXTAUTH_URL: http://localhost:3000
+      # Never import a donor CSV in CI: seed output would print real names.
+      DONORS_CSV: /nonexistent/donors.csv
+      NEXT_TELEMETRY_DISABLED: 1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No donor data committed
+        run: |
+          if git ls-files 'prisma/*.csv' | grep -q .; then
+            echo "::error::CSV files under prisma/ must not be committed (real donor data)."
+            git ls-files 'prisma/*.csv'
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm test
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+
+      - name: Check schema and migrations match
+        run: >-
+          npx prisma migrate diff
+          --from-url "$POSTGRES_PRISMA_URL"
+          --to-schema-datamodel prisma/schema.prisma
+          --exit-code
+
+      - run: npm run build
+
+      - name: Seed
+        run: npx prisma db seed
+
+      - name: Smoke test
+        run: |
+          npm start > app.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://localhost:3000/login && break
+            sleep 1
+          done
+          node scripts/smoke-test.mjs http://localhost:3000
+
+      - name: App log
+        if: failure()
+        run: cat app.log || true
