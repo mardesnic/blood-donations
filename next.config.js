@@ -1,24 +1,6 @@
-const isDev = process.env.NODE_ENV !== 'production';
-
-// Next.js adds inline scripts to every page and MUI injects inline styles, so
-// both need 'unsafe-inline' without per-request nonces. Everything is still
-// limited to this origin, and the app can't be framed by other sites.
-// React's development build also needs 'unsafe-eval'.
-const contentSecurityPolicy = [
-  "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "connect-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-].join('; ');
-
+// The Content-Security-Policy is set per request in src/proxy.ts, because it
+// carries a fresh nonce each time.
 const securityHeaders = [
-  { key: 'Content-Security-Policy', value: contentSecurityPolicy },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
