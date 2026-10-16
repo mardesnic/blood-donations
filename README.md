@@ -4,11 +4,17 @@ App to track blood donations.
 
 ## Installation
 
-Clone the repository and install the dependencies:
+Clone the repository, switch to Node 22 (with its bundled npm 10, the same as
+CI) and install the dependencies. With nvm, `.nvmrc` selects the version:
 
 ```bash
+nvm install
+nvm use
 npm install
 ```
+
+Other npm versions write the lock file differently, which breaks `npm ci` in
+CI.
 
 ## Environment Setup
 
