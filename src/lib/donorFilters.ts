@@ -1,4 +1,5 @@
 import { BloodType, Gender, Prisma } from '@prisma/client';
+import { parseDay } from '@/lib/dates';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -51,17 +52,8 @@ export function parseFilterString(filter: string | null | undefined): {
   return { field, operator, value };
 }
 
-// Dates are stored as UTC midnight of the calendar day, so a day filter covers
+// Calendar dates are stored as UTC midnight, so a day filter covers
 // [day 00:00 UTC, next day 00:00 UTC).
-function parseDay(value: string): Date | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
-  if (!match) {
-    return null;
-  }
-  const day = new Date(Date.UTC(+match[1], +match[2] - 1, +match[3]));
-  return Number.isNaN(day.getTime()) ? null : day;
-}
-
 function dateCondition(
   operator: string,
   value: string

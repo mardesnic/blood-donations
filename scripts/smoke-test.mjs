@@ -137,16 +137,19 @@ async function main() {
 
   // Donor create / update
   const donorBody = {
-    fullName: 'Smoke Test',
     firstName: 'Smoke',
     lastName: 'Test',
     email: 'smoke@example.com',
     gender: 'FEMALE',
     bloodType: 'O_NEGATIVE',
     oib: '12345678903',
-    dob: '1990-05-01T00:00:00.000Z',
-    donationCount: 0,
+    dob: '1990-05-01',
+    initialDonationCount: 5,
+    initialLastDonation: '2025-01-10',
   };
+  const DAY = (value) => `${value}T00:00:00.000Z`;
+  const findDonor = async (oib) =>
+    (await call('GET', `/api/donors?${query({ search: oib })}`)).data.donors[0];
   res = await call('POST', '/api/donors', { body: donorBody });
   const donor = res.data;
   check('create donor', res.status === 200 && Boolean(donor?.id), res.data);
@@ -158,6 +161,102 @@ async function main() {
     res.status === 200 && res.data.city === 'Split',
     res.data
   );
+  check(
+    'starting values become the totals',
+    res.data.donationCount === 5 && res.data.lastDonation === DAY('2025-01-10'),
+    res.data
+  );
+  check(
+    'date of birth keeps its day',
+    res.data.dob === DAY('1990-05-01'),
+    res.data.dob
+  );
+
+  // A donor with only the required fields, a multi-word name, made inactive
+  res = await call('POST', '/api/donors', {
+    body: {
+      firstName: 'Ana Marija',
+      lastName: 'Horvat Kovač',
+      gender: 'MALE',
+      oib: '98765432109',
+    },
+  });
+  const minimal = res.data;
+  check(
+    'create donor without birth date, blood type or OIB',
+    res.status === 200 &&
+      minimal.fullName === 'Ana Marija Horvat Kovač' &&
+      minimal.dob === null &&
+      minimal.bloodType === null &&
+      minimal.lastDonation === null,
+    res.data
+  );
+  res = await call('PUT', `/api/donors/${minimal.id}`, {
+    body: {
+      firstName: 'Ana Marija',
+      lastName: 'Horvat Kovač',
+      gender: 'MALE',
+      oib: '98765432109',
+      active: false,
+    },
+  });
+  check(
+    'make donor inactive',
+    res.status === 200 && res.data.active === false,
+    res.data
+  );
+  res = await call('POST', '/api/donors', {
+    body: { firstName: 'No', gender: 'MALE' },
+  });
+  check('donor without last name rejected', res.status === 400, res.status);
+
+  // Filters that used to be ignored
+  const count = async (filters) =>
+    (
+      await call(
+        'GET',
+        `/api/donors?${new URLSearchParams(filters.map((f) => ['filter', f]))}`
+      )
+    ).data.count;
+  const everyone = await count([]);
+  const [males, females] = [
+    await count(['gender|is|MALE']),
+    await count(['gender|is|FEMALE']),
+  ];
+  check(
+    'gender filter splits all donors',
+    males > 0 && females > 0 && males + females === everyone,
+    { males, females, everyone }
+  );
+  const [active, inactive] = [
+    await count(['active|is|ACTIVE']),
+    await count(['active|is|INACTIVE']),
+  ];
+  check(
+    'status filter finds the inactive donor',
+    inactive >= 1 && active + inactive === everyone,
+    { active, inactive }
+  );
+  check(
+    'date filter matches the whole day',
+    (await count([`dob|is|${DAY('1990-05-01')}`])) >= 1
+  );
+  res = await call(
+    'GET',
+    `/api/donors/export?${new URLSearchParams([
+      ['filter', 'gender|is|FEMALE'],
+      ['filter', 'active|is|ACTIVE'],
+    ])}`,
+    { raw: true }
+  );
+  check(
+    'export applies every filter',
+    res.data.trim().split('\n').length ===
+      (await count(['gender|is|FEMALE', 'active|is|ACTIVE'])) + 1
+  );
+  check('export has no "Invalid Date"', !res.data.includes('Invalid Date'));
+  res = await call('DELETE', `/api/donors/${minimal.id}`);
+  check('delete minimal donor', res.status === 200, res.status);
 
   // Action without a place
   const actionBody = {
@@ -203,6 +302,13 @@ async function main() {
     res.status === 200 && donation?.actionId === null,
     res.data
   );
+  let stats = await findDonor(donorBody.oib);
+  check(
+    'recorded donation is added to the totals',
+    stats.donationCount === 6 && stats.lastDonation === DAY('2026-10-01'),
+    stats
+  );
+
   res = await call('PUT', `/api/donations/${donation.id}`, {
     body: {
       ...donationBody,
@@ -218,6 +324,30 @@ async function main() {
       res.data.denyReason === 'ONE_MONTH',
     res.data
   );
+  stats = await findDonor(donorBody.oib);
+  check(
+    'denied donation does not count',
+    stats.donationCount === 5 && stats.lastDonation === DAY('2025-01-10'),
+    stats
+  );
+  const actionCount = async () =>
+    (await call('GET', '/api/actions?pageSize=100')).data.actions.find(
+      (a) => a.id === action.id
+    ).donationCount;
+  check(
+    'denied donation does not count for the action',
+    (await actionCount()) === 0
+  );
+  res = await call('PUT', `/api/donations/${donation.id}`, {
+    body: { ...donationBody, actionId: action.id },
+  });
+  check(
+    'successful donation counts for donor and action',
+    res.status === 200 &&
+      (await actionCount()) === 1 &&
+      (await findDonor(donorBody.oib)).donationCount === 6
+  );
+
   res = await call('GET', `/api/donations?${query({ donorId: donor.id })}`);
   check('donations by donor', res.status === 200 && res.data.count === 1);
   res = await call('GET', `/api/donations?${query({ actionId: action.id })}`);
@@ -245,6 +375,11 @@ async function main() {
   // Clean up
   res = await call('DELETE', `/api/donations/${donation.id}`);
   check('delete donation', res.status === 200, res.status);
+  check(
+    'deleted donation is removed from the totals',
+    (await findDonor(donorBody.oib)).donationCount === 5 &&
+      (await actionCount()) === 0
+  );
   res = await call('DELETE', `/api/actions/${action.id}`);
   check('delete action', res.status === 200, res.status);
   res = await call('DELETE', `/api/donors/${donor.id}`);

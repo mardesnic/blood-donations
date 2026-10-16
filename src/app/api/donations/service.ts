@@ -1,5 +1,6 @@
 import { prisma } from '@/db';
 import { Donation, Prisma } from '@prisma/client';
+import { refreshActionStats, refreshDonorStats } from '../donors/stats';
 
 export default class DonationService {
   static async find(
@@ -52,11 +53,19 @@ export default class DonationService {
     });
   }
 
+  // Each change refreshes the totals of every donor and action it touches,
+  // in the same transaction.
   static async create(
     data: Prisma.DonationUncheckedCreateInput
   ): Promise<Donation> {
-    return prisma.donation.create({
-      data,
+    if (!data.denied) {
+      data.denyReason = null;
+    }
+    return prisma.$transaction(async (tx) => {
+      const donation = await tx.donation.create({ data });
+      await refreshDonorStats(tx, donation.donorId);
+      await refreshActionStats(tx, donation.actionId);
+      return donation;
     });
   }
 
@@ -64,13 +73,29 @@ export default class DonationService {
     if (!data.denied) {
       data.denyReason = null;
     }
-    return await prisma.donation.update({
-      where: { id },
-      data,
+    return prisma.$transaction(async (tx) => {
+      const before = await tx.donation.findUniqueOrThrow({ where: { id } });
+      const donation = await tx.donation.update({ where: { id }, data });
+      for (const donorId of Array.from(
+        new Set([before.donorId, donation.donorId])
+      )) {
+        await refreshDonorStats(tx, donorId);
+      }
+      for (const actionId of Array.from(
+        new Set([before.actionId, donation.actionId])
+      )) {
+        await refreshActionStats(tx, actionId);
+      }
+      return donation;
     });
   }
 
   static async delete(id: string) {
-    return prisma.donation.delete({ where: { id } });
+    return prisma.$transaction(async (tx) => {
+      const donation = await tx.donation.delete({ where: { id } });
+      await refreshDonorStats(tx, donation.donorId);
+      await refreshActionStats(tx, donation.actionId);
+      return donation;
+    });
   }
 }

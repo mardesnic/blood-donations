@@ -8,6 +8,7 @@ import {
   Gender,
   Place,
 } from '@prisma/client';
+import { toAppDay } from '../src/lib/dates';
 
 // Define types for the partial structures that will be generated
 type GeneratedDonation = Omit<Donation, 'createdAt' | 'updatedAt'>;
@@ -71,8 +72,13 @@ function generateDonor(actionId: string, actionDate: Date): GeneratedDonor {
     city: faker.location.city(),
     gender: randomEnum(Gender),
     bloodType: randomEnum(BloodType),
-    donationCount: donations.length,
-    lastDonation: dateOnly(actionDate),
+    // Totals follow the app's rule: starting values plus successful donations.
+    initialDonationCount: 0,
+    initialLastDonation: null,
+    donationCount: donations.filter((d) => !d.denied).length,
+    lastDonation: donations.some((d) => !d.denied)
+      ? toAppDay(actionDate)
+      : null,
     active: true,
     note: null,
     donations,
@@ -99,7 +105,9 @@ function generateAction(placeId: string): GeneratedAction {
     title: faker.company.name(),
     startDateTime,
     endDateTime,
-    donationCount: donors.length,
+    donationCount: donors.filter((donor) =>
+      donor.donations.some((d) => !d.denied)
+    ).length,
     note: faker.lorem.sentence(),
     placeId,
     donors,

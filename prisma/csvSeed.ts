@@ -24,7 +24,11 @@ interface DonorCsvRecord {
   // add other columns if needed
 }
 
-function parseCroatianDate(dateStr: string | null | undefined): Date | null {
+// Calendar dates are stored as UTC midnight, independent of the time zone of
+// the machine running the import.
+export function parseCroatianDate(
+  dateStr: string | null | undefined
+): Date | null {
   if (!dateStr) return null;
   const cleaned = dateStr.trim().replace(/\.$/, '');
   const parts = cleaned.split('.');
@@ -33,7 +37,7 @@ function parseCroatianDate(dateStr: string | null | undefined): Date | null {
   const [day, month, year] = parts.map((s) => parseInt(s, 10));
   return isNaN(day) || isNaN(month) || isNaN(year)
     ? null
-    : new Date(year, month - 1, day);
+    : new Date(Date.UTC(year, month - 1, day));
 }
 
 function mapGender(gender: string | undefined): Gender | null {
@@ -105,6 +109,13 @@ export async function seedDonorsFromCsv(): Promise<boolean> {
     }
 
     try {
+      const initialDonationCount = parseInt(
+        record['POČETNO STANJE DARIVANJA (BROJ DO SADA DAROVANE KRVI)'] || '0',
+        10
+      );
+      const initialLastDonation = parseCroatianDate(
+        record['DATUM ZADNJEG DAVANJA']
+      );
       await prisma.donor.create({
         data: {
           firstName,
@@ -120,12 +131,11 @@ export async function seedDonorsFromCsv(): Promise<boolean> {
           gender,
           active: record['AKTIVAN']?.toUpperCase() === 'DA',
           bloodType,
-          donationCount: parseInt(
-            record['POČETNO STANJE DARIVANJA (BROJ DO SADA DAROVANE KRVI)'] ||
-              '0',
-            10
-          ),
-          lastDonation: parseCroatianDate(record['DATUM ZADNJEG DAVANJA']),
+          // Nothing is recorded yet, so the totals equal the starting values.
+          initialDonationCount,
+          initialLastDonation,
+          donationCount: initialDonationCount,
+          lastDonation: initialLastDonation,
           note: record['napomena']?.trim() || null,
         },
       });
