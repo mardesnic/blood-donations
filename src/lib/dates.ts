@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { DATE_FORMAT } from '@/lib/const';
+import { DATE_FORMAT } from './const';
 
 // Calendar dates (date of birth, last donation) are stored as UTC midnight of
 // the day. Donation times are real moments; their calendar day is taken in the

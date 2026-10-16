@@ -106,7 +106,10 @@ async function main() {
   res = await call('GET', `/api/donors?${query({ sort: 'password|asc' })}`);
   check('unknown sort field falls back', res.status === 200, res.status);
 
-  const first = (await call('GET', '/api/donors?pageSize=1')).data.donors[0];
+  // A donor with a blood type and city to filter by (not every donor has them).
+  const first = (
+    await call('GET', '/api/donors?pageSize=100')
+  ).data.donors.find((d) => d.bloodType && d.city);
   res = await call(
     'GET',
     `/api/donors?${query({ filter: `bloodType|isAnyOf|${first.bloodType}` })}`
