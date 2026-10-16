@@ -1,24 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import PlaceService from './service';
 import { Place } from '@prisma/client';
-import {
-  generateFilterFieldsFromFilterString,
-  generateSortFieldsFromSortString,
-} from '@/lib/utils';
-import { PAGE_SIZE } from '@/lib/const';
+import { generateFilterFieldsFromFilterString } from '@/lib/utils';
+import { parsePagination, parseSort, withAuth } from '@/lib/api';
 
-export async function GET(req: NextRequest) {
+const SORT_FIELDS = [
+  'title',
+  'address',
+  'city',
+  'phone',
+  'email',
+  'contactName',
+  'createdAt',
+] as const;
+
+export const GET = withAuth(async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
-  const page = searchParams.get('page') || 0;
-  const pageSize = searchParams.get('pageSize') || PAGE_SIZE;
   const search = searchParams?.get('search') || '';
   const { filterField, filterOperator, filterTerm } =
     generateFilterFieldsFromFilterString(searchParams?.get('filter') || '');
-  const { sortField, sort } = generateSortFieldsFromSortString(
-    searchParams?.get('sort') || ''
+  const { take, skip } = parsePagination(
+    searchParams.get('page'),
+    searchParams.get('pageSize')
   );
-  const take = parseInt(pageSize.toString(), 10);
-  const skip = parseInt(page.toString(), 10) * take;
+  const { sortField, sort } = parseSort(
+    searchParams.get('sort'),
+    SORT_FIELDS,
+    'createdAt'
+  );
   const { places, count } = await PlaceService.find(
     take,
     skip,
@@ -26,13 +35,13 @@ export async function GET(req: NextRequest) {
     filterField as keyof Place,
     filterOperator,
     filterTerm,
-    sortField as keyof Place,
+    sortField,
     sort
   );
   return NextResponse.json({ places, count });
-}
+});
 
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (req: NextRequest) => {
   const body = await req.json();
   const place: Partial<Place> = {
     title: body?.title || '',
@@ -45,4 +54,4 @@ export async function POST(req: NextRequest) {
   };
   const newPlace = await PlaceService.create(place);
   return NextResponse.json(newPlace);
-}
+});

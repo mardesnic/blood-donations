@@ -1,33 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import ActionService from './service';
-import { PAGE_SIZE } from '@/lib/const';
-import { generateSortFieldsFromSortString } from '@/lib/utils';
-import { Action } from '@prisma/client';
+import { parsePagination, parseSort, withAuth } from '@/lib/api';
+import { actionSchema, parseBody } from '@/lib/schemas';
 
-export async function GET(req: NextRequest) {
+const SORT_FIELDS = [
+  'title',
+  'startDateTime',
+  'endDateTime',
+  'donationCount',
+  'note',
+  'createdAt',
+] as const;
+
+export const GET = withAuth(async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
-  const page = searchParams.get('page') || 0;
-  const pageSize = searchParams.get('pageSize') || PAGE_SIZE;
-
   const placeId = searchParams.get('placeId') || '';
 
-  const take = parseInt(pageSize.toString(), 10);
-  const skip = parseInt(page.toString(), 10) * take;
-  const { sortField, sort } = generateSortFieldsFromSortString(
-    searchParams?.get('sort') || ''
+  const { take, skip } = parsePagination(
+    searchParams.get('page'),
+    searchParams.get('pageSize')
+  );
+  const { sortField, sort } = parseSort(
+    searchParams.get('sort'),
+    SORT_FIELDS,
+    'createdAt'
   );
   const [actions, count] = await ActionService.find(
     placeId,
     take,
     skip,
-    sortField as keyof Action,
+    sortField,
     sort
   );
   return NextResponse.json({ actions, count });
-}
+});
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const newAction = await ActionService.create(body);
+export const POST = withAuth(async (req: NextRequest) => {
+  const data = await parseBody(actionSchema, await req.json());
+  const newAction = await ActionService.create(data);
   return NextResponse.json(newAction);
-}
+});
