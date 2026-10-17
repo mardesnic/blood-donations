@@ -105,6 +105,37 @@ async function main() {
   );
   res = await call('GET', `/api/donors?${query({ sort: 'password|asc' })}`);
   check('unknown sort field falls back', res.status === 200, res.status);
+  // Empty values go last in both directions, and equal values keep one
+  // order, so paging through a sort shows every donor exactly once.
+  const allBy = async (sort) =>
+    (await call('GET', `/api/donors?${query({ pageSize: 100, sort })}`)).data
+      .donors;
+  for (const sort of ['lastDonation|desc', 'lastDonation|asc']) {
+    const dates = (await allBy(sort)).map((d) => d.lastDonation);
+    const firstEmpty = dates.indexOf(null);
+    check(
+      `${sort} puts donors without a donation last`,
+      firstEmpty === -1 || dates.slice(firstEmpty).every((d) => d === null),
+      dates
+    );
+  }
+  const pagedIds = [];
+  for (let page = 0; page < 100; page++) {
+    const { donors } = (
+      await call(
+        'GET',
+        `/api/donors?${query({ page, pageSize: 3, sort: 'donationCount|asc' })}`
+      )
+    ).data;
+    if (!donors.length) break;
+    pagedIds.push(...donors.map((d) => d.id));
+  }
+  check(
+    'paging through a sort with ties shows every donor once',
+    new Set(pagedIds).size === pagedIds.length &&
+      pagedIds.length === (await allBy('donationCount|asc')).length,
+    pagedIds.length
+  );
 
   // A donor with a blood type and city to filter by (not every donor has
   // them, so look through the pages).
@@ -537,6 +568,27 @@ async function main() {
       res.data.includes('Gender: Female') &&
       res.data.includes('Age from: 30') &&
       res.data.includes('value="Smoke"'),
+    res.status
+  );
+
+  res = await call('GET', '/donors?sort=lastDonation|desc&page=2', {
+    raw: true,
+  });
+  check('donors page with sort and page in the URL', res.status === 200);
+
+  // "New donation" from a donor's page preselects the donor.
+  res = await call('GET', `/donors/${donor.id}/donations`, { raw: true });
+  check(
+    "donor's donations page links to a new donation for the donor",
+    res.data.includes(`/donations/create?donorId=${donor.id}`),
+    res.status
+  );
+  res = await call('GET', `/donations/create?donorId=${donor.id}`, {
+    raw: true,
+  });
+  check(
+    'new donation page preselects the donor',
+    res.status === 200 && res.data.includes('Smoke Test'),
     res.status
   );
 

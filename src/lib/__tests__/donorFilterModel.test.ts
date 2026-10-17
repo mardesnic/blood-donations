@@ -4,6 +4,8 @@ import dayjs from 'dayjs';
 import {
   activeFilters,
   clearFilters,
+  donorListFromSearchParams,
+  donorListToSearchParams,
   filterModelFromSearchParams,
   filterModelToSearchParams,
   getFilterValue,
@@ -136,5 +138,56 @@ describe('filters in the URL', () => {
       items: [{ field: 'gender', operator: 'is', value: 'FEMALE' }],
       quickFilterValues: [],
     });
+  });
+});
+
+describe('donors list state in the URL', () => {
+  it('uses the defaults for null, undefined and empty input', () => {
+    for (const empty of [null, undefined, new URLSearchParams()]) {
+      expect(donorListFromSearchParams(empty)).toEqual({
+        filterModel: { items: [], quickFilterValues: [] },
+        sortModel: [{ field: 'fullName', sort: 'asc' }],
+        paginationModel: { page: 0, pageSize: 10 },
+      });
+    }
+    for (const empty of [null, undefined, {}]) {
+      expect(donorListToSearchParams(empty).toString()).toBe('');
+    }
+  });
+
+  it('leaves the defaults out of the URL', () => {
+    expect(
+      donorListToSearchParams({
+        sortModel: [{ field: 'fullName', sort: 'asc' }],
+        paginationModel: { page: 0, pageSize: 10 },
+      }).toString()
+    ).toBe('');
+  });
+
+  it('round-trips sort, page and page size with the filters', () => {
+    const state = {
+      filterModel: {
+        items: [{ field: 'gender', operator: 'is', value: 'MALE' }],
+        quickFilterValues: ['ana'],
+      },
+      sortModel: [{ field: 'lastDonation', sort: 'desc' as const }],
+      paginationModel: { page: 2, pageSize: 50 },
+    };
+    const params = donorListToSearchParams(state);
+    expect(params.get('sort')).toBe('lastDonation|desc');
+    expect(params.get('page')).toBe('3');
+    expect(donorListFromSearchParams(params)).toEqual(state);
+  });
+
+  it('ignores unknown sort fields and bad page numbers', () => {
+    const state = donorListFromSearchParams(
+      new URLSearchParams('sort=password|asc&page=-4&pageSize=7')
+    );
+    expect(state.sortModel).toEqual([{ field: 'fullName', sort: 'asc' }]);
+    expect(state.paginationModel).toEqual({ page: 0, pageSize: 10 });
+    expect(
+      donorListFromSearchParams(new URLSearchParams('sort=dob|sideways'))
+        .sortModel
+    ).toEqual([{ field: 'fullName', sort: 'asc' }]);
   });
 });

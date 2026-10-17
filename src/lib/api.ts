@@ -5,16 +5,8 @@ import { getCurrentSession } from '@/app/api/auth/service';
 import { MAX_PAGE_SIZE, PAGE_SIZE } from '@/lib/const';
 import { generateSortFieldsFromSortString } from '@/lib/utils';
 
-export const DONOR_SORT_FIELDS = [
-  'fullName',
-  'oib',
-  'bloodType',
-  'donationCount',
-  'lastDonation',
-  'gender',
-  'dob',
-  'createdAt',
-] as const;
+// Shared with the donors page, which keeps the sort in its URL.
+export { DONOR_SORT_FIELDS } from '@/lib/donorFilterModel';
 
 type RouteHandler<C> = (req: NextRequest, context: C) => Promise<Response>;
 

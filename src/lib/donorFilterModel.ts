@@ -1,6 +1,12 @@
-import { GridFilterItem, GridFilterModel } from '@mui/x-data-grid';
+import {
+  GridFilterItem,
+  GridFilterModel,
+  GridPaginationModel,
+  GridSortModel,
+} from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import { parseDay } from '@/lib/dates';
+import { PAGE_SIZE } from '@/lib/const';
 
 // The donor filters live in a DataGrid filter model, one item per field and
 // operator (a range has a "from" and a "to" item for the same field). These
@@ -159,4 +165,81 @@ export function filterModelFromSearchParams(
     .join(' ')
     .trim();
   return { items, quickFilterValues: text ? [text] : [] };
+}
+
+// Columns the donors list can be sorted by.
+export const DONOR_SORT_FIELDS = [
+  'fullName',
+  'oib',
+  'bloodType',
+  'donationCount',
+  'lastDonation',
+  'gender',
+  'dob',
+  'createdAt',
+] as const;
+
+// The donors table starts sorted by name, A to Z.
+export const DEFAULT_DONOR_SORT: GridSortModel = [
+  { field: 'fullName', sort: 'asc' },
+];
+const PAGE_SIZES = [PAGE_SIZE, 50, 100];
+
+export interface DonorListState {
+  filterModel: GridFilterModel;
+  sortModel: GridSortModel;
+  paginationModel: GridPaginationModel;
+}
+
+const sortString = (sortModel: GridSortModel | null | undefined) => {
+  const [item] = sortModel || [];
+  return item?.sort ? `${item.field}|${item.sort}` : '';
+};
+
+// The whole donors list state (filters, search, sort, page) as URL
+// parameters. Defaults are left out to keep the URL short.
+export function donorListToSearchParams(
+  state: Partial<DonorListState> | null | undefined
+): URLSearchParams {
+  const params = filterModelToSearchParams(state?.filterModel);
+  const sort = sortString(state?.sortModel);
+  if (sort && sort !== sortString(DEFAULT_DONOR_SORT)) {
+    params.set('sort', sort);
+  }
+  const { page = 0, pageSize = PAGE_SIZE } = state?.paginationModel || {};
+  if (page > 0) {
+    params.set('page', String(page + 1));
+  }
+  if (pageSize !== PAGE_SIZE) {
+    params.set('pageSize', String(pageSize));
+  }
+  return params;
+}
+
+// The donors list state for URL parameters written by
+// donorListToSearchParams; invalid values fall back to the defaults.
+export function donorListFromSearchParams(
+  params: URLSearchParams | null | undefined
+): DonorListState {
+  const filterModel = filterModelFromSearchParams(
+    params?.getAll('filter'),
+    params?.get('search')
+  );
+
+  let sortModel = DEFAULT_DONOR_SORT;
+  const [field, direction] = (params?.get('sort') || '').split('|');
+  if (
+    DONOR_SORT_FIELDS.includes(field as (typeof DONOR_SORT_FIELDS)[number]) &&
+    (direction === 'asc' || direction === 'desc')
+  ) {
+    sortModel = [{ field, sort: direction }];
+  }
+
+  const page = Number(params?.get('page'));
+  const pageSize = Number(params?.get('pageSize'));
+  const paginationModel = {
+    page: Number.isInteger(page) && page > 1 ? page - 1 : 0,
+    pageSize: PAGE_SIZES.includes(pageSize) ? pageSize : PAGE_SIZE,
+  };
+  return { filterModel, sortModel, paginationModel };
 }

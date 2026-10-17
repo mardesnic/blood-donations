@@ -5,8 +5,14 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Donor } from '@/generated/prisma/browser';
-import { Badge, Button, Tooltip, Typography } from '@mui/material';
+import {
+  Badge,
+  Button,
+  Link as MuiLink,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { TruncatedText } from '@/components/TruncatedText';
 import Link from 'next/link';
 import { MdAdd, MdFilterList } from 'react-icons/md';
 
@@ -21,10 +27,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { DonorsFilters } from '@/app/(pages)/donors/filters';
 import { DonorsActiveFilters } from '@/app/(pages)/donors/activeFilters';
-import {
-  activeFilters,
-  filterModelToSearchParams,
-} from '@/lib/donorFilterModel';
+import { activeFilters, donorListToSearchParams } from '@/lib/donorFilterModel';
 import { debounce } from '@mui/material/utils';
 
 export default function DonorsTable() {
@@ -44,41 +47,63 @@ export default function DonorsTable() {
     isLoading,
     exportDonorsDownloadLink,
     urlVersion,
+    sortModel,
+    paginationModel,
   } = useDonorsContext();
 
-  const columns: GridColDef[] = [
+  const donorPath = (id: string) =>
+    `${ROUTE_PATHS.PROTECTED.DONORS.path}/${id}`;
+  // Fixed widths for short values, so the name and dates get the room.
+  const columns: GridColDef<DonorListItem>[] = [
     {
       field: 'fullName',
       headerName: t('fields.name'),
-      flex: 1,
+      flex: 2,
+      minWidth: 180,
+      renderCell: (params) => <TruncatedText text={params.value} />,
     },
     {
       field: 'phone',
       headerName: t('fields.phone'),
       flex: 1,
+      minWidth: 130,
       sortable: false,
+      renderCell: (params) => <TruncatedText text={params.value} />,
     },
     {
       field: 'oib',
       headerName: t('fields.oib'),
-      flex: 1,
-      disableColumnMenu: true,
+      width: 135,
     },
     {
       field: 'bloodType',
       headerName: t('fields.bloodType'),
-      flex: 1,
+      width: 130,
       valueGetter: (value: keyof typeof BLOOD_TYPES) => BLOOD_TYPES[value],
     },
     {
       field: 'donationCount',
       headerName: t('fields.donations'),
-      flex: 1,
+      width: 120,
+      // Opens the donor's donations; the rest of the row opens the donor.
+      renderCell: (params) => (
+        <MuiLink
+          component={Link}
+          href={`${donorPath(params.row.id)}/donations`}
+          onClick={(event: React.MouseEvent) => event.stopPropagation()}
+          underline='always'
+          color='secondary'
+        >
+          {params.value}
+        </MuiLink>
+      ),
     },
     {
       field: 'lastDonation',
       headerName: t('fields.lastDonation'),
       flex: 1,
+      // Room for the title and the sort arrow.
+      minWidth: 195,
       renderCell: (params) => formatDay(params.value),
       valueGetter: (value) => value && new Date(value),
       type: 'date',
@@ -86,15 +111,16 @@ export default function DonorsTable() {
     {
       field: 'gender',
       headerName: t('fields.gender'),
-      flex: 0,
+      width: 85,
       valueGetter: (value: (typeof GENDERS)[number]) =>
         value ? t(`gendersShort.${value}`) : '',
     },
-
     {
       field: 'dob',
       headerName: t('fields.dob'),
       flex: 1,
+      // Room for the title and the sort arrow.
+      minWidth: 180,
       renderCell: (params) => formatDay(params.value),
       valueGetter: (value) => value && new Date(value),
       type: 'date',
@@ -103,8 +129,9 @@ export default function DonorsTable() {
       field: 'eligibility',
       headerName: t('fields.nextEligible'),
       flex: 1,
+      minWidth: 190,
       sortable: false,
-      renderCell: (params: { row: DonorListItem }) => {
+      renderCell: (params) => {
         const eligibility = params.row.eligibility;
         return (
           <Tooltip title={eligibilityReason(eligibility, tEligibility)}>
@@ -120,29 +147,6 @@ export default function DonorsTable() {
           </Tooltip>
         );
       },
-    },
-    {
-      field: 'actions',
-      headerName: t('fields.actions'),
-      disableColumnMenu: true,
-      sortable: false,
-      minWidth: 200,
-      renderCell: (params: { row: Donor }) => (
-        <Button
-          variant='outlined'
-          size='medium'
-          color='inherit'
-          sx={{ width: '190px' }}
-          onClick={(event) => {
-            event.stopPropagation();
-            router.push(
-              `${ROUTE_PATHS.PROTECTED.DONORS.path}/${params.row.id}/donations`
-            );
-          }}
-        >
-          {t('donors.seeDonations', { count: params.row.donationCount })}
-        </Button>
-      ),
     },
   ];
 
@@ -163,14 +167,18 @@ export default function DonorsTable() {
   // Keeps the URL in step with the filters without reloading the page or
   // adding a history entry for every change.
   React.useEffect(() => {
-    const query = filterModelToSearchParams(filterModel).toString();
+    const query = donorListToSearchParams({
+      filterModel,
+      sortModel,
+      paginationModel,
+    }).toString();
     const url = `${window.location.pathname}${query ? `?${query}` : ''}`;
     if (url !== `${window.location.pathname}${window.location.search}`) {
       // null lets Next.js keep its own history state with the new URL, so
       // Back returns to the filtered list.
       window.history.replaceState(null, '', url);
     }
-  }, [filterModel]);
+  }, [filterModel, sortModel, paginationModel]);
 
   return (
     <>
@@ -242,18 +250,25 @@ export default function DonorsTable() {
           columns={columns}
           loading={isLoading}
           paginationMode='server'
+          paginationModel={paginationModel}
           onPaginationModelChange={changePaginationModel}
-          // filterMode='server'
-          // onFilterModelChange={changeFilterModel}
           sortingMode='server'
+          sortModel={sortModel}
+          // Always sorted by something, so there is no "unsorted" step.
+          sortingOrder={['asc', 'desc']}
           onSortModelChange={changeSortModel}
-          filterDebounceMs={500}
-          sx={{ border: 0, mt: '24px' }}
+          disableColumnMenu
+          sx={{
+            border: 0,
+            mt: '24px',
+            '& .donor-inactive': { color: 'text.disabled' },
+          }}
           getRowHeight={() => 55}
-          disableColumnFilter={true}
-          onRowClick={(row) =>
-            router.push(`${ROUTE_PATHS.PROTECTED.DONORS.path}/${row.id}`)
+          getRowClassName={(params) =>
+            params.row.active ? '' : 'donor-inactive'
           }
+          disableColumnFilter={true}
+          onRowClick={(row) => router.push(donorPath(String(row.id)))}
         />
       </Card>
     </>

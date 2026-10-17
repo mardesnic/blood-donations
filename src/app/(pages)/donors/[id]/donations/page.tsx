@@ -5,10 +5,11 @@ import { pageTitle } from '@/i18n/metadata';
 import { notFound } from 'next/navigation';
 import { DonorDetailsHeader } from '../header';
 
-import { Container } from '@mui/material';
+import { Box, Container } from '@mui/material';
 import { DonorsProvider } from '@/context/DonorsContext';
 import { DonationsProvider } from '@/context/DonationsContext';
 import DonationsTable from '@/app/(pages)/donations/table';
+import { DonationsHeader } from '@/app/(pages)/donations/header';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -35,6 +36,10 @@ export default async function DonorsDonationsPage({ params }: Props) {
       <DonationsProvider donor={donor}>
         <Container component='main'>
           <DonorDetailsHeader donor={donor} />
+          {/* Its "New donation" button preselects this donor. */}
+          <Box sx={{ mt: 4 }}>
+            <DonationsHeader />
+          </Box>
           <DonationsTable />
         </Container>
       </DonationsProvider>

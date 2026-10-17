@@ -34,10 +34,6 @@ const Form = ({ donation }: Props) => {
   const router = useRouter();
   const t = useTranslations();
   const goBack = useGoBack(ROUTE_PATHS.PROTECTED.DONATIONS.path);
-  const [searchQuery, setSearchQuery] = React.useState(
-    donation?.donor?.fullName || ''
-  );
-
   const {
     createDonation,
     updateDonation,
@@ -46,6 +42,12 @@ const Form = ({ donation }: Props) => {
     action,
     openDialog,
   } = useDonationsContext();
+
+  // Starts with the donation's (or the preselected) donor, so it is among
+  // the options.
+  const [searchQuery, setSearchQuery] = React.useState(
+    donation?.donor?.fullName || donor?.fullName || ''
+  );
 
   const { isLoading: isDonorsLoading, data } = useGetDonors({
     page: 0,

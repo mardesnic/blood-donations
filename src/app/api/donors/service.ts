@@ -1,6 +1,7 @@
 import { prisma } from '@/db';
 import { DATE_FORMAT } from '@/lib/const';
 import { buildDonorFilter } from '@/lib/donorFilters';
+import { donorOrderBy } from '@/lib/donorSort';
 import { formatDay, toAppDay } from '@/lib/dates';
 import {
   computeEligibility,
@@ -64,7 +65,7 @@ export default class DonorService {
     const donors = await prisma.donor.findMany({
       take,
       skip,
-      orderBy: { [sortField]: sort },
+      orderBy: donorOrderBy(sortField, sort),
       where: whereCondition,
       include: {
         _count: {
@@ -143,7 +144,7 @@ export default class DonorService {
     const whereCondition = this.constructWhereCondition(search, filters, today);
 
     const donors = await prisma.donor.findMany({
-      orderBy: { [sortField]: sort },
+      orderBy: donorOrderBy(sortField, sort),
       where: whereCondition,
       include: { donations: DENIALS },
     });
