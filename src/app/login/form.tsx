@@ -7,6 +7,9 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
+import Typography from '@mui/material/Typography';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useState } from 'react';
@@ -15,6 +18,9 @@ import { TOO_MANY_ATTEMPTS } from '@/lib/const';
 export const LoginForm = () => {
   const router = useRouter();
   const [loginError, setLoginError] = useState('');
+  // Stays true after a successful sign-in until the next page replaces this
+  // one, so the form can't be submitted again while it loads.
+  const [redirecting, setRedirecting] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -41,9 +47,11 @@ export const LoginForm = () => {
         return;
       }
       setLoginError('');
+      setRedirecting(true);
       router.push(ROUTE_PATHS.PROTECTED.DONORS.path);
     },
   });
+  const loading = formik.isSubmitting || redirecting;
 
   return (
     <Box component='form' onSubmit={formik.handleSubmit} noValidate>
@@ -55,6 +63,7 @@ export const LoginForm = () => {
         name='email'
         autoComplete='email'
         autoFocus
+        disabled={loading}
         value={formik.values.email}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
@@ -71,6 +80,7 @@ export const LoginForm = () => {
         type='password'
         id='password'
         autoComplete='current-password'
+        disabled={loading}
         value={formik.values.password}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
@@ -78,10 +88,31 @@ export const LoginForm = () => {
         helperText={formik.touched.password && formik.errors.password}
       />
       <Stack direction='row' justifyContent='flex-end' sx={{ mt: 2 }}>
-        <Button type='submit' disabled={formik.isSubmitting} size='large'>
-          Sign In
+        <Button
+          type='submit'
+          disabled={loading}
+          size='large'
+          startIcon={
+            loading ? <CircularProgress size={18} color='inherit' /> : null
+          }
+        >
+          {loading ? 'Signing in…' : 'Sign In'}
         </Button>
       </Stack>
+      <Backdrop
+        open={loading}
+        sx={(theme) => ({
+          zIndex: theme.zIndex.modal + 1,
+          color: '#fff',
+          flexDirection: 'column',
+          gap: 2,
+        })}
+      >
+        <CircularProgress color='inherit' />
+        <Typography>
+          {redirecting ? 'Loading your donors…' : 'Signing in…'}
+        </Typography>
+      </Backdrop>
     </Box>
   );
 };
