@@ -15,6 +15,7 @@ import {
 import React, { useState } from 'react';
 import { MdMenu } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 
 const DRAWER_WIDTH = 200;
@@ -51,7 +52,11 @@ export const Sidebar = () => {
           <List>
             {Object.values(ROUTE_PATHS.PROTECTED).map((page, i) => (
               <ListItem key={`${i}${page.path}`} disablePadding>
-                <ListItemButton href={page.path}>
+                <ListItemButton
+                  component={Link}
+                  href={page.path}
+                  onClick={() => setShowDrawer(false)}
+                >
                   <ListItemText primary={page.label} />
                 </ListItemButton>
               </ListItem>
