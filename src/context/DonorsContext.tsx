@@ -5,6 +5,7 @@ import {
   useGetDonors,
   useRemoveDonor,
   useUpdateDonor,
+  DonorListItem,
 } from '@/hooks/useDonors';
 import { PAGE_SIZE } from '@/lib/const';
 import {
@@ -26,7 +27,7 @@ interface DeleteDialogI {
 }
 
 interface DonorsContextI {
-  donors: Donor[];
+  donors: DonorListItem[];
   donorCount: number;
   isLoading: boolean;
   isFetching: boolean;

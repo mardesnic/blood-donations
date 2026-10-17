@@ -106,10 +106,18 @@ async function main() {
   res = await call('GET', `/api/donors?${query({ sort: 'password|asc' })}`);
   check('unknown sort field falls back', res.status === 200, res.status);
 
-  // A donor with a blood type and city to filter by (not every donor has them).
-  const first = (
-    await call('GET', '/api/donors?pageSize=100')
-  ).data.donors.find((d) => d.bloodType && d.city);
+  // A donor with a blood type and city to filter by (not every donor has
+  // them, so look through the pages).
+  let first;
+  for (let page = 0; !first; page++) {
+    const { donors } = (
+      await call('GET', `/api/donors?${query({ page, pageSize: 100 })}`)
+    ).data;
+    if (!donors.length) {
+      throw new Error('No donor with a blood type and city to filter by.');
+    }
+    first = donors.find((d) => d.bloodType && d.city);
+  }
   res = await call(
     'GET',
     `/api/donors?${query({ filter: `bloodType|isAnyOf|${first.bloodType}` })}`
@@ -258,6 +266,10 @@ async function main() {
       (await count(['gender|is|FEMALE', 'active|is|ACTIVE'])) + 1
   );
   check('export has no "Invalid Date"', !res.data.includes('Invalid Date'));
+  check(
+    'export has a Next Eligible column',
+    res.data.split('\n')[0].includes('Next Eligible')
+  );
   res = await call('DELETE', `/api/donors/${minimal.id}`);
   check('delete minimal donor', res.status === 200, res.status);
 
@@ -311,6 +323,21 @@ async function main() {
     stats.donationCount === 6 && stats.lastDonation === DAY('2026-10-01'),
     stats
   );
+  // Women wait 4 months after a donation (2026-10-01 -> 2027-02-01). Whether
+  // that is past depends on today, so compare with the eligible filter.
+  const eligibleNow = async () =>
+    (
+      await call(
+        'GET',
+        `/api/donors?${query({ search: donorBody.oib, filter: 'eligible|is|NOW' })}`
+      )
+    ).data.count === 1;
+  check(
+    'next eligible date follows the 4-month gap',
+    stats.eligibility?.nextEligible === DAY('2027-02-01') &&
+      (stats.eligibility.status === 'ELIGIBLE') === (await eligibleNow()),
+    stats.eligibility
+  );
 
   res = await call('PUT', `/api/donations/${donation.id}`, {
     body: {
@@ -340,6 +367,13 @@ async function main() {
   check(
     'denied donation does not count for the action',
     (await actionCount()) === 0
+  );
+  stats = await findDonor(donorBody.oib);
+  check(
+    'denied attempt blocks for its period, not the 4-month gap',
+    stats.eligibility?.nextEligible === DAY('2026-11-01') &&
+      (stats.eligibility.status === 'ELIGIBLE') === (await eligibleNow()),
+    stats.eligibility
   );
   res = await call('PUT', `/api/donations/${donation.id}`, {
     body: { ...donationBody, actionId: action.id },

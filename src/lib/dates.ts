@@ -49,3 +49,52 @@ export function formatDay(value: Date | string | null | undefined): string {
   const day = toDayString(value);
   return day ? dayjs(day).format(DATE_FORMAT) : '';
 }
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Adds days to a calendar date (UTC midnight).
+export function addDays(day: Date, days: number): Date {
+  return new Date(day.getTime() + days * DAY_MS);
+}
+
+// Adds calendar months, clamping to the month's last day (Jan 31 + 1 month =
+// Feb 28/29).
+export function addMonths(day: Date, months: number): Date {
+  const year = day.getUTCFullYear();
+  const month = day.getUTCMonth() + months;
+  const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  return new Date(Date.UTC(year, month, Math.min(day.getUTCDate(), lastDay)));
+}
+
+// The latest start day whose period, as computed by `end`, is over by
+// `today` (end(start) <= today). `end` must never go backwards in time.
+// Lets a database query ask "start <= X" with the same calendar rules as the
+// per-donor calculation.
+export function latestStartEndingBy(
+  today: Date,
+  end: (start: Date) => Date,
+  approximateStart: Date
+): Date {
+  let start = approximateStart;
+  while (end(start) > today) {
+    start = addDays(start, -1);
+  }
+  while (end(addDays(start, 1)) <= today) {
+    start = addDays(start, 1);
+  }
+  return start;
+}
+
+// The moment a calendar day begins in APP_TIME_ZONE.
+export function appDayStart(day: Date): Date {
+  // Zagreb is UTC+1 or UTC+2, so local midnight is 22:00 or 23:00 UTC the
+  // day before.
+  for (const hours of [2, 1]) {
+    const candidate = new Date(day.getTime() - hours * 60 * 60 * 1000);
+    const back = toAppDay(candidate);
+    if (back && back.getTime() === day.getTime()) {
+      return candidate;
+    }
+  }
+  return day;
+}

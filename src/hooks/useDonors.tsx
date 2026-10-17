@@ -1,6 +1,10 @@
 import { reactQueryKeys } from '@/lib/const';
 import { Donor } from '@/generated/prisma/browser';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Eligibility } from '@/lib/eligibility';
+
+// A donor as the list API returns it, with eligibility computed on the server.
+export type DonorListItem = Donor & { eligibility?: Eligibility };
 
 type GetDonorsParams = {
   page: number;
@@ -31,7 +35,7 @@ const getDonors = async ({
   const response = await fetch(`/api/donors?${queryParams}`, {
     method: 'GET',
   });
-  return (await response.json()) as { donors: Donor[]; count: number };
+  return (await response.json()) as { donors: DonorListItem[]; count: number };
 };
 
 const useGetDonors = (getDonorsParams: GetDonorsParams, enabled = true) => {

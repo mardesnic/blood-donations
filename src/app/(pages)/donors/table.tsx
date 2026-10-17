@@ -6,12 +6,14 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Donor } from '@/generated/prisma/browser';
-import { Button, Typography } from '@mui/material';
+import { Button, Tooltip, Typography } from '@mui/material';
 import Link from 'next/link';
 import { MdAdd } from 'react-icons/md';
 
 import { BLOOD_TYPES, GENDERS } from '@/lib/const';
 import { formatDay } from '@/lib/dates';
+import { eligibilityLabel } from '@/lib/eligibility';
+import { DonorListItem } from '@/hooks/useDonors';
 import { ROUTE_PATHS } from '@/routes';
 import { useDonorsContext } from '@/context/DonorsContext';
 import { useRouter } from 'next/navigation';
@@ -86,6 +88,28 @@ export default function DonorsTable() {
       renderCell: (params) => formatDay(params.value),
       valueGetter: (value) => value && new Date(value),
       type: 'date',
+    },
+    {
+      field: 'eligibility',
+      headerName: 'Next Eligible',
+      flex: 1,
+      sortable: false,
+      renderCell: (params: { row: DonorListItem }) => {
+        const eligibility = params.row.eligibility;
+        return (
+          <Tooltip title={eligibility?.reason || ''}>
+            <Typography
+              variant='inherit'
+              component='span'
+              color={
+                eligibility?.status === 'ELIGIBLE' ? 'success.main' : 'inherit'
+              }
+            >
+              {eligibilityLabel(eligibility)}
+            </Typography>
+          </Tooltip>
+        );
+      },
     },
     {
       field: 'actions',
