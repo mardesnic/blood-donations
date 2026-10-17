@@ -4,12 +4,12 @@ import * as React from 'react';
 import dayjs from 'dayjs';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Action } from '@/generated/prisma/browser';
-import { IconButton } from '@mui/material';
-import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
+import { Card, IconButton, Stack } from '@mui/material';
+import { MdDelete, MdEdit } from 'react-icons/md';
 import { useActionsContext } from '@/context/ActionsContext';
-import { DATE_TIME_FORMAT } from '@/lib/const';
+import { DATE_TIME_FORMAT, PAGE_SIZE } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 export default function ActionsTable() {
@@ -23,6 +23,7 @@ export default function ActionsTable() {
     changeSortModel,
   } = useActionsContext();
   const t = useTranslations();
+  const router = useRouter();
   const columns: GridColDef[] = [
     {
       field: 'title',
@@ -63,14 +64,16 @@ export default function ActionsTable() {
       disableColumnMenu: true,
       sortable: false,
       filterable: false,
-      minWidth: 135,
+      // Two icon buttons plus the table's 24px right padding.
+      width: 130,
+      // The row opens the action; these buttons must not.
       renderCell: (params: { row: Action }) => (
-        <>
-          <Link href={`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${params.row.id}`}>
-            <IconButton aria-label={t('common.view')}>
-              <MdVisibility />
-            </IconButton>
-          </Link>
+        <Stack
+          direction='row'
+          alignItems='center'
+          height='100%'
+          onClick={(event) => event.stopPropagation()}
+        >
           <IconButton
             aria-label={t('common.edit')}
             onClick={() => openDialog({ type: 'update', action: params.row })}
@@ -83,25 +86,33 @@ export default function ActionsTable() {
           >
             <MdDelete />
           </IconButton>
-        </>
+        </Stack>
       ),
     },
   ];
   return (
-    <DataGrid
-      initialState={{
-        sorting: {
-          sortModel: [{ field: 'startDateTime', sort: 'desc' }],
-        },
-      }}
-      rows={actions}
-      rowCount={count}
-      columns={columns}
-      loading={isLoading || isFetching}
-      paginationMode='server'
-      onPaginationModelChange={changePaginationModel}
-      sortingMode='server'
-      onSortModelChange={changeSortModel}
-    />
+    <Card sx={{ mt: 4 }} elevation={2}>
+      <DataGrid
+        initialState={{
+          sorting: {
+            sortModel: [{ field: 'startDateTime', sort: 'desc' }],
+          },
+          pagination: { paginationModel: { pageSize: PAGE_SIZE } },
+        }}
+        rows={actions}
+        rowCount={count}
+        columns={columns}
+        loading={isLoading || isFetching}
+        paginationMode='server'
+        onPaginationModelChange={changePaginationModel}
+        sortingMode='server'
+        onSortModelChange={changeSortModel}
+        sx={{ border: 0, mt: '24px' }}
+        getRowHeight={() => 55}
+        onRowClick={(row) =>
+          router.push(`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${row.id}`)
+        }
+      />
+    </Card>
   );
 }

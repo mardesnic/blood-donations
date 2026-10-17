@@ -10,18 +10,15 @@ export const PlacesHeader = () => {
   const { openDialog } = usePlacesContext();
   const t = useTranslations();
   return (
-    <Stack
-      direction='row'
-      justifyContent='space-between'
-      alignItems='center'
-      mb={2}
-    >
+    <Stack direction='row' justifyContent='space-between' alignItems='center'>
       <Typography variant='h1'>{t('places.title')}</Typography>
       <Button
+        color='secondary'
+        size='medium'
         startIcon={<MdAdd />}
         onClick={() => openDialog({ type: 'create' })}
       >
-        {t('common.create')}
+        {t('places.new')}
       </Button>
     </Stack>
   );

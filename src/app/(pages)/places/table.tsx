@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { IconButton, Stack, TextField } from '@mui/material';
+import { Card, IconButton, Stack, TextField } from '@mui/material';
 import { debounce } from '@mui/material/utils';
-import { MdDelete, MdEdit, MdVisibility } from 'react-icons/md';
-import Link from 'next/link';
+import { MdDelete, MdEdit } from 'react-icons/md';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { usePlacesContext } from '@/context/PlacesContext';
 import { PlaceListItem } from '@/hooks/usePlaces';
@@ -25,6 +25,7 @@ export default function PlacesTable() {
     changeSortModel,
   } = usePlacesContext();
   const t = useTranslations();
+  const router = useRouter();
 
   const columns: GridColDef<PlaceListItem>[] = [
     { field: 'title', headerName: t('fields.title'), flex: 1 },
@@ -44,15 +45,16 @@ export default function PlacesTable() {
       disableColumnMenu: true,
       sortable: false,
       filterable: false,
-      // Three icon buttons plus the last column's padding.
-      minWidth: 160,
+      // Two icon buttons plus the table's 24px right padding.
+      width: 130,
+      // The row opens the place; these buttons must not.
       renderCell: (params) => (
-        <>
-          <Link href={`${ROUTE_PATHS.PROTECTED.PLACES.path}/${params.row.id}`}>
-            <IconButton aria-label={t('common.view')}>
-              <MdVisibility />
-            </IconButton>
-          </Link>
+        <Stack
+          direction='row'
+          alignItems='center'
+          height='100%'
+          onClick={(event) => event.stopPropagation()}
+        >
           <IconButton
             aria-label={t('common.edit')}
             onClick={() => openDialog({ type: 'update', place: params.row })}
@@ -71,7 +73,7 @@ export default function PlacesTable() {
           >
             <MdDelete />
           </IconButton>
-        </>
+        </Stack>
       ),
     },
   ];
@@ -88,8 +90,8 @@ export default function PlacesTable() {
   );
 
   return (
-    <>
-      <Stack direction='row' sx={{ mb: 2 }}>
+    <Card sx={{ mt: 4 }} elevation={2}>
+      <Stack direction='row' sx={{ p: '30px 24px' }}>
         <TextField
           color='secondary'
           label={t('common.search')}
@@ -113,7 +115,12 @@ export default function PlacesTable() {
         onPaginationModelChange={changePaginationModel}
         sortingMode='server'
         onSortModelChange={changeSortModel}
+        sx={{ border: 0 }}
+        getRowHeight={() => 55}
+        onRowClick={(row) =>
+          router.push(`${ROUTE_PATHS.PROTECTED.PLACES.path}/${row.id}`)
+        }
       />
-    </>
+    </Card>
   );
 }

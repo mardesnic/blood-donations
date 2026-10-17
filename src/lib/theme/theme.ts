@@ -112,19 +112,22 @@ export const theme = createTheme({
           '& .MuiTablePagination-root': {
             padding: '0 16px 0 0',
           },
-          '& .MuiDataGrid-cell:nth-child(1)': {
-            padding: '0 0 0 24px',
+          // 24px inside the table's left and right edges. Rows also hold
+          // offset and filler cells, so match the first and last real
+          // columns rather than the first and last children.
+          '& .MuiDataGrid-cell[aria-colindex="1"]': {
+            paddingLeft: '24px',
             boxSizing: 'border-box',
           },
-          '& .MuiDataGrid-cell:nth-last-child(1)': {
-            padding: '0 24px 0 0',
+          '& .MuiDataGrid-cell:has(+ .MuiDataGrid-cellEmpty)': {
+            paddingRight: '24px',
             boxSizing: 'border-box',
           },
-          '& .MuiDataGrid-columnHeader:nth-child(1)': {
-            padding: '0 0 0 24px',
+          '& .MuiDataGrid-columnHeader[aria-colindex="1"]': {
+            paddingLeft: '24px',
           },
-          '& .MuiDataGrid-columnHeader:nth-last-child(1)': {
-            padding: '0 24px 0 0',
+          '& .MuiDataGrid-columnHeader--last': {
+            paddingRight: '24px',
           },
           '& .MuiDataGrid-columnHeader:focus': {
             outline: 'none',
