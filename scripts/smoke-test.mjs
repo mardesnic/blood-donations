@@ -252,6 +252,23 @@ async function main() {
     'date filter matches the whole day',
     (await count([`dob|is|${DAY('1990-05-01')}`])) >= 1
   );
+  // The filter panel asks for "at least N donations" and part of a city.
+  const [atLeastZero, atLeastFive, exactlyFive] = [
+    await count(['donationCount|>=|0']),
+    await count(['donationCount|>=|5']),
+    await count(['donationCount|=|5']),
+  ];
+  check(
+    'minimum donations filter',
+    atLeastZero === everyone && atLeastFive >= exactlyFive && exactlyFive >= 1,
+    { atLeastZero, atLeastFive, exactlyFive, everyone }
+  );
+  const cityPart = first.city.slice(1, 4).toLowerCase();
+  check(
+    'city filter matches part of the name',
+    (await count([`city|contains|${cityPart}`])) >= 1,
+    cityPart
+  );
   res = await call(
     'GET',
     `/api/donors/export?${new URLSearchParams([

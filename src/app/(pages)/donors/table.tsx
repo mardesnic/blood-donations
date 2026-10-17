@@ -6,9 +6,9 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Donor } from '@/generated/prisma/browser';
-import { Button, Tooltip, Typography } from '@mui/material';
+import { Badge, Button, Tooltip, Typography } from '@mui/material';
 import Link from 'next/link';
-import { MdAdd } from 'react-icons/md';
+import { MdAdd, MdFilterList } from 'react-icons/md';
 
 import { BLOOD_TYPES, GENDERS } from '@/lib/const';
 import { useTranslations } from 'next-intl';
@@ -20,6 +20,8 @@ import { useDonorsContext } from '@/context/DonorsContext';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { DonorsFilters } from '@/app/(pages)/donors/filters';
+import { DonorsActiveFilters } from '@/app/(pages)/donors/activeFilters';
+import { activeFilters } from '@/lib/donorFilterModel';
 import { debounce } from '@mui/material/utils';
 
 export default function DonorsTable() {
@@ -140,14 +142,19 @@ export default function DonorsTable() {
     },
   ];
 
-  const searchDonorsDelayed = React.useMemo(() => {
-    return debounce((event) => {
-      changeFilterModel({
-        ...filterModel,
-        quickFilterValues: [event.target.value || ''],
-      });
-    }, 500);
-  }, []);
+  // Updates the current model, so filters set while typing are kept.
+  const searchDonorsDelayed = React.useMemo(
+    () =>
+      debounce((event: React.ChangeEvent<HTMLInputElement>) => {
+        const search = event.target.value || '';
+        changeFilterModel((current) => ({
+          ...current,
+          quickFilterValues: [search],
+        }));
+      }, 500),
+    [changeFilterModel]
+  );
+  const filterCount = activeFilters(filterModel).length;
 
   return (
     <>
@@ -175,6 +182,7 @@ export default function DonorsTable() {
           direction='row'
           justifyContent='space-between'
           alignItems='center'
+          gap={2}
           sx={{ p: '30px 24px' }}
         >
           <TextField
@@ -182,20 +190,29 @@ export default function DonorsTable() {
             label={t('donors.search')}
             placeholder={t('donors.searchPlaceholder')}
             variant='standard'
-            sx={{ width: '50%' }}
+            sx={{ width: { xs: '100%', md: '50%' } }}
             onChange={searchDonorsDelayed}
           />
-          <Button
-            variant='outlined'
-            size='medium'
-            color='inherit'
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            {t('donors.filter')}
-          </Button>
+          <Badge badgeContent={filterCount} color='primary'>
+            <Button
+              variant={showFilters ? 'contained' : 'outlined'}
+              size='medium'
+              color={showFilters ? 'secondary' : 'inherit'}
+              startIcon={<MdFilterList />}
+              aria-expanded={showFilters}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {t('donors.filter')}
+            </Button>
+          </Badge>
         </Stack>
-        {showFilters && (
+        {showFilters ? (
           <DonorsFilters
+            filterModel={filterModel}
+            changeFilterModel={changeFilterModel}
+          />
+        ) : (
+          <DonorsActiveFilters
             filterModel={filterModel}
             changeFilterModel={changeFilterModel}
           />

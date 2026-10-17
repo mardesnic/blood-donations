@@ -41,7 +41,9 @@ interface DonorsContextI {
   removeDonor: (id: string) => Promise<void>;
   closeDialog: () => void;
   changePaginationModel: (paginationModel: GridPaginationModel) => void;
-  changeFilterModel: (filterModel: GridFilterModel) => void;
+  // Takes a new model or a function of the current one, so delayed updates
+  // (search, city) don't overwrite filters set in the meantime.
+  changeFilterModel: React.Dispatch<React.SetStateAction<GridFilterModel>>;
   changeSortModel: (sortModel: GridSortModel) => void;
   exportDonorsDownloadLink: string;
 }
@@ -80,8 +82,7 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
   const donorCount = data?.count || 0;
   const changePaginationModel = (paginationModel: GridPaginationModel) =>
     setPaginationModel(paginationModel);
-  const changeFilterModel = (filterModel: GridFilterModel) =>
-    setFilterModel(filterModel);
+  const changeFilterModel = setFilterModel;
   const changeSortModel = (sortModel: GridSortModel) => setSortModel(sortModel);
 
   const values: DonorsContextI = {

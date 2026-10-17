@@ -212,5 +212,13 @@
     "deleteTitle": "Brisanje mjesta",
     "deleteText": "Jeste li sigurni da želite obrisati <strong>{title}</strong>?",
     "deleteActions": "{count, plural, =0 {Nijedna akcija ne koristi ovo mjesto.} one {# akcija koristi ovo mjesto. Akcija ostaje, ali bez mjesta.} few {# akcije koriste ovo mjesto. Akcije ostaju, ali bez mjesta.} other {# akcija koristi ovo mjesto. Akcije ostaju, ali bez mjesta.}}"
+  },
+  "filters": {
+    "eligibleOnly": "Samo oni koji mogu darivati sada",
+    "clear": "Očisti filtre",
+    "minDonations": "Najmanje darivanja",
+    "cityPlaceholder": "Dio naziva",
+    "active": "Aktivni filtri",
+    "chip": "{label}: {value}"
   }
 }

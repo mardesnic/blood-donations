@@ -212,5 +212,13 @@
     "deleteTitle": "Delete Place",
     "deleteText": "Are you sure you want to delete <strong>{title}</strong>?",
     "deleteActions": "{count, plural, =0 {No actions use this place.} one {# action uses this place. It will be kept, without a place.} other {# actions use this place. They will be kept, without a place.}}"
+  },
+  "filters": {
+    "eligibleOnly": "Only donors who can donate now",
+    "clear": "Clear filters",
+    "minDonations": "Minimum donations",
+    "cityPlaceholder": "Part of the name",
+    "active": "Active filters",
+    "chip": "{label}: {value}"
   }
 }

@@ -1,252 +1,201 @@
 'use client';
 import React from 'react';
-import { MenuItem, TextField, Stack } from '@mui/material';
+import {
+  Box,
+  Button,
+  FormControlLabel,
+  Grid,
+  MenuItem,
+  Stack,
+  Switch,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from '@mui/material';
+import { debounce } from '@mui/material/utils';
 import { GridFilterModel } from '@mui/x-data-grid';
-
-import { GENDERS, BLOOD_TYPES, DATE_FORMAT, STATUSES } from '@/lib/const';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useTranslations } from 'next-intl';
+import { Dayjs } from 'dayjs';
+
+import { GENDERS, BLOOD_TYPES, DATE_FORMAT, STATUSES } from '@/lib/const';
+import {
+  activeFilters,
+  clearFilters,
+  getFilterValue,
+  setFilter,
+} from '@/lib/donorFilterModel';
 
 interface Props {
   filterModel: GridFilterModel;
-  changeFilterModel: (filterModel: GridFilterModel) => void;
+  changeFilterModel: React.Dispatch<React.SetStateAction<GridFilterModel>>;
 }
 
-export const DonorsFilters = (props: Props) => {
-  const { filterModel, changeFilterModel } = props;
+export const DonorsFilters = ({ filterModel, changeFilterModel }: Props) => {
   const t = useTranslations();
 
-  const getValueFromFilterModel = (field: string) =>
-    filterModel?.items?.find((item) => item.field === field)?.value;
+  const value = (field: string) => getFilterValue(filterModel, field);
+  const update = (field: string, operator: string, next: unknown) =>
+    changeFilterModel((current) => setFilter(current, field, operator, next));
+
+  // City is typed, so it filters once typing pauses.
+  const [city, setCity] = React.useState(
+    (getFilterValue(filterModel, 'city') as string) || ''
+  );
+  const updateCityDelayed = React.useMemo(
+    () =>
+      debounce((next: string) => {
+        changeFilterModel((current) =>
+          setFilter(current, 'city', 'contains', next.trim())
+        );
+      }, 500),
+    [changeFilterModel]
+  );
+
+  const bloodTypes = (value('bloodType') as string[]) || [];
+  const hasFilters = activeFilters(filterModel).length > 0;
 
   return (
-    <Stack
-      direction='row'
-      justifyContent='space-between'
-      alignItems='center'
-      gap={2}
-      p='24px'
-    >
-      <TextField
-        label={t('fields.bloodTypes')}
-        name='bloodTypes'
-        value={getValueFromFilterModel('bloodType') || []}
-        onChange={(event) => {
-          const items = [...(filterModel?.items || [])].filter(
-            (item) => item.field !== 'bloodType'
-          );
-          items.push({
-            field: 'bloodType',
-            operator: 'isAnyOf',
-            value: event.target.value,
-          });
-
-          changeFilterModel({
-            ...filterModel,
-            items,
-          });
-        }}
-        select
-        SelectProps={{
-          multiple: true,
-        }}
+    <Box sx={{ px: 3, pb: 3 }}>
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        alignItems={{ xs: 'flex-start', md: 'center' }}
+        justifyContent='space-between'
+        gap={2}
       >
-        {Object.keys(BLOOD_TYPES).map((bloodType) => (
-          <MenuItem key={bloodType} value={bloodType}>
-            {BLOOD_TYPES[bloodType]}
-          </MenuItem>
-        ))}
-      </TextField>
-      <TextField
-        label={t('fields.gender')}
-        name='gender'
-        value={getValueFromFilterModel('gender') || ''}
-        onChange={(event) => {
-          const items = [...(filterModel?.items || [])].filter(
-            (item) => item.field !== 'gender'
-          );
-
-          items.push({
-            field: 'gender',
-            operator: 'is',
-            value: event.target.value,
-          });
-
-          changeFilterModel({
-            ...filterModel,
-            items,
-          });
-        }}
-        select
-      >
-        {GENDERS.map((gender) => (
-          <MenuItem key={gender} value={gender}>
-            {t(`genders.${gender}`)}
-          </MenuItem>
-        ))}
-      </TextField>
-
-      <TextField
-        label={t('fields.donations')}
-        name='donationCount'
-        type='number'
-        value={getValueFromFilterModel('donationCount') || ''}
-        onChange={(event) => {
-          const items = [...(filterModel?.items || [])].filter(
-            (item) => item.field !== 'donationCount'
-          );
-
-          items.push({
-            field: 'donationCount',
-            operator: '=',
-            value: event.target.value,
-          });
-
-          changeFilterModel({
-            ...filterModel,
-            items,
-          });
-        }}
-        InputLabelProps={{ shrink: true }}
-      />
-
-      <DatePicker
-        label={t('fields.lastDonationDate')}
-        value={getValueFromFilterModel('lastDonation') || null}
-        onChange={(value) => {
-          const items = [...(filterModel?.items || [])].filter(
-            (item) => item.field !== 'lastDonation'
-          );
-
-          if (value) {
-            items.push({
-              field: 'lastDonation',
-              operator: 'is',
-              value,
-            });
+        <FormControlLabel
+          control={
+            <Switch
+              checked={value('eligible') === 'NOW'}
+              onChange={(event) =>
+                update('eligible', 'is', event.target.checked ? 'NOW' : '')
+              }
+            />
           }
+          label={t('filters.eligibleOnly')}
+        />
+        <Stack direction='row' alignItems='center' gap={1} flexWrap='wrap'>
+          <Typography variant='body2' color='text.secondary'>
+            {t('fields.bloodTypes')}
+          </Typography>
+          <ToggleButtonGroup
+            size='small'
+            value={bloodTypes}
+            onChange={(_, next: string[]) =>
+              update('bloodType', 'isAnyOf', next)
+            }
+            aria-label={t('fields.bloodTypes')}
+            sx={{ flexWrap: 'wrap' }}
+          >
+            {Object.keys(BLOOD_TYPES).map((bloodType) => (
+              <ToggleButton
+                key={bloodType}
+                value={bloodType}
+                sx={{ minWidth: 44, py: 0.5 }}
+              >
+                {BLOOD_TYPES[bloodType]}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </Stack>
+      </Stack>
 
-          changeFilterModel({
-            ...filterModel,
-            items,
-          });
-        }}
-        format={DATE_FORMAT}
-        slotProps={{
-          actionBar: {
-            actions: ['clear'],
-          },
-        }}
-      />
+      <Grid container columnSpacing={2} sx={{ mt: 1 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <TextField
+            label={t('fields.gender')}
+            value={value('gender') || ''}
+            onChange={(event) => update('gender', 'is', event.target.value)}
+            select
+            // Shows "Any" instead of an empty box.
+            slotProps={{ select: { displayEmpty: true } }}
+          >
+            <MenuItem value=''>
+              <em>{t('common.any')}</em>
+            </MenuItem>
+            {GENDERS.map((gender) => (
+              <MenuItem key={gender} value={gender}>
+                {t(`genders.${gender}`)}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <TextField
+            label={t('fields.status')}
+            value={value('active') || ''}
+            onChange={(event) => update('active', 'is', event.target.value)}
+            select
+            // Shows "Any" instead of an empty box.
+            slotProps={{ select: { displayEmpty: true } }}
+          >
+            <MenuItem value=''>
+              <em>{t('common.any')}</em>
+            </MenuItem>
+            {STATUSES.map((status) => (
+              <MenuItem key={status} value={status}>
+                {t(`statuses.${status}`)}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <TextField
+            label={t('fields.city')}
+            placeholder={t('filters.cityPlaceholder')}
+            value={city}
+            onChange={(event) => {
+              setCity(event.target.value);
+              updateCityDelayed(event.target.value);
+            }}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <TextField
+            label={t('filters.minDonations')}
+            type='number'
+            value={value('donationCount') ?? ''}
+            onChange={(event) =>
+              update('donationCount', '>=', event.target.value)
+            }
+            slotProps={{ htmlInput: { min: 0 } }}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <DatePicker
+            label={t('fields.lastDonationDate')}
+            value={(value('lastDonation') as Dayjs | undefined) || null}
+            onChange={(next) => update('lastDonation', 'is', next)}
+            format={DATE_FORMAT}
+            slotProps={{ actionBar: { actions: ['clear'] } }}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <DatePicker
+            label={t('fields.dob')}
+            value={(value('dob') as Dayjs | undefined) || null}
+            onChange={(next) => update('dob', 'is', next)}
+            format={DATE_FORMAT}
+            slotProps={{ actionBar: { actions: ['clear'] } }}
+          />
+        </Grid>
+      </Grid>
 
-      <TextField
-        label={t('fields.city')}
-        name='city'
-        value={getValueFromFilterModel('city') || ''}
-        onChange={(event) => {
-          const items = [...(filterModel?.items || [])].filter(
-            (item) => item.field !== 'city'
-          );
-
-          items.push({
-            field: 'city',
-            operator: 'equals',
-            value: event.target.value,
-          });
-
-          changeFilterModel({
-            ...filterModel,
-            items,
-          });
-        }}
-        InputLabelProps={{ shrink: true }}
-      />
-
-      <DatePicker
-        label={t('fields.dob')}
-        value={getValueFromFilterModel('dob') || null}
-        onChange={(value) => {
-          const items = [...(filterModel?.items || [])].filter(
-            (item) => item.field !== 'dob'
-          );
-
-          if (value) {
-            items.push({
-              field: 'dob',
-              operator: 'is',
-              value,
-            });
-          }
-
-          changeFilterModel({
-            ...filterModel,
-            items,
-          });
-        }}
-        format={DATE_FORMAT}
-        slotProps={{
-          actionBar: {
-            actions: ['clear'],
-          },
-        }}
-      />
-
-      <TextField
-        label={t('fields.status')}
-        name='status'
-        value={getValueFromFilterModel('active') || ''}
-        onChange={(event) => {
-          const items = [...(filterModel?.items || [])].filter(
-            (item) => item.field !== 'active'
-          );
-
-          items.push({
-            field: 'active',
-            operator: 'is',
-            value: event.target.value,
-          });
-
-          changeFilterModel({
-            ...filterModel,
-            items,
-          });
-        }}
-        select
-      >
-        {STATUSES.map((status) => (
-          <MenuItem key={status} value={status}>
-            {t(`statuses.${status}`)}
-          </MenuItem>
-        ))}
-      </TextField>
-
-      <TextField
-        label={t('fields.eligibility')}
-        name='eligible'
-        value={getValueFromFilterModel('eligible') || ''}
-        onChange={(event) => {
-          const items = [...(filterModel?.items || [])].filter(
-            (item) => item.field !== 'eligible'
-          );
-          if (event.target.value) {
-            items.push({
-              field: 'eligible',
-              operator: 'is',
-              value: event.target.value,
-            });
-          }
-          changeFilterModel({
-            ...filterModel,
-            items,
-          });
-        }}
-        select
-      >
-        <MenuItem value=''>
-          <em>{t('common.any')}</em>
-        </MenuItem>
-        <MenuItem value='NOW'>{t('eligibility.eligibleNow')}</MenuItem>
-      </TextField>
-    </Stack>
+      <Stack direction='row' justifyContent='flex-end' sx={{ mt: 1 }}>
+        <Button
+          variant='text'
+          color='secondary'
+          disabled={!hasFilters}
+          onClick={() => {
+            setCity('');
+            updateCityDelayed.clear();
+            changeFilterModel(clearFilters);
+          }}
+        >
+          {t('filters.clear')}
+        </Button>
+      </Stack>
+    </Box>
   );
 };
