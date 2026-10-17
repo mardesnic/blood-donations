@@ -53,8 +53,8 @@ const Form = ({ donation }: Props) => {
     search: searchQuery,
   });
 
-  // Up to MAX_PAGE_SIZE most recent actions, plus the donation's own action
-  // if it is older than those.
+  // Up to MAX_PAGE_SIZE most recent actions, plus the donation's own (or the
+  // preselected) action if it is older than those.
   const { data: actionsData } = useGetActions({
     page: 0,
     pageSize: MAX_PAGE_SIZE,
@@ -62,11 +62,11 @@ const Form = ({ donation }: Props) => {
   });
   const actions = React.useMemo(() => {
     const list = actionsData?.actions || [];
-    const current = donation?.action;
+    const current = donation?.action ?? action;
     return current && !list.some((a) => a.id === current.id)
       ? [current, ...list]
       : list;
-  }, [actionsData, donation]);
+  }, [actionsData, donation, action]);
 
   const deniedReasons = Object.keys(DenyReasonType);
   const formik = useFormik({
