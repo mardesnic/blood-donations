@@ -1,5 +1,3 @@
-export const APP_TITLE = 'Donate Blood';
-export const APP_DESCRIPTION = 'App to track blood donations.';
 export const DATE_TIME_FORMAT = 'DD.MM.YYYY. HH:mm';
 export const DATE_FORMAT = 'DD.MM.YYYY.';
 export const PAGE_SIZE = 10;
@@ -105,23 +103,6 @@ export const BLOOD_TYPES: BloodTypes = {
   O_NEGATIVE: '0-',
 };
 
-interface Gender {
-  short: string;
-  full: string;
-}
-
-export const GENDERS: { [key: string]: Gender } = {
-  MALE: {
-    short: 'M',
-    full: 'Male',
-  },
-  FEMALE: {
-    short: 'F',
-    full: 'Female',
-  },
-};
-
-export const STATUSES: BloodTypes = {
-  ACTIVE: 'Active',
-  INACTIVE: 'Inactive',
-};
+// Their names are in the "genders" and "statuses" messages.
+export const GENDERS = ['MALE', 'FEMALE'] as const;
+export const STATUSES = ['ACTIVE', 'INACTIVE'] as const;

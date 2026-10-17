@@ -9,7 +9,7 @@ import { ROUTE_PATHS } from '@/routes';
 import { GoDotFill } from 'react-icons/go';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/lib/const';
-import { getDenyReasonDescription } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 export default function DonationsTable() {
   const theme = useTheme();
@@ -22,10 +22,11 @@ export default function DonationsTable() {
     changePaginationModel,
     changeSortModel,
   } = useDonationsContext();
+  const t = useTranslations();
   const columns: GridColDef[] = [
     {
       field: 'donor',
-      headerName: 'Donor',
+      headerName: t('fields.donor'),
       sortable: true,
       disableColumnMenu: true,
       flex: 1,
@@ -33,7 +34,7 @@ export default function DonationsTable() {
     },
     {
       field: 'donationDate',
-      headerName: 'Date',
+      headerName: t('fields.date'),
       sortable: true,
       flex: 1,
       renderCell: (params) => dayjs(params.value).format(DATE_FORMAT),
@@ -43,15 +44,15 @@ export default function DonationsTable() {
     },
     {
       field: 'action',
-      headerName: 'Action',
+      headerName: t('fields.action'),
       disableColumnMenu: true,
       sortable: false,
       flex: 1,
-      renderCell: (params) => params?.value?.title || 'None',
+      renderCell: (params) => params?.value?.title || t('common.none'),
     },
     {
       field: 'denied',
-      headerName: 'Status',
+      headerName: t('fields.status'),
       disableColumnMenu: true,
       sortable: false,
       flex: 1,
@@ -60,25 +61,26 @@ export default function DonationsTable() {
           return (
             <Stack direction='row' alignItems='center' gap={0.5}>
               <GoDotFill color={theme.palette.primary.main} />
-              <span>Denied</span>
+              <span>{t('donations.denied')}</span>
             </Stack>
           );
         }
         return (
           <Stack direction='row' alignItems='center' gap={0.5}>
             <GoDotFill color={theme.palette.success.main} />
-            <span>Completed</span>
+            <span>{t('donations.completed')}</span>
           </Stack>
         );
       },
     },
     {
       field: 'denyReason',
-      headerName: 'Reason',
+      headerName: t('fields.reason'),
       disableColumnMenu: true,
       sortable: false,
       flex: 1,
-      renderCell: (params) => getDenyReasonDescription(params.value),
+      renderCell: (params) =>
+        params.value ? t(`denyReasons.${params.value}`) : '',
     },
   ];
   return (

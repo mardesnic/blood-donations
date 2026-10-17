@@ -1,17 +1,24 @@
 import { Metadata } from 'next';
-import { generatePageTitle } from '@/lib/utils';
+import { getTranslations } from 'next-intl/server';
+import { pageTitle } from '@/i18n/metadata';
 import { LoginForm } from '@/app/login/form';
-import { Container, Stack, Typography } from '@mui/material';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { Box, Container, Stack, Typography } from '@mui/material';
 
-export const metadata: Metadata = {
-  title: generatePageTitle('Login'),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('pageTitles');
+  return { title: await pageTitle(t('login')) };
+}
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const t = await getTranslations('login');
   return (
     <Container component='main' maxWidth='xl'>
-      <Stack alignItems='center' gap={1} sx={{ marginTop: 8 }}>
-        <Typography variant='h1'>Sign in</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
+        <LanguageSwitcher color='secondary' />
+      </Box>
+      <Stack alignItems='center' gap={1} sx={{ marginTop: 6 }}>
+        <Typography variant='h1'>{t('title')}</Typography>
         <LoginForm />
       </Stack>
     </Container>

@@ -1,0 +1,201 @@
+{
+  "app": {
+    "title": "Daruj krv",
+    "description": "Aplikacija za evidenciju darivanja krvi."
+  },
+  "nav": {
+    "donors": "Darivatelji",
+    "donations": "Darivanja",
+    "actions": "Akcije",
+    "signOut": "Odjava",
+    "language": "Jezik",
+    "menu": "Izbornik",
+    "account": "Račun"
+  },
+  "pageTitles": {
+    "welcome": "Dobro došli",
+    "login": "Prijava",
+    "donors": "Darivatelji",
+    "newDonor": "Novi darivatelj",
+    "donations": "Darivanja",
+    "newDonation": "Novo darivanje",
+    "donation": "Darivanje - {name}",
+    "actions": "Akcije"
+  },
+  "common": {
+    "cancel": "Odustani",
+    "delete": "Obriši",
+    "create": "Dodaj",
+    "saveChanges": "Spremi promjene",
+    "none": "Nema",
+    "any": "Svi",
+    "unknown": "Nepoznato",
+    "loading": "Učitavanje…",
+    "back": "Natrag",
+    "close": "Zatvori",
+    "view": "Prikaži",
+    "edit": "Uredi",
+    "notFound": "404 - Stranica nije pronađena"
+  },
+  "fields": {
+    "name": "Ime i prezime",
+    "firstName": "Ime",
+    "lastName": "Prezime",
+    "fatherName": "Ime oca",
+    "email": "E-mail",
+    "phone": "Telefon",
+    "oib": "OIB",
+    "bloodType": "Krvna grupa",
+    "bloodTypes": "Krvne grupe",
+    "gender": "Spol",
+    "address": "Adresa",
+    "city": "Grad",
+    "dob": "Datum rođenja",
+    "donations": "Darivanja",
+    "lastDonation": "Zadnje darivanje",
+    "lastDonationDate": "Datum zadnjeg darivanja",
+    "nextEligible": "Sljedeće darivanje",
+    "status": "Status",
+    "eligibility": "Može darivati",
+    "active": "Aktivan",
+    "actions": "Radnje",
+    "title": "Naziv",
+    "place": "Mjesto",
+    "startTime": "Početak",
+    "endTime": "Završetak",
+    "startDate": "Početak",
+    "endDate": "Završetak",
+    "donationCount": "Broj darivanja",
+    "note": "Napomena",
+    "donor": "Darivatelj",
+    "action": "Akcija",
+    "date": "Datum",
+    "donationDate": "Datum darivanja",
+    "denied": "Odbijen",
+    "deniedReason": "Razlog odbijanja",
+    "reason": "Razlog",
+    "initialDonationCount": "Darivanja prije evidencije",
+    "initialLastDonation": "Zadnje darivanje prije evidencije",
+    "createdAt": "Kreirano",
+    "updatedAt": "Ažurirano"
+  },
+  "genders": {
+    "MALE": "Muško",
+    "FEMALE": "Žensko"
+  },
+  "gendersShort": {
+    "MALE": "M",
+    "FEMALE": "Ž"
+  },
+  "statuses": {
+    "ACTIVE": "Aktivan",
+    "INACTIVE": "Neaktivan"
+  },
+  "denyReasons": {
+    "SEVEN_DAYS": "7 dana",
+    "FIFTEEN_DAYS": "15 dana",
+    "ONE_MONTH": "1 mjesec",
+    "SIX_MONTHS": "6 mjeseci",
+    "ONE_YEAR": "1 godina",
+    "LONGER": "Dulje",
+    "PERMANENT": "Trajno"
+  },
+  "eligibility": {
+    "label": {
+      "ELIGIBLE": "Sada",
+      "PERMANENT": "Nikad",
+      "MANUAL": "Provjeriti ručno",
+      "TOO_OLD": "Iznad dobne granice",
+      "UNKNOWN_AGE": "Nepoznato (nema datuma rođenja)",
+      "INACTIVE": "Neaktivan"
+    },
+    "reason": {
+      "inactive": "Neaktivan",
+      "permanent": "Trajno odbijen",
+      "unknownAge": "Datum rođenja nije poznat",
+      "overAge": "Stariji od {age}",
+      "overAgeByThen": "Do tada stariji od {age}",
+      "manual": "Odbijen na dulje razdoblje {date} Provjeriti ručno.",
+      "eligibleNow": "Može darivati sada",
+      "fromAge": "Može darivati od {date} (navršava {age})",
+      "fromGap": "Može darivati od {date} ({months, plural, one {# mjesec} few {# mjeseca} other {# mjeseci}} nakon zadnjeg darivanja)",
+      "fromDenial": "Može darivati od {date} (odbijen {deniedOn})"
+    },
+    "eligibleNow": "Može darivati sada"
+  },
+  "validation": {
+    "emailRequired": "E-mail je obavezan",
+    "emailInvalid": "E-mail adresa nije ispravna",
+    "passwordRequired": "Lozinka je obavezna",
+    "firstNameRequired": "Ime je obavezno",
+    "lastNameRequired": "Prezime je obavezno",
+    "genderRequired": "Spol je obavezan",
+    "oibDigits": "Mora imati točno 11 znamenki",
+    "wholeNumber": "Mora biti cijeli broj",
+    "donationCountMin": "Broj darivanja mora biti 0 ili veći",
+    "titleRequired": "Naziv je obavezan",
+    "donorRequired": "Darivatelj je obavezan",
+    "selectDonor": "Odaberite darivatelja"
+  },
+  "login": {
+    "title": "Prijava",
+    "email": "E-mail adresa",
+    "password": "Lozinka",
+    "submit": "Prijavi se",
+    "signingIn": "Prijava…",
+    "loadingDonors": "Učitavanje darivatelja…",
+    "invalid": "Neispravan e-mail ili lozinka.",
+    "tooManyAttempts": "Previše neuspjelih pokušaja. Pokušajte ponovno za 15 minuta."
+  },
+  "donors": {
+    "title": "Darivatelji",
+    "exportCsv": "Izvoz CSV",
+    "new": "Novi darivatelj",
+    "search": "Pretraga",
+    "searchPlaceholder": "Ime, e-mail itd...",
+    "filter": "Filtri",
+    "seeDonations": "Darivanja ({count})",
+    "add": "Dodaj darivatelja",
+    "deleteAccount": "Obriši darivatelja",
+    "totalWithRecorded": "Ukupno s evidentiranim darivanjima: {count}",
+    "initialDonationsHelp": "Darivanja prije nego što su se počela evidentirati u ovoj aplikaciji",
+    "deleteTitle": "Obrisati darivatelja {name}?",
+    "deleteText": "Ova radnja se ne može poništiti. Brisanjem darivatelja trajno se uklanjaju svi povezani podaci, uključujući darivanja i kontakt podatke.",
+    "deleteConfirm": "Da, obriši darivatelja"
+  },
+  "donations": {
+    "title": "Darivanja",
+    "new": "Novo darivanje",
+    "delete": "Obriši darivanje",
+    "denied": "Odbijen",
+    "completed": "Uspješno",
+    "deleteTitle": "Brisanje darivanja",
+    "deleteText": "Ova radnja se ne može poništiti. Brisanjem darivanja trajno se uklanjaju svi povezani podaci.",
+    "deleteConfirm": "Da, obriši darivanje"
+  },
+  "actions": {
+    "title": "Akcije",
+    "new": "Nova akcija",
+    "deleteTitle": "Brisanje akcije",
+    "deleteText": "Jeste li sigurni da želite obrisati <strong>{title}</strong>?"
+  },
+  "export": {
+    "firstName": "Ime",
+    "lastName": "Prezime",
+    "fatherName": "Ime oca",
+    "oib": "OIB",
+    "email": "E-mail",
+    "phone": "Telefon",
+    "city": "Grad",
+    "gender": "Spol",
+    "bloodType": "Krvna grupa",
+    "donations": "Darivanja",
+    "lastDonation": "Zadnje darivanje",
+    "nextEligible": "Sljedeće darivanje",
+    "dob": "Datum rođenja",
+    "note": "Napomena",
+    "createdAt": "Kreirano",
+    "updatedAt": "Ažurirano",
+    "active": "Aktivan"
+  }
+}

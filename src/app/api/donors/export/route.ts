@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getTranslations } from 'next-intl/server';
 import DonorService from '../service';
 import { DONOR_SORT_FIELDS, parseSort, withAuth } from '@/lib/api';
 
@@ -12,11 +13,16 @@ export const GET = withAuth(async (req: NextRequest) => {
     DONOR_SORT_FIELDS,
     'createdAt'
   );
+  // In the language the user sees the app in.
   const csvString = await DonorService.generateExport(
     search,
     filters,
     sortField,
-    sort
+    sort,
+    {
+      headers: await getTranslations('export'),
+      eligibility: await getTranslations('eligibility'),
+    }
   );
 
   return new NextResponse(csvString, {

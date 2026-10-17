@@ -17,6 +17,7 @@ import { MdMenu } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 const DRAWER_WIDTH = 200;
 
@@ -27,6 +28,7 @@ const DrawerContent = styled(Box)(() => ({
 
 export const Sidebar = () => {
   const router = useRouter();
+  const t = useTranslations('nav');
   const [showDrawer, setShowDrawer] = useState(false);
 
   const handleSignOut = async () => {
@@ -39,6 +41,7 @@ export const Sidebar = () => {
       <IconButton
         size='medium'
         color='inherit'
+        aria-label={t('menu')}
         onClick={() => setShowDrawer((prev) => !prev)}
       >
         <MdMenu />
@@ -57,14 +60,14 @@ export const Sidebar = () => {
                   href={page.path}
                   onClick={() => setShowDrawer(false)}
                 >
-                  <ListItemText primary={page.label} />
+                  <ListItemText primary={t(page.labelKey)} />
                 </ListItemButton>
               </ListItem>
             ))}
             <Divider sx={{ my: 2 }} />
             <ListItem disablePadding>
               <ListItemButton onClick={handleSignOut}>
-                <ListItemText primary={'Sign Out'} />
+                <ListItemText primary={t('signOut')} />
               </ListItemButton>
             </ListItem>
           </List>

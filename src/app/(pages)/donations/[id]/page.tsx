@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import DonationService from '@/app/api/donations/service';
-import { generatePageTitle } from '@/lib/utils';
+import { getTranslations } from 'next-intl/server';
+import { pageTitle } from '@/i18n/metadata';
 import { notFound } from 'next/navigation';
 import { UpdateDonationHeader } from './header';
 import { Container } from '@mui/material';
@@ -15,8 +16,11 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const donation = await DonationService.findOne(id);
+  const t = await getTranslations('pageTitles');
   return {
-    title: generatePageTitle(`Donation - ${donation?.donor?.fullName}`),
+    title: await pageTitle(
+      t('donation', { name: donation?.donor?.fullName || '' })
+    ),
   };
 }
 

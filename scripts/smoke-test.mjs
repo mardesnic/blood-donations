@@ -416,6 +416,28 @@ async function main() {
     res.status
   );
 
+  // Croatian, picked with the language cookie
+  cookies.set('NEXT_LOCALE', 'hr');
+  res = await call('GET', '/donors', { raw: true });
+  check(
+    'donors page in Croatian',
+    res.status === 200 &&
+      res.data.includes('<html lang="hr"') &&
+      res.data.includes('Darivatelji'),
+    res.status
+  );
+  res = await call('GET', '/api/donors/export', { raw: true });
+  check(
+    'export in Croatian',
+    res.data.split('\n')[0].includes('Sljedeće darivanje')
+  );
+  cookies.delete('NEXT_LOCALE');
+  res = await call('GET', '/donors', { raw: true });
+  check(
+    'donors page in English without the cookie',
+    res.data.includes('<html lang="en"') && res.data.includes('Donors')
+  );
+
   // Clean up
   res = await call('DELETE', `/api/donations/${donation.id}`);
   check('delete donation', res.status === 200, res.status);

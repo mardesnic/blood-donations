@@ -1,14 +1,16 @@
 import { Metadata } from 'next';
-import { generatePageTitle } from '@/lib/utils';
+import { getTranslations } from 'next-intl/server';
+import { pageTitle } from '@/i18n/metadata';
 import { DonationsProvider } from '@/context/DonationsContext';
 import { CreateDonationHeader } from './header';
 import CreateDonationBody from './body';
 import { Container } from '@mui/material';
 import ActionService from '@/app/api/actions/service';
 
-export const metadata: Metadata = {
-  title: generatePageTitle('New Donation'),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('pageTitles');
+  return { title: await pageTitle(t('newDonation')) };
+}
 
 type Props = {
   searchParams: Promise<{ actionId?: string | string[] }>;

@@ -14,9 +14,12 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useState } from 'react';
 import { TOO_MANY_ATTEMPTS } from '@/lib/const';
+import { useTranslations } from 'next-intl';
+import { useRevalidateOnLocaleChange } from '@/hooks/useRevalidateOnLocaleChange';
 
 export const LoginForm = () => {
   const router = useRouter();
+  const t = useTranslations();
   const [loginError, setLoginError] = useState('');
   // Stays true after a successful sign-in until the next page replaces this
   // one, so the form can't be submitted again while it loads.
@@ -28,8 +31,10 @@ export const LoginForm = () => {
       password: '',
     },
     validationSchema: Yup.object({
-      email: Yup.string().required('Email is required').email(),
-      password: Yup.string().required('Password is required'),
+      email: Yup.string()
+        .required(t('validation.emailRequired'))
+        .email(t('validation.emailInvalid')),
+      password: Yup.string().required(t('validation.passwordRequired')),
     }),
     onSubmit: async (values) => {
       const result = await signIn('credentials', {
@@ -41,8 +46,8 @@ export const LoginForm = () => {
       if (!result?.ok) {
         setLoginError(
           result?.error === TOO_MANY_ATTEMPTS
-            ? 'Too many failed attempts. Please try again in 15 minutes.'
-            : 'Invalid email or password.'
+            ? t('login.tooManyAttempts')
+            : t('login.invalid')
         );
         return;
       }
@@ -51,6 +56,7 @@ export const LoginForm = () => {
       router.push(ROUTE_PATHS.PROTECTED.DONORS.path);
     },
   });
+  useRevalidateOnLocaleChange(formik);
   const loading = formik.isSubmitting || redirecting;
 
   return (
@@ -59,7 +65,7 @@ export const LoginForm = () => {
         margin='normal'
         required
         id='email'
-        label='Email Address'
+        label={t('login.email')}
         name='email'
         autoComplete='email'
         autoFocus
@@ -76,7 +82,7 @@ export const LoginForm = () => {
         margin='normal'
         required
         name='password'
-        label='Password'
+        label={t('login.password')}
         type='password'
         id='password'
         autoComplete='current-password'
@@ -96,7 +102,7 @@ export const LoginForm = () => {
             loading ? <CircularProgress size={18} color='inherit' /> : null
           }
         >
-          {loading ? 'Signing in…' : 'Sign In'}
+          {loading ? t('login.signingIn') : t('login.submit')}
         </Button>
       </Stack>
       <Backdrop
@@ -110,7 +116,7 @@ export const LoginForm = () => {
       >
         <CircularProgress color='inherit' />
         <Typography>
-          {redirecting ? 'Loading your donors…' : 'Signing in…'}
+          {redirecting ? t('login.loadingDonors') : t('login.signingIn')}
         </Typography>
       </Backdrop>
     </Box>

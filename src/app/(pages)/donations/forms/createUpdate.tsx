@@ -10,8 +10,6 @@ import { useGetActions } from '@/hooks/useActions';
 import { Box, Button, MenuItem, Stack } from '@mui/material';
 import { Donation, Donor, DenyReasonType } from '@/generated/prisma/browser';
 import { useFormik } from 'formik';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -24,8 +22,9 @@ import { DATE_TIME_FORMAT, MAX_PAGE_SIZE } from '@/lib/const';
 import { useGetDonors } from '@/hooks/useDonors';
 import { ROUTE_PATHS } from '@/routes';
 import { useRouter } from 'next/navigation';
-import { getDenyReasonDescription } from '@/lib/utils';
 import { useGoBack } from '@/hooks/useGoBack';
+import { useTranslations } from 'next-intl';
+import { useRevalidateOnLocaleChange } from '@/hooks/useRevalidateOnLocaleChange';
 
 interface Props {
   donation?: DonationWithDonor;
@@ -33,6 +32,7 @@ interface Props {
 
 const Form = ({ donation }: Props) => {
   const router = useRouter();
+  const t = useTranslations();
   const goBack = useGoBack(ROUTE_PATHS.PROTECTED.DONATIONS.path);
   const [searchQuery, setSearchQuery] = React.useState(
     donation?.donor?.fullName || ''
@@ -85,8 +85,8 @@ const Form = ({ donation }: Props) => {
     validationSchema: Yup.object({
       donor: Yup.object().shape({
         id: Yup.string()
-          .required('Donor is required')
-          .min(1, 'Please select donor'),
+          .required(t('validation.donorRequired'))
+          .min(1, t('validation.selectDonor')),
       }),
     }),
     onSubmit: async (values) => {
@@ -109,6 +109,7 @@ const Form = ({ donation }: Props) => {
       goBack();
     },
   });
+  useRevalidateOnLocaleChange(formik);
 
   const onDonorInputChange = (_: React.SyntheticEvent, value: string) => {
     setSearchQuery(value);
@@ -147,7 +148,7 @@ const Form = ({ donation }: Props) => {
         renderInput={(params) => (
           <TextField
             {...params}
-            label='Donor'
+            label={t('fields.donor')}
             onBlur={formik.handleBlur}
             error={formik.touched.donorId && Boolean(formik.errors.donorId)}
             helperText={formik.touched.donorId && formik.errors.donorId}
@@ -167,7 +168,7 @@ const Form = ({ donation }: Props) => {
       />
 
       <TextField
-        label='Action'
+        label={t('fields.action')}
         name='actionId'
         value={formik.values.actionId}
         onChange={formik.handleChange}
@@ -177,7 +178,7 @@ const Form = ({ donation }: Props) => {
         select
       >
         <MenuItem value=''>
-          <em>None</em>
+          <em>{t('common.none')}</em>
         </MenuItem>
         {actions.map((action) => (
           <MenuItem key={action.id} value={action.id}>
@@ -185,19 +186,15 @@ const Form = ({ donation }: Props) => {
           </MenuItem>
         ))}
       </TextField>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DateTimePicker
-          label='Donation date'
-          value={formik.values.donationDate}
-          onChange={(value) =>
-            formik.setFieldValue('donationDate', dayjs(value))
-          }
-          format={DATE_TIME_FORMAT}
-          ampm={false}
-        />
-      </LocalizationProvider>
+      <DateTimePicker
+        label={t('fields.donationDate')}
+        value={formik.values.donationDate}
+        onChange={(value) => formik.setFieldValue('donationDate', dayjs(value))}
+        format={DATE_TIME_FORMAT}
+        ampm={false}
+      />
       <TextField
-        label='Note'
+        label={t('fields.note')}
         name='note'
         value={formik.values.note}
         onChange={formik.handleChange}
@@ -214,12 +211,12 @@ const Form = ({ donation }: Props) => {
             inputProps={{ 'aria-label': 'controlled' }}
           />
         }
-        label='Denied'
+        label={t('fields.denied')}
       />
 
       {formik.values.denied && (
         <TextField
-          label='Denied reason'
+          label={t('fields.deniedReason')}
           name='denyReason'
           value={formik.values.denyReason}
           onChange={formik.handleChange}
@@ -230,7 +227,7 @@ const Form = ({ donation }: Props) => {
         >
           {deniedReasons.map((reason) => (
             <MenuItem key={reason} value={reason}>
-              {getDenyReasonDescription(reason as DenyReasonType)}
+              {t(`denyReasons.${reason}`)}
             </MenuItem>
           ))}
         </TextField>
@@ -242,7 +239,7 @@ const Form = ({ donation }: Props) => {
             variant='outlined'
             disabled={isLoading}
           >
-            Delete Donation
+            {t('donations.delete')}
           </Button>
         )}
         <Stack direction='row' justifyContent='flex-end' gap={2} ml='auto'>
@@ -252,7 +249,7 @@ const Form = ({ donation }: Props) => {
             disabled={isLoading}
             color='secondary'
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             type='submit'
@@ -260,7 +257,7 @@ const Form = ({ donation }: Props) => {
             color='secondary'
             size='medium'
           >
-            Save Changes
+            {t('common.saveChanges')}
           </Button>
         </Stack>
       </Stack>

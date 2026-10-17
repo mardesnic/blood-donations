@@ -1,0 +1,201 @@
+{
+  "app": {
+    "title": "Donate Blood",
+    "description": "App to track blood donations."
+  },
+  "nav": {
+    "donors": "Donors",
+    "donations": "Donations",
+    "actions": "Actions",
+    "signOut": "Sign Out",
+    "language": "Language",
+    "menu": "Menu",
+    "account": "Account"
+  },
+  "pageTitles": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "donors": "Donors",
+    "newDonor": "New Donor",
+    "donations": "Donations",
+    "newDonation": "New Donation",
+    "donation": "Donation - {name}",
+    "actions": "Actions"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "create": "Create",
+    "saveChanges": "Save Changes",
+    "none": "None",
+    "any": "Any",
+    "unknown": "Unknown",
+    "loading": "Loading…",
+    "back": "Back",
+    "close": "Close",
+    "view": "View",
+    "edit": "Edit",
+    "notFound": "404 - Page not found"
+  },
+  "fields": {
+    "name": "Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "fatherName": "Father Name",
+    "email": "Email",
+    "phone": "Phone",
+    "oib": "OIB",
+    "bloodType": "Blood Type",
+    "bloodTypes": "Blood Types",
+    "gender": "Gender",
+    "address": "Address",
+    "city": "City",
+    "dob": "Date of Birth",
+    "donations": "Donations",
+    "lastDonation": "Last Donation",
+    "lastDonationDate": "Last donation date",
+    "nextEligible": "Next Eligible",
+    "status": "Status",
+    "eligibility": "Eligibility",
+    "active": "Active",
+    "actions": "Actions",
+    "title": "Title",
+    "place": "Place",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "donationCount": "Donation Count",
+    "note": "Note",
+    "donor": "Donor",
+    "action": "Action",
+    "date": "Date",
+    "donationDate": "Donation date",
+    "denied": "Denied",
+    "deniedReason": "Denied reason",
+    "reason": "Reason",
+    "initialDonationCount": "Donations before records",
+    "initialLastDonation": "Last donation before records",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At"
+  },
+  "genders": {
+    "MALE": "Male",
+    "FEMALE": "Female"
+  },
+  "gendersShort": {
+    "MALE": "M",
+    "FEMALE": "F"
+  },
+  "statuses": {
+    "ACTIVE": "Active",
+    "INACTIVE": "Inactive"
+  },
+  "denyReasons": {
+    "SEVEN_DAYS": "7 Days",
+    "FIFTEEN_DAYS": "15 Days",
+    "ONE_MONTH": "1 Month",
+    "SIX_MONTHS": "6 Months",
+    "ONE_YEAR": "1 Year",
+    "LONGER": "Longer",
+    "PERMANENT": "Permanent"
+  },
+  "eligibility": {
+    "label": {
+      "ELIGIBLE": "Now",
+      "PERMANENT": "Never",
+      "MANUAL": "Check manually",
+      "TOO_OLD": "Over age limit",
+      "UNKNOWN_AGE": "Unknown (no birth date)",
+      "INACTIVE": "Inactive"
+    },
+    "reason": {
+      "inactive": "Inactive",
+      "permanent": "Permanently denied",
+      "unknownAge": "Date of birth unknown",
+      "overAge": "Over {age}",
+      "overAgeByThen": "Over {age} by then",
+      "manual": "Denied for a longer period on {date} Check manually.",
+      "eligibleNow": "Eligible now",
+      "fromAge": "Eligible from {date} (turns {age})",
+      "fromGap": "Eligible from {date} ({months, plural, one {# month} other {# months}} after the last donation)",
+      "fromDenial": "Eligible from {date} (denied on {deniedOn})"
+    },
+    "eligibleNow": "Eligible now"
+  },
+  "validation": {
+    "emailRequired": "Email is required",
+    "emailInvalid": "Email must be a valid email",
+    "passwordRequired": "Password is required",
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "genderRequired": "Gender is required",
+    "oibDigits": "Must be exactly 11 digits",
+    "wholeNumber": "Must be a whole number",
+    "donationCountMin": "Donation count must greater than or equal to 0",
+    "titleRequired": "Title is required",
+    "donorRequired": "Donor is required",
+    "selectDonor": "Please select donor"
+  },
+  "login": {
+    "title": "Sign in",
+    "email": "Email Address",
+    "password": "Password",
+    "submit": "Sign In",
+    "signingIn": "Signing in…",
+    "loadingDonors": "Loading your donors…",
+    "invalid": "Invalid email or password.",
+    "tooManyAttempts": "Too many failed attempts. Please try again in 15 minutes."
+  },
+  "donors": {
+    "title": "Donors",
+    "exportCsv": "Export CSV",
+    "new": "New Donor",
+    "search": "Search",
+    "searchPlaceholder": "Name, email, etc...",
+    "filter": "Filter",
+    "seeDonations": "See Donations ({count})",
+    "add": "Add Donor",
+    "deleteAccount": "Delete Account",
+    "totalWithRecorded": "Total with recorded donations: {count}",
+    "initialDonationsHelp": "Donations made before they were recorded in this app",
+    "deleteTitle": "Delete {name} Account?",
+    "deleteText": "This action cannot be undone. Deleting the donor will permanently remove all associated information, including donations and contact details.",
+    "deleteConfirm": "Yes, Delete Account"
+  },
+  "donations": {
+    "title": "Donations",
+    "new": "New Donation",
+    "delete": "Delete Donation",
+    "denied": "Denied",
+    "completed": "Completed",
+    "deleteTitle": "Delete Donation",
+    "deleteText": "This action cannot be undone. Deleting the donation will permanently remove all associated information.",
+    "deleteConfirm": "Yes, Delete Donation"
+  },
+  "actions": {
+    "title": "Actions",
+    "new": "New Action",
+    "deleteTitle": "Delete Action",
+    "deleteText": "Are you sure you want to delete <strong>{title}</strong>?"
+  },
+  "export": {
+    "firstName": "Name",
+    "lastName": "Last Name",
+    "fatherName": "Father Name",
+    "oib": "OIB",
+    "email": "Email",
+    "phone": "Phone",
+    "city": "City",
+    "gender": "Gender",
+    "bloodType": "Blood Type",
+    "donations": "Donations",
+    "lastDonation": "Last Donation",
+    "nextEligible": "Next Eligible",
+    "dob": "Date of Birth",
+    "note": "Note",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "active": "Active"
+  }
+}

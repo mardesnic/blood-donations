@@ -1,10 +1,11 @@
+// labelKey is a message key under "nav".
 export const ROUTE_PATHS = {
   PROTECTED: {
-    DONORS: { path: '/donors', label: 'Donors' },
-    DONATIONS: { path: '/donations', label: 'Donations' },
-    ACTIONS: { path: '/actions', label: 'Actions' },
+    DONORS: { path: '/donors', labelKey: 'donors' },
+    DONATIONS: { path: '/donations', labelKey: 'donations' },
+    ACTIONS: { path: '/actions', labelKey: 'actions' },
   },
   PUBLIC: {
-    LOGIN: { path: '/login', label: 'Login' },
+    LOGIN: { path: '/login' },
   },
-};
+} as const;
