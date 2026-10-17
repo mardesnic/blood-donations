@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Card, Stack, Tooltip, useTheme } from '@mui/material';
+import { Card, Stack, useTheme } from '@mui/material';
+import { TruncatedText } from '@/components/TruncatedText';
 import { useDonationsContext } from '@/context/DonationsContext';
 import { useRouter } from 'next/navigation';
 import { ROUTE_PATHS } from '@/routes';
@@ -88,23 +89,7 @@ export default function DonationsTable() {
       disableColumnMenu: true,
       sortable: false,
       flex: 1.5,
-      // Long notes are cut off; the full text shows on hover.
-      renderCell: (params) =>
-        params.value ? (
-          <Tooltip title={params.value}>
-            <span
-              style={{
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {params.value}
-            </span>
-          </Tooltip>
-        ) : (
-          ''
-        ),
+      renderCell: (params) => <TruncatedText text={params.value} />,
     },
   ];
   return (

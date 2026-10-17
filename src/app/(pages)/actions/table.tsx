@@ -11,6 +11,7 @@ import { DATE_TIME_FORMAT, PAGE_SIZE } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { TruncatedText } from '@/components/TruncatedText';
 
 export default function ActionsTable() {
   const {
@@ -57,6 +58,7 @@ export default function ActionsTable() {
       field: 'note',
       headerName: t('fields.note'),
       flex: 1,
+      renderCell: (params) => <TruncatedText text={params.value} />,
     },
     {
       field: 'actions',
