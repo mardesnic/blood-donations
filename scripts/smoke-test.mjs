@@ -407,7 +407,14 @@ async function main() {
   res = await call('GET', '/donors/00000000-0000-0000-0000-000000000000', {
     raw: true,
   });
-  check('unknown donor page is 404', res.status === 404, res.status);
+  // With the loading screen the page is streamed, so the status is already
+  // 200 when the missing donor is found; check what the user sees.
+  check(
+    'unknown donor page shows "not found"',
+    [200, 404].includes(res.status) &&
+      res.data.includes('404 - Page not found'),
+    res.status
+  );
 
   // Clean up
   res = await call('DELETE', `/api/donations/${donation.id}`);
