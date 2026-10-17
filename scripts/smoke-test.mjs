@@ -416,6 +416,64 @@ async function main() {
     res.status
   );
 
+  // Places: create, list with action counts, update, pages, delete
+  res = await call('POST', '/api/places', {
+    body: { title: ' Smoke Hall ', city: 'Zagreb', email: '', phone: '' },
+  });
+  const place = res.data;
+  check(
+    'create place',
+    res.status === 200 && place?.title === 'Smoke Hall' && place.email === null,
+    res.data
+  );
+  res = await call('POST', '/api/places', { body: { title: '' } });
+  check('place without title rejected', res.status === 400, res.status);
+  res = await call('POST', '/api/actions', {
+    body: {
+      title: 'Smoke place action',
+      placeId: place.id,
+      startDateTime: '2026-10-02T08:00:00.000Z',
+      endDateTime: '2026-10-02T12:00:00.000Z',
+      note: '',
+    },
+  });
+  const placeAction = res.data;
+  check('create action at the place', placeAction?.placeId === place.id);
+  res = await call('GET', `/api/places?${query({ search: 'Smoke Hall' })}`);
+  check(
+    'places list counts actions',
+    res.status === 200 &&
+      res.data.count === 1 &&
+      res.data.places[0]._count?.actions === 1,
+    res.data
+  );
+  res = await call('PUT', `/api/places/${place.id}`, {
+    body: { title: 'Smoke Hall 2', contactName: 'Ana' },
+  });
+  check(
+    'update place',
+    res.status === 200 && res.data.contactName === 'Ana',
+    res.data
+  );
+  res = await call('GET', '/places', { raw: true });
+  check('page /places renders', res.status === 200, res.status);
+  res = await call('GET', `/places/${place.id}`, { raw: true });
+  check(
+    'place page shows the place',
+    res.status === 200 && res.data.includes('Smoke Hall 2'),
+    res.status
+  );
+  res = await call('DELETE', `/api/places/${place.id}`);
+  check('delete place', res.status === 200, res.status);
+  res = await call('GET', `/api/actions?${query({ pageSize: 100 })}`);
+  check(
+    'deleting a place keeps its actions, without a place',
+    res.data.actions.some((a) => a.id === placeAction.id && a.placeId === null),
+    res.data.count
+  );
+  res = await call('DELETE', `/api/actions/${placeAction.id}`);
+  check('delete place action', res.status === 200, res.status);
+
   // Croatian, picked with the language cookie
   cookies.set('NEXT_LOCALE', 'hr');
   res = await call('GET', '/donors', { raw: true });
