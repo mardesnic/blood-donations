@@ -48,6 +48,15 @@ describe('donor filter model', () => {
     });
   });
 
+  it('keeps both ends of a range on the same field', () => {
+    let range = setFilter(null, 'age', '>=', 25);
+    range = setFilter(range, 'age', '<=', 40);
+    expect(getFilterValue(range, 'age', '>=')).toBe(25);
+    expect(getFilterValue(range, 'age', '<=')).toBe(40);
+    range = setFilter(range, 'age', '>=', '');
+    expect(range.items).toEqual([{ field: 'age', operator: '<=', value: 40 }]);
+  });
+
   it('counts only filters with a value', () => {
     expect(activeFilters(model).map((i) => i.field)).toEqual(['gender']);
   });

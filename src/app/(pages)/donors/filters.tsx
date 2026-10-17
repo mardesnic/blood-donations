@@ -35,7 +35,10 @@ interface Props {
 export const DonorsFilters = ({ filterModel, changeFilterModel }: Props) => {
   const t = useTranslations();
 
-  const value = (field: string) => getFilterValue(filterModel, field);
+  const value = (field: string, operator?: string) =>
+    getFilterValue(filterModel, field, operator);
+  const dayValue = (field: string, operator: string) =>
+    (value(field, operator) as Dayjs | undefined) || null;
   const update = (field: string, operator: string, next: unknown) =>
     changeFilterModel((current) => setFilter(current, field, operator, next));
 
@@ -163,22 +166,42 @@ export const DonorsFilters = ({ filterModel, changeFilterModel }: Props) => {
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <DatePicker
-            label={t('fields.lastDonationDate')}
-            value={(value('lastDonation') as Dayjs | undefined) || null}
-            onChange={(next) => update('lastDonation', 'is', next)}
-            format={DATE_FORMAT}
-            slotProps={{ actionBar: { actions: ['clear'] } }}
-          />
+          <Stack direction='row' gap={2}>
+            <TextField
+              label={t('filters.ageFrom')}
+              type='number'
+              value={value('age', '>=') ?? ''}
+              onChange={(event) => update('age', '>=', event.target.value)}
+              slotProps={{ htmlInput: { min: 0, max: 150 } }}
+            />
+            <TextField
+              label={t('filters.ageTo')}
+              type='number'
+              value={value('age', '<=') ?? ''}
+              onChange={(event) => update('age', '<=', event.target.value)}
+              slotProps={{ htmlInput: { min: 0, max: 150 } }}
+            />
+          </Stack>
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <DatePicker
-            label={t('fields.dob')}
-            value={(value('dob') as Dayjs | undefined) || null}
-            onChange={(next) => update('dob', 'is', next)}
-            format={DATE_FORMAT}
-            slotProps={{ actionBar: { actions: ['clear'] } }}
-          />
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Stack direction='row' gap={2}>
+            <DatePicker
+              label={t('filters.lastDonationFrom')}
+              value={dayValue('lastDonation', 'onOrAfter')}
+              onChange={(next) => update('lastDonation', 'onOrAfter', next)}
+              maxDate={dayValue('lastDonation', 'onOrBefore') ?? undefined}
+              format={DATE_FORMAT}
+              slotProps={{ actionBar: { actions: ['clear'] } }}
+            />
+            <DatePicker
+              label={t('filters.lastDonationTo')}
+              value={dayValue('lastDonation', 'onOrBefore')}
+              onChange={(next) => update('lastDonation', 'onOrBefore', next)}
+              minDate={dayValue('lastDonation', 'onOrAfter') ?? undefined}
+              format={DATE_FORMAT}
+              slotProps={{ actionBar: { actions: ['clear'] } }}
+            />
+          </Stack>
         </Grid>
       </Grid>
 

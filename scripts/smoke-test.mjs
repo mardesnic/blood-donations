@@ -269,6 +269,36 @@ async function main() {
     (await count([`city|contains|${cityPart}`])) >= 1,
     cityPart
   );
+  // Ranges, checked on the smoke donor (born 1990-05-01, last donation
+  // 2025-01-10).
+  const findsDonor = async (filters) =>
+    (
+      await call(
+        'GET',
+        `/api/donors?${new URLSearchParams([
+          ['search', donorBody.oib],
+          ...filters.map((f) => ['filter', f]),
+        ])}`
+      )
+    ).data.count === 1;
+  const now = new Date();
+  const age = now.getUTCFullYear() - 1990 - (now.getUTCMonth() < 4 ? 1 : 0); // before 1 May this year
+  check(
+    'age range matches the donor',
+    (await findsDonor([`age|>=|${age}`, `age|<=|${age}`])) &&
+      !(await findsDonor([`age|>=|${age + 1}`])) &&
+      !(await findsDonor([`age|<=|${age - 1}`])),
+    age
+  );
+  check(
+    'last donation range includes both days',
+    (await findsDonor([
+      `lastDonation|onOrAfter|${DAY('2025-01-10')}`,
+      `lastDonation|onOrBefore|${DAY('2025-01-10')}`,
+    ])) &&
+      !(await findsDonor([`lastDonation|onOrAfter|${DAY('2025-01-11')}`])) &&
+      !(await findsDonor([`lastDonation|onOrBefore|${DAY('2025-01-09')}`]))
+  );
   res = await call(
     'GET',
     `/api/donors/export?${new URLSearchParams([

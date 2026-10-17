@@ -219,6 +219,10 @@
     "minDonations": "Najmanje darivanja",
     "cityPlaceholder": "Dio naziva",
     "active": "Aktivni filtri",
-    "chip": "{label}: {value}"
+    "chip": "{label}: {value}",
+    "ageFrom": "Dob od",
+    "ageTo": "Dob do",
+    "lastDonationFrom": "Zadnje darivanje od",
+    "lastDonationTo": "Zadnje darivanje do"
   }
 }

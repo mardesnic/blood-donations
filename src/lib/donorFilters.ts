@@ -79,6 +79,11 @@ function dateCondition(
   switch (operator) {
     case 'is':
       return { gte: day, lt: nextDay };
+    // The two ends of a from-to range; both days are included.
+    case 'onOrAfter':
+      return { gte: day };
+    case 'onOrBefore':
+      return { lt: nextDay };
     case 'after':
       return { gte: nextDay };
     case 'before':
@@ -135,16 +140,47 @@ function fieldCondition(
   }
 }
 
+// The last birth (or start) day whose `months` are over by today, with the
+// same month arithmetic as computeEligibility.
+function latestStartMonthsBefore(today: Date, months: number): Date {
+  return latestStartEndingBy(
+    today,
+    (start) => addMonths(start, months),
+    addMonths(today, -months)
+  );
+}
+
+const MAX_FILTER_AGE = 150;
+
+// Age in whole years as a date-of-birth condition. Donors without a date of
+// birth never match.
+function ageCondition(
+  operator: string,
+  value: string,
+  today: Date
+): Prisma.DonorWhereInput | null {
+  const age = Number(value);
+  if (!Number.isInteger(age) || age < 0 || age > MAX_FILTER_AGE) {
+    return null;
+  }
+  switch (operator) {
+    // At least `age`: that birthday has passed.
+    case '>=':
+      return { dob: { lte: latestStartMonthsBefore(today, age * 12) } };
+    // At most `age`: the next birthday hasn't.
+    case '<=':
+      return { dob: { gt: latestStartMonthsBefore(today, (age + 1) * 12) } };
+    default:
+      return null;
+  }
+}
+
 // The same rules as computeEligibility, as a query: active, aged 18-65, past
 // the gap after the last donation and not blocked by a denial. Each "latest
 // start" is the last day whose wait is over by today.
 export function eligibleNowWhere(today: Date): Prisma.DonorWhereInput {
   const latestStart = (months: number) =>
-    latestStartEndingBy(
-      today,
-      (start) => addMonths(start, months),
-      addMonths(today, -months)
-    );
+    latestStartMonthsBefore(today, months);
   const denialBlocks = Object.entries(DENIAL_END).flatMap(([reason, end]) => {
     if (!end) {
       return [];
@@ -205,6 +241,9 @@ export function buildDonorFilter(
     .map((parsed) => {
       if (!parsed) {
         return null;
+      }
+      if (parsed.field === 'age') {
+        return ageCondition(parsed.operator, parsed.value, today);
       }
       if (parsed.field === 'eligible') {
         return parsed.operator === 'is' && parsed.value === 'NOW'

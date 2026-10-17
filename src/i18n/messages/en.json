@@ -219,6 +219,10 @@
     "minDonations": "Minimum donations",
     "cityPlaceholder": "Part of the name",
     "active": "Active filters",
-    "chip": "{label}: {value}"
+    "chip": "{label}: {value}",
+    "ageFrom": "Age from",
+    "ageTo": "Age to",
+    "lastDonationFrom": "Last donation from",
+    "lastDonationTo": "Last donation to"
   }
 }

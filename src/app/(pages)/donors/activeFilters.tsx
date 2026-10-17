@@ -25,7 +25,7 @@ export const DonorsActiveFilters = ({
     return null;
   }
 
-  const describe = ({ field, value }: GridFilterItem): string => {
+  const describe = ({ field, operator, value }: GridFilterItem): string => {
     const chip = (label: string, text: string) =>
       t('filters.chip', { label, value: text });
     switch (field) {
@@ -46,11 +46,18 @@ export const DonorsActiveFilters = ({
         return chip(t('filters.minDonations'), String(value));
       case 'lastDonation':
         return chip(
-          t('fields.lastDonationDate'),
+          t(
+            operator === 'onOrAfter'
+              ? 'filters.lastDonationFrom'
+              : 'filters.lastDonationTo'
+          ),
           dayjs(value).format(DATE_FORMAT)
         );
-      case 'dob':
-        return chip(t('fields.dob'), dayjs(value).format(DATE_FORMAT));
+      case 'age':
+        return chip(
+          t(operator === '>=' ? 'filters.ageFrom' : 'filters.ageTo'),
+          String(value)
+        );
       default:
         return chip(field, String(value));
     }
@@ -66,7 +73,7 @@ export const DonorsActiveFilters = ({
     >
       {items.map((item) => (
         <Chip
-          key={item.field}
+          key={`${item.field}|${item.operator}`}
           label={describe(item)}
           size='small'
           onDelete={() =>

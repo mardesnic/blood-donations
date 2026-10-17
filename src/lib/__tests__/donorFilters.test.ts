@@ -111,4 +111,51 @@ describe('eligible filter', () => {
     expect(buildDonorFilter(['eligible|is|LATER'])).toEqual({});
     expect(buildDonorFilter(['eligible|isAnyOf|NOW'])).toEqual({});
   });
+
+  it('includes both days of a date range', () => {
+    expect(
+      buildDonorFilter([
+        'lastDonation|onOrAfter|2026-01-01T00:00:00.000Z',
+        'lastDonation|onOrBefore|2026-03-31T00:00:00.000Z',
+      ])
+    ).toEqual({
+      AND: [
+        { lastDonation: { gte: new Date('2026-01-01T00:00:00.000Z') } },
+        { lastDonation: { lt: new Date('2026-04-01T00:00:00.000Z') } },
+      ],
+    });
+  });
+
+  it('turns an age range into birth dates', () => {
+    const today = new Date('2026-10-16T00:00:00.000Z');
+    // 18 or older: born on or before 16.10.2008. 65 or younger: not yet 66,
+    // so born after 16.10.1960.
+    expect(buildDonorFilter(['age|>=|18', 'age|<=|65'], today)).toEqual({
+      AND: [
+        { dob: { lte: new Date('2008-10-16T00:00:00.000Z') } },
+        { dob: { gt: new Date('1960-10-16T00:00:00.000Z') } },
+      ],
+    });
+  });
+
+  it('counts a 29 February birthday like the eligibility rules', () => {
+    // computeEligibility treats someone born 29.2.2008 as 18 on 28.2.2026.
+    expect(
+      buildDonorFilter(['age|>=|18'], new Date('2026-02-28T00:00:00.000Z'))
+    ).toEqual({
+      AND: [{ dob: { lte: new Date('2008-02-29T00:00:00.000Z') } }],
+    });
+  });
+
+  it('ignores invalid ages and operators', () => {
+    for (const filter of [
+      'age|>=|-1',
+      'age|>=|1.5',
+      'age|>=|abc',
+      'age|>=|151',
+      'age|=|30',
+    ]) {
+      expect(buildDonorFilter([filter])).toEqual({});
+    }
+  });
 });
