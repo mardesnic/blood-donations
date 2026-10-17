@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  PlaceListItem,
   useCreatePlace,
   useGetPlaces,
   useRemovePlace,
@@ -19,6 +20,8 @@ import React, { createContext, useContext, useState } from 'react';
 interface DeleteDialogI {
   type: 'delete';
   place: Place;
+  // Actions that lose their place when it is deleted.
+  actionCount: number;
 }
 
 interface UpdateDialogI {
@@ -33,7 +36,7 @@ interface CreateDialogI {
 type DialogType = null | DeleteDialogI | UpdateDialogI | CreateDialogI;
 
 interface PlacesContextI {
-  places: Place[];
+  places: PlaceListItem[];
   placeCount: number;
   isLoading: boolean;
   isFetching: boolean;
@@ -42,7 +45,7 @@ interface PlacesContextI {
   filterModel: GridFilterModel;
   sortModel: GridSortModel;
   openDialog: (dialog: DialogType) => void;
-  createPlace: (data: Partial<Place>) => Promise<void>;
+  createPlace: (data: Partial<Place>) => Promise<Place>;
   updatePlace: (data: Partial<Place>) => Promise<void>;
   removePlace: (id: string) => Promise<void>;
   closeDialog: () => void;
@@ -62,9 +65,10 @@ export const PlacesProvider = ({ children }: { children: React.ReactNode }) => {
   const [filterModel, setFilterModel] = useState<GridFilterModel>(
     {} as GridFilterModel
   );
-  const [sortModel, setSortModel] = useState<GridSortModel>(
-    {} as GridSortModel
-  );
+  // Same as the table's initial sort.
+  const [sortModel, setSortModel] = useState<GridSortModel>([
+    { field: 'title', sort: 'asc' },
+  ]);
   const search = filterModel?.quickFilterValues?.join(' ') || '';
   const { isLoading, isFetching, data } = useGetPlaces({
     ...paginationModel,

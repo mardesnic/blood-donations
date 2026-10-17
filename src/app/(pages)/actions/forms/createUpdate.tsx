@@ -9,17 +9,21 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
-import { Action } from '@/generated/prisma/browser';
+import { Action, Place } from '@/generated/prisma/browser';
 import { useFormik } from 'formik';
 import dayjs from 'dayjs';
 import React from 'react';
-import { MdEdit } from 'react-icons/md';
+import { MdAdd, MdEdit } from 'react-icons/md';
 import * as Yup from 'yup';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DATE_TIME_FORMAT, MAX_PAGE_SIZE } from '@/lib/const';
 import { useGetPlaces } from '@/hooks/usePlaces';
 import { useTranslations } from 'next-intl';
 import { useRevalidateOnLocaleChange } from '@/hooks/useRevalidateOnLocaleChange';
+import { PlaceQuickAddDialog } from '@/app/(pages)/places/dialogs/quickAdd';
+
+// Select option that opens the quick-add dialog instead of picking a place.
+const NEW_PLACE = '__new__';
 
 interface Props {
   action?: Action;
@@ -34,7 +38,15 @@ const Form = ({ action }: Props) => {
     pageSize: MAX_PAGE_SIZE,
     sort: 'title|asc',
   });
-  const places = placesData?.places || [];
+  // A place added from this form is listed until the places list reloads.
+  const [addedPlace, setAddedPlace] = React.useState<Place | null>(null);
+  const [showQuickAdd, setShowQuickAdd] = React.useState(false);
+  const places = React.useMemo(() => {
+    const list: Place[] = placesData?.places || [];
+    return addedPlace && !list.some((p) => p.id === addedPlace.id)
+      ? [...list, addedPlace].sort((a, b) => a.title.localeCompare(b.title))
+      : list;
+  }, [placesData, addedPlace]);
 
   const formik = useFormik({
     initialValues: {
@@ -91,7 +103,13 @@ const Form = ({ action }: Props) => {
           name='placeId'
           value={formik.values.placeId}
           label={t('fields.place')}
-          onChange={formik.handleChange}
+          onChange={(event) => {
+            if (event.target.value === NEW_PLACE) {
+              setShowQuickAdd(true);
+              return;
+            }
+            formik.handleChange(event);
+          }}
         >
           <MenuItem value=''>
             <em>{t('common.none')}</em>
@@ -101,8 +119,20 @@ const Form = ({ action }: Props) => {
               {place.title}
             </MenuItem>
           ))}
+          <MenuItem value={NEW_PLACE} sx={{ gap: 1, color: 'primary.main' }}>
+            <MdAdd />
+            {t('places.quickAdd')}
+          </MenuItem>
         </Select>
       </FormControl>
+      <PlaceQuickAddDialog
+        open={showQuickAdd}
+        onClose={() => setShowQuickAdd(false)}
+        onCreated={(place) => {
+          setAddedPlace(place);
+          formik.setFieldValue('placeId', place.id);
+        }}
+      />
 
       <DateTimePicker
         label={t('fields.startTime')}

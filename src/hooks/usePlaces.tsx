@@ -1,6 +1,11 @@
 import { reactQueryKeys } from '@/lib/const';
 import { GetParams } from '@/lib/types';
-import { Place } from '@/generated/prisma/browser';
+import { Place, Prisma } from '@/generated/prisma/browser';
+
+// A place as the list API returns it, with how many actions use it.
+export type PlaceListItem = Prisma.PlaceGetPayload<{
+  include: { _count: { select: { actions: true } } };
+}>;
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const getPlaces = async ({
@@ -20,7 +25,10 @@ const getPlaces = async ({
   const response = await fetch(`/api/places?${queryParams}`, {
     method: 'GET',
   });
-  return (await response.json()) as { places: Place[]; count: number };
+  return (await response.json()) as {
+    places: PlaceListItem[];
+    count: number;
+  };
 };
 
 const useGetPlaces = (getPlacesParams: GetParams, enabled = true) => {
@@ -37,7 +45,8 @@ const useGetPlaces = (getPlacesParams: GetParams, enabled = true) => {
   });
 };
 
-const createPlace = async (data: Partial<Place>): Promise<void> => {
+// Returns the new place, so a form can select it right away.
+const createPlace = async (data: Partial<Place>): Promise<Place> => {
   const response = await fetch(`/api/places/`, {
     method: 'POST',
     body: JSON.stringify(data),
@@ -45,6 +54,7 @@ const createPlace = async (data: Partial<Place>): Promise<void> => {
   if (!response.ok) {
     throw new Error('Failed to create place.');
   }
+  return (await response.json()) as Place;
 };
 
 const useCreatePlace = () => {

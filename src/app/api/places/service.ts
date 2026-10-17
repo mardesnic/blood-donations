@@ -5,6 +5,15 @@ import {
 } from '@/lib/utils';
 import { Place, Prisma } from '@/generated/prisma/client';
 
+// How many actions use each place, shown in the list and when deleting.
+const ACTION_COUNT = {
+  _count: { select: { actions: true } },
+} as const;
+
+export type PlaceWithActionCount = Prisma.PlaceGetPayload<{
+  include: typeof ACTION_COUNT;
+}>;
+
 export default class PlaceService {
   static async find(
     take: number,
@@ -15,7 +24,7 @@ export default class PlaceService {
     filterTerm: string,
     sortField: keyof Place = 'createdAt',
     sort: string = 'desc'
-  ): Promise<{ places: Place[]; count: number }> {
+  ): Promise<{ places: PlaceWithActionCount[]; count: number }> {
     const whereCondition = this.constructWhereCondition(
       search,
       filterField,
@@ -27,6 +36,7 @@ export default class PlaceService {
       skip,
       orderBy: { [sortField]: sort },
       where: whereCondition,
+      include: ACTION_COUNT,
     });
     const count = await prisma.place.count({ where: whereCondition });
     return { places, count };
@@ -35,13 +45,7 @@ export default class PlaceService {
   static async findOne(id: string) {
     return await prisma.place.findUnique({
       where: { id },
-      include: {
-        actions: {
-          include: {
-            donations: true,
-          },
-        },
-      },
+      include: ACTION_COUNT,
     });
   }
 

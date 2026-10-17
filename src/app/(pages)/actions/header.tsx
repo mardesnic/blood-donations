@@ -8,20 +8,17 @@ import { useTranslations } from 'next-intl';
 
 export const ActionsHeader = () => {
   const { openDialog } = useActionsContext();
-  const t = useTranslations();
+  const t = useTranslations('actions');
   return (
-    <Stack
-      direction='row'
-      justifyContent='space-between'
-      alignItems='center'
-      mb={2}
-    >
-      <Typography variant='h1'>{t('actions.title')}</Typography>
+    <Stack direction='row' justifyContent='space-between' alignItems='center'>
+      <Typography variant='h1'>{t('title')}</Typography>
       <Button
+        color='secondary'
+        size='medium'
         startIcon={<MdAdd />}
         onClick={() => openDialog({ type: 'create' })}
       >
-        {t('common.create')}
+        {t('new')}
       </Button>
     </Stack>
   );

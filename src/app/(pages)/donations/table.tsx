@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Card, Stack, useTheme } from '@mui/material';
+import { TruncatedText } from '@/components/TruncatedText';
 import { useDonationsContext } from '@/context/DonationsContext';
 import { useRouter } from 'next/navigation';
 import { ROUTE_PATHS } from '@/routes';
@@ -81,6 +82,14 @@ export default function DonationsTable() {
       flex: 1,
       renderCell: (params) =>
         params.value ? t(`denyReasons.${params.value}`) : '',
+    },
+    {
+      field: 'note',
+      headerName: t('fields.note'),
+      disableColumnMenu: true,
+      sortable: false,
+      flex: 1.5,
+      renderCell: (params) => <TruncatedText text={params.value} />,
     },
   ];
   return (

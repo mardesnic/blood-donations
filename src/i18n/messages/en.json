@@ -10,7 +10,8 @@
     "signOut": "Sign Out",
     "language": "Language",
     "menu": "Menu",
-    "account": "Account"
+    "account": "Account",
+    "places": "Places"
   },
   "pageTitles": {
     "welcome": "Welcome",
@@ -20,7 +21,8 @@
     "donations": "Donations",
     "newDonation": "New Donation",
     "donation": "Donation - {name}",
-    "actions": "Actions"
+    "actions": "Actions",
+    "places": "Places"
   },
   "common": {
     "cancel": "Cancel",
@@ -35,7 +37,8 @@
     "close": "Close",
     "view": "View",
     "edit": "Edit",
-    "notFound": "404 - Page not found"
+    "notFound": "404 - Page not found",
+    "search": "Search"
   },
   "fields": {
     "name": "Name",
@@ -77,7 +80,9 @@
     "initialDonationCount": "Donations before records",
     "initialLastDonation": "Last donation before records",
     "createdAt": "Created At",
-    "updatedAt": "Updated At"
+    "updatedAt": "Updated At",
+    "contactName": "Contact Person",
+    "actionCount": "Actions"
   },
   "genders": {
     "MALE": "Male",
@@ -135,7 +140,8 @@
     "donationCountMin": "Donation count must greater than or equal to 0",
     "titleRequired": "Title is required",
     "donorRequired": "Donor is required",
-    "selectDonor": "Please select donor"
+    "selectDonor": "Please select donor",
+    "tooLong": "At most 100 characters"
   },
   "login": {
     "title": "Sign in",
@@ -197,5 +203,14 @@
     "createdAt": "Created At",
     "updatedAt": "Updated At",
     "active": "Active"
+  },
+  "places": {
+    "title": "Places",
+    "new": "New Place",
+    "quickAdd": "New place…",
+    "searchPlaceholder": "Name, city or contact",
+    "deleteTitle": "Delete Place",
+    "deleteText": "Are you sure you want to delete <strong>{title}</strong>?",
+    "deleteActions": "{count, plural, =0 {No actions use this place.} one {# action uses this place. It will be kept, without a place.} other {# actions use this place. They will be kept, without a place.}}"
   }
 }
