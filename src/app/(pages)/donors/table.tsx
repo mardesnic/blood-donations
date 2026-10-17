@@ -21,7 +21,10 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { DonorsFilters } from '@/app/(pages)/donors/filters';
 import { DonorsActiveFilters } from '@/app/(pages)/donors/activeFilters';
-import { activeFilters } from '@/lib/donorFilterModel';
+import {
+  activeFilters,
+  filterModelToSearchParams,
+} from '@/lib/donorFilterModel';
 import { debounce } from '@mui/material/utils';
 
 export default function DonorsTable() {
@@ -40,6 +43,7 @@ export default function DonorsTable() {
     changeSortModel,
     isLoading,
     exportDonorsDownloadLink,
+    urlVersion,
   } = useDonorsContext();
 
   const columns: GridColDef[] = [
@@ -156,6 +160,18 @@ export default function DonorsTable() {
   );
   const filterCount = activeFilters(filterModel).length;
 
+  // Keeps the URL in step with the filters without reloading the page or
+  // adding a history entry for every change.
+  React.useEffect(() => {
+    const query = filterModelToSearchParams(filterModel).toString();
+    const url = `${window.location.pathname}${query ? `?${query}` : ''}`;
+    if (url !== `${window.location.pathname}${window.location.search}`) {
+      // null lets Next.js keep its own history state with the new URL, so
+      // Back returns to the filtered list.
+      window.history.replaceState(null, '', url);
+    }
+  }, [filterModel]);
+
   return (
     <>
       <Stack direction='row' justifyContent='space-between' alignItems='center'>
@@ -186,11 +202,13 @@ export default function DonorsTable() {
           sx={{ p: '30px 24px' }}
         >
           <TextField
+            key={urlVersion}
             color='secondary'
             label={t('donors.search')}
             placeholder={t('donors.searchPlaceholder')}
             variant='standard'
             sx={{ width: { xs: '100%', md: '50%' } }}
+            defaultValue={filterModel.quickFilterValues?.[0] || ''}
             onChange={searchDonorsDelayed}
           />
           <Badge badgeContent={filterCount} color='primary'>
@@ -208,6 +226,7 @@ export default function DonorsTable() {
         </Stack>
         {showFilters ? (
           <DonorsFilters
+            key={urlVersion}
             filterModel={filterModel}
             changeFilterModel={changeFilterModel}
           />

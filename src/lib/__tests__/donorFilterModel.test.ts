@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { GridFilterModel } from '@mui/x-data-grid';
+import dayjs from 'dayjs';
 import {
   activeFilters,
   clearFilters,
+  filterModelFromSearchParams,
+  filterModelToSearchParams,
   getFilterValue,
   setFilter,
 } from '@/lib/donorFilterModel';
@@ -59,5 +62,79 @@ describe('donor filter model', () => {
 
   it('counts only filters with a value', () => {
     expect(activeFilters(model).map((i) => i.field)).toEqual(['gender']);
+  });
+});
+
+describe('filters in the URL', () => {
+  it('handles null, undefined and empty input', () => {
+    for (const empty of [null, undefined, { items: [] }]) {
+      expect(filterModelToSearchParams(empty).toString()).toBe('');
+    }
+    for (const empty of [null, undefined, '', []]) {
+      expect(filterModelFromSearchParams(empty, empty)).toEqual({
+        items: [],
+        quickFilterValues: [],
+      });
+    }
+  });
+
+  it('round-trips every kind of filter and the search', () => {
+    const model: GridFilterModel = {
+      items: [
+        { field: 'eligible', operator: 'is', value: 'NOW' },
+        {
+          field: 'bloodType',
+          operator: 'isAnyOf',
+          value: ['A_POSITIVE', 'O_NEGATIVE'],
+        },
+        { field: 'city', operator: 'contains', value: 'Zag' },
+        { field: 'age', operator: '>=', value: '30' },
+        { field: 'age', operator: '<=', value: '50' },
+        {
+          field: 'lastDonation',
+          operator: 'onOrAfter',
+          value: dayjs('2026-01-01'),
+        },
+      ],
+      quickFilterValues: ['ana'],
+    };
+    const params = filterModelToSearchParams(model);
+    expect(params.getAll('filter')).toEqual([
+      'eligible|is|NOW',
+      'bloodType|isAnyOf|A_POSITIVE,O_NEGATIVE',
+      'city|contains|Zag',
+      'age|>=|30',
+      'age|<=|50',
+      'lastDonation|onOrAfter|2026-01-01',
+    ]);
+    const back = filterModelFromSearchParams(
+      params.getAll('filter'),
+      params.get('search')
+    );
+    expect(back.quickFilterValues).toEqual(['ana']);
+    expect(back.items.slice(0, 5)).toEqual(model.items.slice(0, 5));
+    expect(dayjs.isDayjs(back.items[5].value)).toBe(true);
+    expect((back.items[5].value as dayjs.Dayjs).format('YYYY-MM-DD')).toBe(
+      '2026-01-01'
+    );
+  });
+
+  it('drops unknown fields, bad days, duplicates and empty values', () => {
+    const model = filterModelFromSearchParams(
+      [
+        'oib|equals|123',
+        'lastDonation|onOrAfter|2026-02-31',
+        'lastDonation|onOrBefore|tomorrow',
+        'gender|is|FEMALE',
+        'gender|is|MALE',
+        'city|contains|',
+        'nonsense',
+      ],
+      '  '
+    );
+    expect(model).toEqual({
+      items: [{ field: 'gender', operator: 'is', value: 'FEMALE' }],
+      quickFilterValues: [],
+    });
   });
 });

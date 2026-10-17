@@ -521,6 +521,25 @@ async function main() {
   res = await call('DELETE', `/api/actions/${placeAction.id}`);
   check('delete place action', res.status === 200, res.status);
 
+  // Filters in the donors page URL are applied when the page loads.
+  res = await call(
+    'GET',
+    `/donors?${new URLSearchParams([
+      ['filter', 'gender|is|FEMALE'],
+      ['filter', 'age|>=|30'],
+      ['search', 'Smoke'],
+    ])}`,
+    { raw: true }
+  );
+  check(
+    'donors page shows filters from the URL',
+    res.status === 200 &&
+      res.data.includes('Gender: Female') &&
+      res.data.includes('Age from: 30') &&
+      res.data.includes('value="Smoke"'),
+    res.status
+  );
+
   // Croatian, picked with the language cookie
   cookies.set('NEXT_LOCALE', 'hr');
   res = await call('GET', '/donors', { raw: true });

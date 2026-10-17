@@ -9,6 +9,10 @@ import {
 } from '@/hooks/useDonors';
 import { PAGE_SIZE } from '@/lib/const';
 import {
+  filterModelFromSearchParams,
+  filterModelToSearchParams,
+} from '@/lib/donorFilterModel';
+import {
   generateExportDownloadLink,
   generateFilterStringForItems,
   generateSortString,
@@ -20,6 +24,7 @@ import {
 } from '@mui/x-data-grid';
 import { Donor } from '@/generated/prisma/browser';
 import React, { createContext, useContext, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 interface DeleteDialogI {
   type: 'delete';
@@ -46,19 +51,45 @@ interface DonorsContextI {
   changeFilterModel: React.Dispatch<React.SetStateAction<GridFilterModel>>;
   changeSortModel: (sortModel: GridSortModel) => void;
   exportDonorsDownloadLink: string;
+  urlVersion: number;
 }
 
 const DonorsContext = createContext({} as DonorsContextI);
 
 export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
+  // Filters and search start from the URL (see filterModelToSearchParams), so
+  // back, refresh and shared links show the same list. useSearchParams always
+  // has the current URL, even when Back reuses an older render of the page.
+  const searchParams = useSearchParams();
   const [activeDialog, setActiveDialog] = useState<null | DeleteDialogI>(null);
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: PAGE_SIZE,
   });
-  const [filterModel, setFilterModel] = useState<GridFilterModel>(
-    {} as GridFilterModel
+  const [filterModel, setFilterModel] = useState<GridFilterModel>(() =>
+    filterModelFromSearchParams(
+      searchParams.getAll('filter'),
+      searchParams.get('search')
+    )
   );
+  // Bumped when a navigation (e.g. the Donors link) changes the URL, so the
+  // search box and filter panel start again from the new filters.
+  const [urlVersion, setUrlVersion] = useState(0);
+  const query = searchParams.toString();
+  const [lastQuery, setLastQuery] = useState(query);
+  if (query !== lastQuery) {
+    setLastQuery(query);
+    // The table writes the URL from the model; only follow other changes.
+    if (filterModelToSearchParams(filterModel).toString() !== query) {
+      setFilterModel(
+        filterModelFromSearchParams(
+          searchParams.getAll('filter'),
+          searchParams.get('search')
+        )
+      );
+      setUrlVersion((version) => version + 1);
+    }
+  }
   const [sortModel, setSortModel] = useState<GridSortModel>(
     {} as GridSortModel
   );
@@ -86,6 +117,7 @@ export const DonorsProvider = ({ children }: { children: React.ReactNode }) => {
   const changeSortModel = (sortModel: GridSortModel) => setSortModel(sortModel);
 
   const values: DonorsContextI = {
+    urlVersion,
     donors,
     donorCount,
     isLoading:

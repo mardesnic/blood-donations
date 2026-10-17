@@ -13,6 +13,7 @@ import {
   toAppDay,
 } from '@/lib/dates';
 import { DENIAL_END, GAP_MONTHS, MAX_AGE, MIN_AGE } from '@/lib/eligibility';
+import { parseFilterString } from '@/lib/donorFilterModel';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -48,22 +49,8 @@ const BOOLEAN_VALUES: Record<string, boolean> = {
   INACTIVE: false,
 };
 
-// Parses "field|operator|value"; the value may itself contain "|".
-export function parseFilterString(filter: string | null | undefined): {
-  field: string;
-  operator: string;
-  value: string;
-} | null {
-  if (!filter) {
-    return null;
-  }
-  const [field, operator, ...rest] = filter.split('|');
-  const value = rest.join('|');
-  if (!field || !operator || !value) {
-    return null;
-  }
-  return { field, operator, value };
-}
+// Shared with the client, which keeps filters in the URL in this format.
+export { parseFilterString };
 
 // Calendar dates are stored as UTC midnight, so a day filter covers
 // [day 00:00 UTC, next day 00:00 UTC).
