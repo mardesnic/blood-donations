@@ -2,14 +2,16 @@ import { Metadata } from 'next';
 import { Container } from '@mui/material';
 import { Card } from '@mui/material';
 
-import { generatePageTitle } from '@/lib/utils';
+import { getTranslations } from 'next-intl/server';
+import { pageTitle } from '@/i18n/metadata';
 import { DonorsProvider } from '@/context/DonorsContext';
 import { CreateDonorHeader } from './header';
 import { DonorCreateUpdateForm } from '@/app/(pages)/donors/forms/createUpdate';
 
-export const metadata: Metadata = {
-  title: generatePageTitle('New Donor'),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('pageTitles');
+  return { title: await pageTitle(t('newDonor')) };
+}
 
 export default async function CreateDonorPage() {
   return (

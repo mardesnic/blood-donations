@@ -6,6 +6,7 @@ import {
   computeEligibility,
   Eligibility,
   eligibilityLabel,
+  EligibilityTranslate,
 } from '@/lib/eligibility';
 import { donorDataFromBody } from './body';
 import { refreshActionStats, refreshDonorStats } from './stats';
@@ -15,6 +16,27 @@ import { Donor, Prisma } from '@/generated/prisma/client';
 import dayjs from 'dayjs';
 import { format } from 'fast-csv';
 import { Readable } from 'stream';
+
+// The export's columns in order; their names are in the "export" messages.
+const EXPORT_COLUMNS = [
+  'firstName',
+  'lastName',
+  'fatherName',
+  'oib',
+  'email',
+  'phone',
+  'city',
+  'gender',
+  'bloodType',
+  'donations',
+  'lastDonation',
+  'nextEligible',
+  'dob',
+  'note',
+  'createdAt',
+  'updatedAt',
+  'active',
+] as const;
 
 // Denied attempts, which the eligibility rules need.
 const DENIALS = {
@@ -112,7 +134,10 @@ export default class DonorService {
     search: string,
     filters: string[],
     sortField: keyof Donor = 'createdAt',
-    sort: string = 'desc'
+    sort: string = 'desc',
+    // Translations for the column names ("export" messages) and the
+    // eligibility labels ("eligibility" messages).
+    t: { headers: (key: string) => string; eligibility: EligibilityTranslate }
   ): Promise<string> {
     const today = toAppDay(new Date()) as Date;
     const whereCondition = this.constructWhereCondition(search, filters, today);
@@ -123,27 +148,33 @@ export default class DonorService {
       include: { donations: DENIALS },
     });
 
-    const csvData = donors.map((donor) => ({
-      Name: donor.firstName,
-      'Last Name': donor.lastName,
-      'Father Name': donor.fatherName,
-      OIB: donor.oib,
-      Email: donor.email,
-      Phone: donor.phone,
-      City: donor.city,
-      Gender: donor.gender,
-      'Blood Type': donor.bloodType,
-      Donations: donor.donationCount,
-      'Last Donation': formatDay(donor.lastDonation),
-      'Next Eligible': eligibilityLabel(
-        computeEligibility({ ...donor, denials: donor.donations }, today)
-      ),
-      'Date of Birth': formatDay(donor.dob),
-      Note: donor.note,
-      'Created At': dayjs(donor.createdAt).format(DATE_FORMAT),
-      'Updated At': dayjs(donor.updatedAt).format(DATE_FORMAT),
-      Active: donor.active,
-    }));
+    const csvData = donors.map((donor) => {
+      const row: Record<(typeof EXPORT_COLUMNS)[number], unknown> = {
+        firstName: donor.firstName,
+        lastName: donor.lastName,
+        fatherName: donor.fatherName,
+        oib: donor.oib,
+        email: donor.email,
+        phone: donor.phone,
+        city: donor.city,
+        gender: donor.gender,
+        bloodType: donor.bloodType,
+        donations: donor.donationCount,
+        lastDonation: formatDay(donor.lastDonation),
+        nextEligible: eligibilityLabel(
+          computeEligibility({ ...donor, denials: donor.donations }, today),
+          t.eligibility
+        ),
+        dob: formatDay(donor.dob),
+        note: donor.note,
+        createdAt: dayjs(donor.createdAt).format(DATE_FORMAT),
+        updatedAt: dayjs(donor.updatedAt).format(DATE_FORMAT),
+        active: donor.active,
+      };
+      return Object.fromEntries(
+        EXPORT_COLUMNS.map((key) => [t.headers(key), row[key]])
+      );
+    });
 
     // Convert donors to CSV
     const csvStream = format({ headers: true });

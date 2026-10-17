@@ -3,34 +3,36 @@ import React from 'react';
 import { DATE_FORMAT } from '@/lib/const';
 import dayjs from 'dayjs';
 import { ActionWithPlace } from '@/context/ActionsContext';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   action: ActionWithPlace;
 }
 
 export const ActionDetailsForm = ({ action }: Props) => {
+  const t = useTranslations('fields');
   const fields: {
     label: string;
     value: string | number;
   }[] = [
     {
-      label: 'Title',
+      label: t('title'),
       value: action.title,
     },
     {
-      label: 'Place',
+      label: t('place'),
       value: action?.place?.title || '',
     },
     {
-      label: 'Start time',
+      label: t('startTime'),
       value: dayjs(action.startDateTime).format(DATE_FORMAT),
     },
     {
-      label: 'End time',
+      label: t('endTime'),
       value: dayjs(action.endDateTime).format(DATE_FORMAT),
     },
     {
-      label: 'Note',
+      label: t('note'),
       value: action.note || '',
     },
   ];

@@ -6,13 +6,14 @@ import React from 'react';
 import { UserDropdown } from './UserDropdown';
 import { ROUTE_PATHS } from '@/routes';
 import Link from 'next/link';
-import { APP_TITLE } from '@/lib/const';
 import { Sidebar } from './Sidebar';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 export const TopBar = () => {
   const pathname = usePathname();
-  const page = pathname.split('/')?.[1] || 'home';
+  const t = useTranslations();
 
   return (
     <AppBar position='sticky'>
@@ -24,7 +25,7 @@ export const TopBar = () => {
           sx={{ mx: '16px', textTransform: 'uppercase' }}
           component='div'
         >
-          <Link href={ROUTE_PATHS.PROTECTED.DONORS.path}>{APP_TITLE}</Link>
+          <Link href={ROUTE_PATHS.PROTECTED.DONORS.path}>{t('app.title')}</Link>
         </Typography>
         <>
           <Box display={{ xs: 'none', md: 'flex' }} sx={{ flexGrow: 1, ml: 2 }}>
@@ -33,9 +34,7 @@ export const TopBar = () => {
                 <Button
                   variant='text'
                   size='medium'
-                  className={
-                    route.label.toLowerCase().includes(page) ? 'active' : ''
-                  }
+                  className={pathname.startsWith(route.path) ? 'active' : ''}
                   disableRipple
                   sx={{
                     color: 'white',
@@ -47,15 +46,18 @@ export const TopBar = () => {
                     },
                   }}
                 >
-                  {route.label}
+                  {t(`nav.${route.labelKey}`)}
                 </Button>
               </Link>
             ))}
           </Box>
-          <Box sx={{ ml: 'auto' }} display={{ xs: 'none', md: 'flex' }}>
+          <Box sx={{ ml: 'auto' }}>
+            <LanguageSwitcher />
+          </Box>
+          <Box display={{ xs: 'none', md: 'flex' }}>
             <UserDropdown />
           </Box>
-          <Box sx={{ ml: 'auto' }} display={{ md: 'none' }}>
+          <Box display={{ md: 'none' }}>
             <Sidebar />
           </Box>
         </>

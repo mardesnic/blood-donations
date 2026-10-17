@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import DonorService from '@/app/api/donors/service';
-import { generatePageTitle, getDisplayName } from '@/lib/utils';
+import { getDisplayName } from '@/lib/utils';
+import { pageTitle } from '@/i18n/metadata';
 import { notFound } from 'next/navigation';
 import { DonorDetailsHeader } from './header';
 
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const donor = await DonorService.findOne(id);
   return {
-    title: generatePageTitle(
+    title: await pageTitle(
       getDisplayName([donor?.firstName || '', donor?.lastName || ''])
     ),
   };

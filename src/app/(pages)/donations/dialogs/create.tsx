@@ -12,9 +12,11 @@ import {
 import React from 'react';
 import { MdClose } from 'react-icons/md';
 import { DonationCreateUpdateForm } from '../forms/createUpdate';
+import { useTranslations } from 'next-intl';
 
 export const DonationCreateDialog = () => {
   const { closeDialog, activeDialog } = useDonationsContext();
+  const t = useTranslations();
 
   if (activeDialog?.type !== 'create') {
     return null;
@@ -24,11 +26,16 @@ export const DonationCreateDialog = () => {
     <Dialog open={true} onClose={closeDialog} fullScreen>
       <AppBar color='default' position='relative'>
         <Toolbar>
-          <IconButton edge='start' color='inherit' onClick={closeDialog}>
+          <IconButton
+            edge='start'
+            color='inherit'
+            onClick={closeDialog}
+            aria-label={t('common.close')}
+          >
             <MdClose />
           </IconButton>
           <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component='div'>
-            New Donation
+            {t('donations.new')}
           </Typography>
         </Toolbar>
       </AppBar>

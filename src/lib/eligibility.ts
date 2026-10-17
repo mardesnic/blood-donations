@@ -40,12 +40,35 @@ export type EligibilityStatus =
   | 'UNKNOWN_AGE'
   | 'INACTIVE';
 
+// Why the donor has that status, as a message key under "eligibility.reason"
+// plus its values, so each page can show it in its own language.
+export interface EligibilityReason {
+  key:
+    | 'inactive'
+    | 'permanent'
+    | 'unknownAge'
+    | 'overAge'
+    | 'overAgeByThen'
+    | 'manual'
+    | 'eligibleNow'
+    | 'fromAge'
+    | 'fromGap'
+    | 'fromDenial';
+  values?: Record<string, string | number>;
+}
+
 export interface Eligibility {
   status: EligibilityStatus;
   // The day the donor can donate again, when that day is known.
   nextEligible: Date | null;
-  reason: string;
+  reason: EligibilityReason;
 }
+
+// A translation function for the "eligibility" messages.
+export type EligibilityTranslate = (
+  key: string,
+  values?: Record<string, string | number>
+) => string;
 
 export interface EligibilityInput {
   gender: Gender | string;
@@ -64,7 +87,11 @@ export function computeEligibility(
   today: Date
 ): Eligibility {
   if (!donor.active) {
-    return { status: 'INACTIVE', nextEligible: null, reason: 'Inactive' };
+    return {
+      status: 'INACTIVE',
+      nextEligible: null,
+      reason: { key: 'inactive' },
+    };
   }
 
   const denials = donor.denials
@@ -78,7 +105,7 @@ export function computeEligibility(
     return {
       status: 'PERMANENT',
       nextEligible: null,
-      reason: 'Permanently denied',
+      reason: { key: 'permanent' },
     };
   }
 
@@ -87,12 +114,16 @@ export function computeEligibility(
     return {
       status: 'UNKNOWN_AGE',
       nextEligible: null,
-      reason: 'Date of birth unknown',
+      reason: { key: 'unknownAge' },
     };
   }
   const ageLimit = addMonths(dob, (MAX_AGE + 1) * 12);
   if (ageLimit <= today) {
-    return { status: 'TOO_OLD', nextEligible: null, reason: `Over ${MAX_AGE}` };
+    return {
+      status: 'TOO_OLD',
+      nextEligible: null,
+      reason: { key: 'overAge', values: { age: MAX_AGE } },
+    };
   }
 
   // A "LONGER" denial needs a decision; changing that denial's reason (for
@@ -102,24 +133,25 @@ export function computeEligibility(
     return {
       status: 'MANUAL',
       nextEligible: null,
-      reason: `Denied for a longer period on ${formatDay(longer.day)} Check manually.`,
+      reason: { key: 'manual', values: { date: formatDay(longer.day) } },
     };
   }
 
   const lastDonation = asDate(donor.lastDonation);
 
   // The latest of all the days the donor has to wait for.
-  const waits: { until: Date; reason: string }[] = [
+  // Each reason's values get the date filled in once the latest is known.
+  const waits: { until: Date; reason: EligibilityReason }[] = [
     {
       until: addMonths(dob, MIN_AGE * 12),
-      reason: `turns ${MIN_AGE}`,
+      reason: { key: 'fromAge', values: { age: MIN_AGE } },
     },
   ];
   const gap = GAP_MONTHS[donor.gender as Gender];
   if (lastDonation && gap) {
     waits.push({
       until: addMonths(lastDonation, gap),
-      reason: `${gap} months after the last donation`,
+      reason: { key: 'fromGap', values: { months: gap } },
     });
   }
   for (const denial of denials) {
@@ -127,7 +159,10 @@ export function computeEligibility(
     if (end) {
       waits.push({
         until: end(denial.day),
-        reason: `denied on ${formatDay(denial.day)}`,
+        reason: {
+          key: 'fromDenial',
+          values: { deniedOn: formatDay(denial.day) },
+        },
       });
     }
   }
@@ -137,44 +172,47 @@ export function computeEligibility(
     return {
       status: 'TOO_OLD',
       nextEligible: null,
-      reason: `Over ${MAX_AGE} by then`,
+      reason: { key: 'overAgeByThen', values: { age: MAX_AGE } },
     };
   }
   if (latest.until <= today) {
     return {
       status: 'ELIGIBLE',
       nextEligible: latest.until,
-      reason: 'Eligible now',
+      reason: { key: 'eligibleNow' },
     };
   }
   return {
     status: 'NOT_YET',
     nextEligible: latest.until,
-    reason: `Eligible from ${formatDay(latest.until)} (${latest.reason})`,
+    reason: {
+      key: latest.reason.key,
+      values: { ...latest.reason.values, date: formatDay(latest.until) },
+    },
   };
 }
 
 // Short text for the table and export: the date, "Now" or why not.
 export function eligibilityLabel(
-  eligibility: Eligibility | null | undefined
+  eligibility: Eligibility | null | undefined,
+  t: EligibilityTranslate
 ): string {
   if (!eligibility) {
     return '';
   }
-  switch (eligibility.status) {
-    case 'ELIGIBLE':
-      return 'Now';
-    case 'NOT_YET':
-      return formatDay(eligibility.nextEligible);
-    case 'PERMANENT':
-      return 'Never';
-    case 'MANUAL':
-      return 'Check manually';
-    case 'TOO_OLD':
-      return 'Over age limit';
-    case 'UNKNOWN_AGE':
-      return 'Unknown (no birth date)';
-    case 'INACTIVE':
-      return 'Inactive';
+  if (eligibility.status === 'NOT_YET') {
+    return formatDay(eligibility.nextEligible);
   }
+  return t(`label.${eligibility.status}`);
+}
+
+// The full explanation, shown as the table's tooltip.
+export function eligibilityReason(
+  eligibility: Eligibility | null | undefined,
+  t: EligibilityTranslate
+): string {
+  if (!eligibility?.reason?.key) {
+    return '';
+  }
+  return t(`reason.${eligibility.reason.key}`, eligibility.reason.values);
 }

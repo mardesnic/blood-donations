@@ -11,8 +11,9 @@ import Link from 'next/link';
 import { MdAdd } from 'react-icons/md';
 
 import { BLOOD_TYPES, GENDERS } from '@/lib/const';
+import { useTranslations } from 'next-intl';
 import { formatDay } from '@/lib/dates';
-import { eligibilityLabel } from '@/lib/eligibility';
+import { eligibilityLabel, eligibilityReason } from '@/lib/eligibility';
 import { DonorListItem } from '@/hooks/useDonors';
 import { ROUTE_PATHS } from '@/routes';
 import { useDonorsContext } from '@/context/DonorsContext';
@@ -23,6 +24,8 @@ import { debounce } from '@mui/material/utils';
 
 export default function DonorsTable() {
   const router = useRouter();
+  const t = useTranslations();
+  const tEligibility = useTranslations('eligibility');
 
   const [showFilters, setShowFilters] = useState(false);
 
@@ -40,35 +43,35 @@ export default function DonorsTable() {
   const columns: GridColDef[] = [
     {
       field: 'fullName',
-      headerName: 'Name',
+      headerName: t('fields.name'),
       flex: 1,
     },
     {
       field: 'phone',
-      headerName: 'Phone',
+      headerName: t('fields.phone'),
       flex: 1,
       sortable: false,
     },
     {
       field: 'oib',
-      headerName: 'OIB',
+      headerName: t('fields.oib'),
       flex: 1,
       disableColumnMenu: true,
     },
     {
       field: 'bloodType',
-      headerName: 'Blood Type',
+      headerName: t('fields.bloodType'),
       flex: 1,
       valueGetter: (value: keyof typeof BLOOD_TYPES) => BLOOD_TYPES[value],
     },
     {
       field: 'donationCount',
-      headerName: 'Donations',
+      headerName: t('fields.donations'),
       flex: 1,
     },
     {
       field: 'lastDonation',
-      headerName: 'Last Donation',
+      headerName: t('fields.lastDonation'),
       flex: 1,
       renderCell: (params) => formatDay(params.value),
       valueGetter: (value) => value && new Date(value),
@@ -76,14 +79,15 @@ export default function DonorsTable() {
     },
     {
       field: 'gender',
-      headerName: 'Gender',
+      headerName: t('fields.gender'),
       flex: 0,
-      valueGetter: (value: keyof typeof GENDERS) => GENDERS[value].short,
+      valueGetter: (value: (typeof GENDERS)[number]) =>
+        value ? t(`gendersShort.${value}`) : '',
     },
 
     {
       field: 'dob',
-      headerName: 'Date of Birth',
+      headerName: t('fields.dob'),
       flex: 1,
       renderCell: (params) => formatDay(params.value),
       valueGetter: (value) => value && new Date(value),
@@ -91,13 +95,13 @@ export default function DonorsTable() {
     },
     {
       field: 'eligibility',
-      headerName: 'Next Eligible',
+      headerName: t('fields.nextEligible'),
       flex: 1,
       sortable: false,
       renderCell: (params: { row: DonorListItem }) => {
         const eligibility = params.row.eligibility;
         return (
-          <Tooltip title={eligibility?.reason || ''}>
+          <Tooltip title={eligibilityReason(eligibility, tEligibility)}>
             <Typography
               variant='inherit'
               component='span'
@@ -105,7 +109,7 @@ export default function DonorsTable() {
                 eligibility?.status === 'ELIGIBLE' ? 'success.main' : 'inherit'
               }
             >
-              {eligibilityLabel(eligibility)}
+              {eligibilityLabel(eligibility, tEligibility)}
             </Typography>
           </Tooltip>
         );
@@ -113,7 +117,7 @@ export default function DonorsTable() {
     },
     {
       field: 'actions',
-      headerName: 'Actions',
+      headerName: t('fields.actions'),
       disableColumnMenu: true,
       sortable: false,
       minWidth: 200,
@@ -130,7 +134,7 @@ export default function DonorsTable() {
             );
           }}
         >
-          See Donations ({params.row.donationCount})
+          {t('donors.seeDonations', { count: params.row.donationCount })}
         </Button>
       ),
     },
@@ -148,7 +152,7 @@ export default function DonorsTable() {
   return (
     <>
       <Stack direction='row' justifyContent='space-between' alignItems='center'>
-        <Typography variant='h1'>Donors</Typography>
+        <Typography variant='h1'>{t('donors.title')}</Typography>
         <Stack direction='row' gap={2}>
           <Button
             variant='outlined'
@@ -157,11 +161,11 @@ export default function DonorsTable() {
             href={exportDonorsDownloadLink}
             target='_blank'
           >
-            Export CSV
+            {t('donors.exportCsv')}
           </Button>
           <Link href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/create`}>
             <Button color='secondary' size='medium' startIcon={<MdAdd />}>
-              New Donor
+              {t('donors.new')}
             </Button>
           </Link>
         </Stack>
@@ -175,8 +179,8 @@ export default function DonorsTable() {
         >
           <TextField
             color='secondary'
-            label='Search'
-            placeholder='Name, email, etc...'
+            label={t('donors.search')}
+            placeholder={t('donors.searchPlaceholder')}
             variant='standard'
             sx={{ width: '50%' }}
             onChange={searchDonorsDelayed}
@@ -187,7 +191,7 @@ export default function DonorsTable() {
             color='inherit'
             onClick={() => setShowFilters(!showFilters)}
           >
-            Filter
+            {t('donors.filter')}
           </Button>
         </Stack>
         {showFilters && (

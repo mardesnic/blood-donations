@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { MdDelete } from 'react-icons/md';
+import { useTranslations } from 'next-intl';
 import { useGoBack } from '@/hooks/useGoBack';
 import { ROUTE_PATHS } from '@/routes';
 
@@ -19,6 +20,7 @@ export const DonationDeleteDialog = () => {
 
   const { closeDialog, activeDialog, removeDonation, isLoading } =
     useDonationsContext();
+  const t = useTranslations();
 
   if (activeDialog?.type !== 'delete') {
     return null;
@@ -36,12 +38,9 @@ export const DonationDeleteDialog = () => {
 
   return (
     <Dialog open={true} onClose={closeDialog}>
-      <DialogTitle>Delete Donation</DialogTitle>
+      <DialogTitle>{t('donations.deleteTitle')}</DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          This action cannot be undone. Deleting the donation will permanently
-          remove all associated information.
-        </DialogContentText>
+        <DialogContentText>{t('donations.deleteText')}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button
@@ -50,7 +49,7 @@ export const DonationDeleteDialog = () => {
           disabled={isLoading}
           color='secondary'
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button
           onClick={onSubmit}
@@ -58,7 +57,7 @@ export const DonationDeleteDialog = () => {
           disabled={isLoading}
           startIcon={<MdDelete />}
         >
-          Yes, Delete Donation
+          {t('donations.deleteConfirm')}
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import ActionService from '@/app/api/actions/service';
-import { generatePageTitle } from '@/lib/utils';
+import { pageTitle } from '@/i18n/metadata';
 import { Divider } from '@mui/material';
 import { notFound } from 'next/navigation';
 import { DonationsProvider } from '@/context/DonationsContext';
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const action = await ActionService.findOne(id);
   return {
-    title: generatePageTitle(action?.title),
+    title: await pageTitle(action?.title),
   };
 }
 

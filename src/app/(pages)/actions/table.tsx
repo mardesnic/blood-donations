@@ -10,6 +10,7 @@ import { useActionsContext } from '@/context/ActionsContext';
 import { DATE_TIME_FORMAT } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export default function ActionsTable() {
   const {
@@ -21,38 +22,39 @@ export default function ActionsTable() {
     changePaginationModel,
     changeSortModel,
   } = useActionsContext();
+  const t = useTranslations();
   const columns: GridColDef[] = [
     {
       field: 'title',
-      headerName: 'Title',
+      headerName: t('fields.title'),
       flex: 1,
     },
     {
       field: 'place',
-      headerName: 'Place',
+      headerName: t('fields.place'),
       flex: 1,
-      renderCell: (params) => params?.value?.title || 'None',
+      renderCell: (params) => params?.value?.title || t('common.none'),
     },
     {
       field: 'startDateTime',
-      headerName: 'Start Date',
+      headerName: t('fields.startDate'),
       flex: 1,
       renderCell: (params) => dayjs(params.value).format(DATE_TIME_FORMAT),
     },
     {
       field: 'endDateTime',
-      headerName: 'End Date',
+      headerName: t('fields.endDate'),
       flex: 1,
       renderCell: (params) => dayjs(params.value).format(DATE_TIME_FORMAT),
     },
     {
       field: 'donationCount',
-      headerName: 'Donation Count',
+      headerName: t('fields.donationCount'),
       flex: 1,
     },
     {
       field: 'note',
-      headerName: 'Note',
+      headerName: t('fields.note'),
       flex: 1,
     },
     {
@@ -65,16 +67,18 @@ export default function ActionsTable() {
       renderCell: (params: { row: Action }) => (
         <>
           <Link href={`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${params.row.id}`}>
-            <IconButton>
+            <IconButton aria-label={t('common.view')}>
               <MdVisibility />
             </IconButton>
           </Link>
           <IconButton
+            aria-label={t('common.edit')}
             onClick={() => openDialog({ type: 'update', action: params.row })}
           >
             <MdEdit />
           </IconButton>
           <IconButton
+            aria-label={t('common.delete')}
             onClick={() => openDialog({ type: 'delete', action: params.row })}
           >
             <MdDelete />

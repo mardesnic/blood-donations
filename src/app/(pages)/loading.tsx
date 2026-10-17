@@ -1,8 +1,10 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 
 // Shown inside the page layout (the top bar stays) while the next page is
 // rendered on the server.
 export default function Loading() {
+  const t = useTranslations('common');
   return (
     <Box
       role='status'
@@ -17,7 +19,7 @@ export default function Loading() {
       }}
     >
       <CircularProgress />
-      <Typography>Loading…</Typography>
+      <Typography>{t('loading')}</Typography>
     </Box>
   );
 }

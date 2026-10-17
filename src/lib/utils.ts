@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 
 import {
-  APP_TITLE,
   DATA_GRID_PRISMA_TRANSLATION_MAP,
   ENABLED_GRID_DATE_OPERATORS,
   ENABLED_GRID_NUMERIC_OPERATORS,
@@ -9,11 +8,6 @@ import {
   ENABLED_GRID_STRING_OPERATORS,
 } from '@/lib/const';
 import { GridFilterModel, GridSortModel } from '@mui/x-data-grid';
-import { DenyReasonType } from '@/generated/prisma/browser';
-
-export function generatePageTitle(title: string = '') {
-  return `${title ? `${title} | ` : ''}${APP_TITLE}`;
-}
 
 export function getDisplayName(input: string[]): string {
   return input.filter(Boolean).join(' ');
@@ -144,17 +138,4 @@ export function generateExportDownloadLink(
   }
   params.append('sort', generateSortString(sortModel) || '');
   return `${baseUrl}?${params.toString()}`;
-}
-
-export function getDenyReasonDescription(denyReason: DenyReasonType): string {
-  const descriptions: Record<DenyReasonType, string> = {
-    [DenyReasonType.SEVEN_DAYS]: '7 Days',
-    [DenyReasonType.FIFTEEN_DAYS]: '15 Days',
-    [DenyReasonType.ONE_MONTH]: '1 Month',
-    [DenyReasonType.SIX_MONTHS]: '6 Months',
-    [DenyReasonType.ONE_YEAR]: '1 Year',
-    [DenyReasonType.LONGER]: 'Longer',
-    [DenyReasonType.PERMANENT]: 'Permanent',
-  };
-  return descriptions[denyReason] || denyReason;
 }

@@ -11,10 +11,12 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { MdDelete } from 'react-icons/md';
+import { useTranslations } from 'next-intl';
 
 export const ActionDeleteDialog = () => {
   const { closeDialog, activeDialog, removeAction, isLoading } =
     useActionsContext();
+  const t = useTranslations();
 
   if (activeDialog?.type !== 'delete') {
     return null;
@@ -31,15 +33,18 @@ export const ActionDeleteDialog = () => {
 
   return (
     <Dialog open={true} onClose={closeDialog}>
-      <DialogTitle>Delete Action</DialogTitle>
+      <DialogTitle>{t('actions.deleteTitle')}</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Are you sure you want to delete <strong>{title}</strong>?
+          {t.rich('actions.deleteText', {
+            title,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={closeDialog} variant='outlined' disabled={isLoading}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button
           onClick={onSubmit}
@@ -47,7 +52,7 @@ export const ActionDeleteDialog = () => {
           disabled={isLoading}
           startIcon={<MdDelete />}
         >
-          Delete
+          {t('common.delete')}
         </Button>
       </DialogActions>
     </Dialog>

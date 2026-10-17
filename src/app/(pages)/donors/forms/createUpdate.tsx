@@ -14,13 +14,13 @@ import { useFormik } from 'formik';
 import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
 import * as Yup from 'yup';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DATE_FORMAT, GENDERS, BLOOD_TYPES } from '@/lib/const';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useRouter } from 'next/navigation';
 import { ROUTE_PATHS } from '@/routes';
 import { toDayString } from '@/lib/dates';
+import { useTranslations } from 'next-intl';
+import { useRevalidateOnLocaleChange } from '@/hooks/useRevalidateOnLocaleChange';
 
 // Stored calendar dates (UTC midnight) as a local day for the date pickers.
 const toDayjs = (value: Date | null | undefined): Dayjs | null =>
@@ -32,6 +32,7 @@ interface Props {
 
 export const DonorCreateUpdateForm = ({ donor }: Props) => {
   const router = useRouter();
+  const t = useTranslations();
 
   const goToDonorsTable = () => {
     router.push(`${ROUTE_PATHS.PROTECTED.DONORS.path}`);
@@ -58,17 +59,19 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
       active: donor?.active ?? true,
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().trim().required('First name is required'),
-      lastName: Yup.string().trim().required('Last name is required'),
+      firstName: Yup.string()
+        .trim()
+        .required(t('validation.firstNameRequired')),
+      lastName: Yup.string().trim().required(t('validation.lastNameRequired')),
       oib: Yup.string().matches(/^\d{11}$/, {
-        message: 'Must be exactly 11 digits',
+        message: t('validation.oibDigits'),
         excludeEmptyString: true,
       }),
-      gender: Yup.string().required('Gender is required'),
-      email: Yup.string().email('Email must be a valid email'),
+      gender: Yup.string().required(t('validation.genderRequired')),
+      email: Yup.string().email(t('validation.emailInvalid')),
       initialDonationCount: Yup.number()
-        .integer('Must be a whole number')
-        .min(0, 'Donation count must greater than or equal to 0'),
+        .integer(t('validation.wholeNumber'))
+        .min(0, t('validation.donationCountMin')),
     }),
     onSubmit: async (values) => {
       const newValues = {
@@ -91,199 +94,196 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
       goToDonorsTable();
     },
   });
+  useRevalidateOnLocaleChange(formik);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box component='form' onSubmit={formik.handleSubmit} noValidate>
-        <TextField
-          label='First Name'
-          name='firstName'
-          value={formik.values.firstName}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.firstName && Boolean(formik.errors.firstName)}
-          helperText={formik.touched.firstName && formik.errors.firstName}
-          required
-        />
+    <Box component='form' onSubmit={formik.handleSubmit} noValidate>
+      <TextField
+        label={t('fields.firstName')}
+        name='firstName'
+        value={formik.values.firstName}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+        helperText={formik.touched.firstName && formik.errors.firstName}
+        required
+      />
 
-        <TextField
-          label='Last Name'
-          name='lastName'
-          value={formik.values.lastName}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.lastName && Boolean(formik.errors.lastName)}
-          helperText={formik.touched.lastName && formik.errors.lastName}
-          required
-        />
+      <TextField
+        label={t('fields.lastName')}
+        name='lastName'
+        value={formik.values.lastName}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+        helperText={formik.touched.lastName && formik.errors.lastName}
+        required
+      />
 
-        <TextField
-          label='Email'
-          name='email'
-          value={formik.values.email}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.email && Boolean(formik.errors.email)}
-          helperText={formik.touched.email && formik.errors.email}
-        />
+      <TextField
+        label={t('fields.email')}
+        name='email'
+        value={formik.values.email}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.email && Boolean(formik.errors.email)}
+        helperText={formik.touched.email && formik.errors.email}
+      />
 
-        <TextField
-          label='Father Name'
-          name='fatherName'
-          value={formik.values.fatherName}
-          onChange={formik.handleChange}
-        />
+      <TextField
+        label={t('fields.fatherName')}
+        name='fatherName'
+        value={formik.values.fatherName}
+        onChange={formik.handleChange}
+      />
 
-        <TextField
-          label='Gender'
-          name='gender'
-          value={formik.values.gender}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.gender && Boolean(formik.errors.gender)}
-          helperText={formik.touched.gender && formik.errors.gender}
-          select
-          required
-        >
-          {Object.keys(GENDERS).map((gender) => (
-            <MenuItem key={gender} value={gender}>
-              {GENDERS[gender].full}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          label='Blood Type'
-          name='bloodType'
-          value={formik.values.bloodType}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          select
-        >
-          <MenuItem value=''>
-            <em>Unknown</em>
+      <TextField
+        label={t('fields.gender')}
+        name='gender'
+        value={formik.values.gender}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.gender && Boolean(formik.errors.gender)}
+        helperText={formik.touched.gender && formik.errors.gender}
+        select
+        required
+      >
+        {GENDERS.map((gender) => (
+          <MenuItem key={gender} value={gender}>
+            {t(`genders.${gender}`)}
           </MenuItem>
-          {Object.keys(BLOOD_TYPES).map((bloodType) => (
-            <MenuItem key={bloodType} value={bloodType}>
-              {BLOOD_TYPES[bloodType]}
-            </MenuItem>
-          ))}
-        </TextField>
+        ))}
+      </TextField>
 
-        <TextField
-          label='OIB'
-          name='oib'
-          value={formik.values.oib}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.oib && Boolean(formik.errors.oib)}
-          helperText={formik.touched.oib && formik.errors.oib}
-        />
+      <TextField
+        label={t('fields.bloodType')}
+        name='bloodType'
+        value={formik.values.bloodType}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        select
+      >
+        <MenuItem value=''>
+          <em>{t('common.unknown')}</em>
+        </MenuItem>
+        {Object.keys(BLOOD_TYPES).map((bloodType) => (
+          <MenuItem key={bloodType} value={bloodType}>
+            {BLOOD_TYPES[bloodType]}
+          </MenuItem>
+        ))}
+      </TextField>
 
-        <TextField
-          label='Phone'
-          name='phone'
-          value={formik.values.phone}
-          onChange={formik.handleChange}
-        />
+      <TextField
+        label={t('fields.oib')}
+        name='oib'
+        value={formik.values.oib}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.oib && Boolean(formik.errors.oib)}
+        helperText={formik.touched.oib && formik.errors.oib}
+      />
 
-        <TextField
-          label='Address'
-          name='address'
-          value={formik.values.address}
-          onChange={formik.handleChange}
-        />
+      <TextField
+        label={t('fields.phone')}
+        name='phone'
+        value={formik.values.phone}
+        onChange={formik.handleChange}
+      />
 
-        <TextField
-          label='City'
-          name='city'
-          value={formik.values.city}
-          onChange={formik.handleChange}
-        />
+      <TextField
+        label={t('fields.address')}
+        name='address'
+        value={formik.values.address}
+        onChange={formik.handleChange}
+      />
 
-        <DatePicker
-          label='Date of Birth'
-          value={formik.values.dob}
-          onChange={(value) => formik.setFieldValue('dob', value)}
-          format={DATE_FORMAT}
-          slotProps={{ actionBar: { actions: ['clear'] } }}
-        />
+      <TextField
+        label={t('fields.city')}
+        name='city'
+        value={formik.values.city}
+        onChange={formik.handleChange}
+      />
 
-        <TextField
-          label='Donations before records'
-          name='initialDonationCount'
-          value={formik.values.initialDonationCount}
-          onChange={formik.handleChange}
-          type='number'
-          InputLabelProps={{ shrink: true }}
-          onBlur={formik.handleBlur}
-          error={
-            formik.touched.initialDonationCount &&
-            Boolean(formik.errors.initialDonationCount)
-          }
-          helperText={
-            (formik.touched.initialDonationCount &&
-              formik.errors.initialDonationCount) ||
-            (donor
-              ? `Total with recorded donations: ${donor.donationCount}`
-              : 'Donations made before they were recorded in this app')
-          }
-        />
+      <DatePicker
+        label={t('fields.dob')}
+        value={formik.values.dob}
+        onChange={(value) => formik.setFieldValue('dob', value)}
+        format={DATE_FORMAT}
+        slotProps={{ actionBar: { actions: ['clear'] } }}
+      />
 
-        <DatePicker
-          label='Last donation before records'
-          value={formik.values.initialLastDonation}
-          onChange={(value) =>
-            formik.setFieldValue('initialLastDonation', value)
-          }
-          format={DATE_FORMAT}
-          slotProps={{ actionBar: { actions: ['clear'] } }}
-        />
+      <TextField
+        label={t('fields.initialDonationCount')}
+        name='initialDonationCount'
+        value={formik.values.initialDonationCount}
+        onChange={formik.handleChange}
+        type='number'
+        InputLabelProps={{ shrink: true }}
+        onBlur={formik.handleBlur}
+        error={
+          formik.touched.initialDonationCount &&
+          Boolean(formik.errors.initialDonationCount)
+        }
+        helperText={
+          (formik.touched.initialDonationCount &&
+            formik.errors.initialDonationCount) ||
+          (donor
+            ? t('donors.totalWithRecorded', { count: donor.donationCount })
+            : t('donors.initialDonationsHelp'))
+        }
+      />
 
-        <FormControlLabel
-          control={
-            <Switch
-              name='active'
-              checked={formik.values.active}
-              onChange={formik.handleChange}
-            />
-          }
-          label='Active'
-        />
+      <DatePicker
+        label={t('fields.initialLastDonation')}
+        value={formik.values.initialLastDonation}
+        onChange={(value) => formik.setFieldValue('initialLastDonation', value)}
+        format={DATE_FORMAT}
+        slotProps={{ actionBar: { actions: ['clear'] } }}
+      />
 
-        <Stack direction='row' justifyContent='space-between'>
-          <Stack>
-            {donor?.id && (
-              <Button
-                onClick={() => openDialog({ type: 'delete', donor })}
-                variant='outlined'
-                disabled={isLoading}
-              >
-                Delete Account
-              </Button>
-            )}
-          </Stack>
+      <FormControlLabel
+        control={
+          <Switch
+            name='active'
+            checked={formik.values.active}
+            onChange={formik.handleChange}
+          />
+        }
+        label={t('fields.active')}
+      />
 
-          <Stack direction='row' gap={2}>
+      <Stack direction='row' justifyContent='space-between'>
+        <Stack>
+          {donor?.id && (
             <Button
-              onClick={goToDonorsTable}
+              onClick={() => openDialog({ type: 'delete', donor })}
               variant='outlined'
-              color='secondary'
               disabled={isLoading}
             >
-              Cancel
+              {t('donors.deleteAccount')}
             </Button>
-            <Button
-              type='submit'
-              disabled={isLoading}
-              color='secondary'
-              size='medium'
-            >
-              {donor?.id ? 'Save Changes' : 'Add Donor'}
-            </Button>
-          </Stack>
+          )}
         </Stack>
-      </Box>
-    </LocalizationProvider>
+
+        <Stack direction='row' gap={2}>
+          <Button
+            onClick={goToDonorsTable}
+            variant='outlined'
+            color='secondary'
+            disabled={isLoading}
+          >
+            {t('common.cancel')}
+          </Button>
+          <Button
+            type='submit'
+            disabled={isLoading}
+            color='secondary'
+            size='medium'
+          >
+            {donor?.id ? t('common.saveChanges') : t('donors.add')}
+          </Button>
+        </Stack>
+      </Stack>
+    </Box>
   );
 };

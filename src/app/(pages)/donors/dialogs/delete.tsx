@@ -13,12 +13,15 @@ import React from 'react';
 import { MdDelete } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
 import { ROUTE_PATHS } from '@/routes';
+import { useTranslations } from 'next-intl';
+import { getDisplayName } from '@/lib/utils';
 
 export const DonorDeleteDialog = () => {
   const router = useRouter();
 
   const { closeDialog, activeDialog, removeDonor, isLoading } =
     useDonorsContext();
+  const t = useTranslations();
 
   if (activeDialog?.type !== 'delete') {
     return null;
@@ -37,14 +40,12 @@ export const DonorDeleteDialog = () => {
   return (
     <Dialog open={true} onClose={closeDialog}>
       <DialogTitle>
-        Delete {firstName} {lastName} Account?
+        {t('donors.deleteTitle', {
+          name: getDisplayName([firstName, lastName]),
+        })}
       </DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          This action cannot be undone. Deleting the donor will permanently
-          remove all associated information, including donations and contact
-          details.
-        </DialogContentText>
+        <DialogContentText>{t('donors.deleteText')}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button
@@ -53,7 +54,7 @@ export const DonorDeleteDialog = () => {
           disabled={isLoading}
           color='secondary'
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button
           onClick={onSubmit}
@@ -61,7 +62,7 @@ export const DonorDeleteDialog = () => {
           disabled={isLoading}
           startIcon={<MdDelete />}
         >
-          Yes, Delete Account
+          {t('donors.deleteConfirm')}
         </Button>
       </DialogActions>
     </Dialog>

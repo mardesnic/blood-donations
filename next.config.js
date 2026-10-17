@@ -1,3 +1,8 @@
+import createNextIntlPlugin from 'next-intl/plugin';
+
+// Loads the messages for the request's language (see src/i18n/request.ts).
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+
 // The Content-Security-Policy is set per request in src/proxy.ts, because it
 // carries a fresh nonce each time.
 const securityHeaders = [
@@ -25,4 +30,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);
