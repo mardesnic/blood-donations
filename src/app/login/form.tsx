@@ -53,7 +53,7 @@ export const LoginForm = () => {
       }
       setLoginError('');
       setRedirecting(true);
-      router.push(ROUTE_PATHS.PROTECTED.DONORS.path);
+      router.push(ROUTE_PATHS.PROTECTED.OVERVIEW.path);
     },
   });
   useRevalidateOnLocaleChange(formik);
@@ -116,7 +116,7 @@ export const LoginForm = () => {
       >
         <CircularProgress color='inherit' />
         <Typography>
-          {redirecting ? t('login.loadingDonors') : t('login.signingIn')}
+          {redirecting ? t('common.loading') : t('login.signingIn')}
         </Typography>
       </Backdrop>
     </Box>

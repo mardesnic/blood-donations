@@ -11,7 +11,8 @@
     "language": "Language",
     "menu": "Menu",
     "account": "Account",
-    "places": "Places"
+    "places": "Places",
+    "overview": "Overview"
   },
   "pageTitles": {
     "welcome": "Welcome",
@@ -22,7 +23,8 @@
     "newDonation": "New Donation",
     "donation": "Donation - {name}",
     "actions": "Actions",
-    "places": "Places"
+    "places": "Places",
+    "overview": "Overview"
   },
   "common": {
     "cancel": "Cancel",
@@ -152,7 +154,6 @@
     "password": "Password",
     "submit": "Sign In",
     "signingIn": "Signing in…",
-    "loadingDonors": "Loading your donors…",
     "invalid": "Invalid email or password.",
     "tooManyAttempts": "Too many failed attempts. Please try again in 15 minutes."
   },
@@ -257,5 +258,31 @@
     "nextAction": "Next action",
     "lastAction": "Last action",
     "showOnMap": "Show on map"
+  },
+  "overview": {
+    "title": "Overview",
+    "donationsThisYear": "Donations this year",
+    "vsLastYear": "{change, number, ::+!}% vs. the same period last year",
+    "noComparison": "No donations in the same period last year",
+    "canDonateNow": "Can donate now",
+    "ofActive": "of {count} active donors",
+    "newDonors": "New donors this year",
+    "newDonorsNote": "Registered in the app",
+    "denialRate": "Denial rate this year",
+    "deniedOf": "{denied} of {total} attempts",
+    "noAttempts": "No attempts yet",
+    "monthly": "Donations per month",
+    "successful": "Successful",
+    "denied": "Denied",
+    "bloodTypes": "Blood types",
+    "active": "Active",
+    "eligible": "Can donate",
+    "denyReasons": "Denial reasons this year",
+    "noDenials": "No denials this year",
+    "upcoming": "Upcoming actions",
+    "noUpcoming": "No upcoming actions",
+    "recent": "Recent actions",
+    "noRecent": "No actions yet",
+    "result": "{successful} successful · {denied} denied"
   }
 }

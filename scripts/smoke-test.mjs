@@ -640,6 +640,24 @@ async function main() {
     res.status
   );
 
+  // The overview is the home page.
+  res = await call('GET', '/', { raw: true, redirect: 'manual' });
+  check(
+    'home page redirects to the overview',
+    [307, 308].includes(res.status),
+    res.status
+  );
+  res = await call('GET', '/overview', { raw: true });
+  check(
+    'overview shows the year, who can donate and the chart',
+    res.status === 200 &&
+      res.data.includes('Donations this year') &&
+      res.data.includes('Can donate now') &&
+      res.data.includes('Donations per month') &&
+      res.data.includes('filter=eligible%7Cis%7CNOW'),
+    res.status
+  );
+
   // Croatian, picked with the language cookie
   cookies.set('NEXT_LOCALE', 'hr');
   res = await call('GET', '/donors', { raw: true });
