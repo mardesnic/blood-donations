@@ -19,6 +19,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DATE_TIME_FORMAT, MAX_PAGE_SIZE } from '@/lib/const';
 import { useGetPlaces } from '@/hooks/usePlaces';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { useRevalidateOnLocaleChange } from '@/hooks/useRevalidateOnLocaleChange';
 import { PlaceQuickAddDialog } from '@/app/(pages)/places/dialogs/quickAdd';
 
@@ -32,6 +33,7 @@ interface Props {
 const Form = ({ action }: Props) => {
   const { closeDialog, createAction, updateAction, isLoading, place } =
     useActionsContext();
+  const router = useRouter();
   const t = useTranslations();
   const { data: placesData } = useGetPlaces({
     page: 0,
@@ -74,6 +76,8 @@ const Form = ({ action }: Props) => {
         await createAction(newValues as Action);
       }
       closeDialog();
+      // The action's own page is rendered on the server.
+      router.refresh();
     },
   });
   useRevalidateOnLocaleChange(formik);

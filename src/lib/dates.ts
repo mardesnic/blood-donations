@@ -66,6 +66,24 @@ export function addMonths(day: Date, months: number): Date {
   return new Date(Date.UTC(year, month, Math.min(day.getUTCDate(), lastDay)));
 }
 
+// Age in whole years on `today`, with the same month arithmetic as the
+// eligibility rules (born 29 February: a year older on 28 February). Null
+// when the date of birth is missing, invalid or after today.
+export function ageOn(
+  dob: Date | string | null | undefined,
+  today: Date
+): number | null {
+  const birth = dob ? new Date(dob) : null;
+  if (!birth || Number.isNaN(birth.getTime()) || birth > today) {
+    return null;
+  }
+  let age = today.getUTCFullYear() - birth.getUTCFullYear();
+  if (addMonths(birth, age * 12) > today) {
+    age -= 1;
+  }
+  return age;
+}
+
 // The latest start day whose period, as computed by `end`, is over by
 // `today` (end(start) <= today). `end` must never go backwards in time.
 // Lets a database query ask "start <= X" with the same calendar rules as the

@@ -105,6 +105,37 @@ async function main() {
   );
   res = await call('GET', `/api/donors?${query({ sort: 'password|asc' })}`);
   check('unknown sort field falls back', res.status === 200, res.status);
+  // Empty values go last in both directions, and equal values keep one
+  // order, so paging through a sort shows every donor exactly once.
+  const allBy = async (sort) =>
+    (await call('GET', `/api/donors?${query({ pageSize: 100, sort })}`)).data
+      .donors;
+  for (const sort of ['lastDonation|desc', 'lastDonation|asc']) {
+    const dates = (await allBy(sort)).map((d) => d.lastDonation);
+    const firstEmpty = dates.indexOf(null);
+    check(
+      `${sort} puts donors without a donation last`,
+      firstEmpty === -1 || dates.slice(firstEmpty).every((d) => d === null),
+      dates
+    );
+  }
+  const pagedIds = [];
+  for (let page = 0; page < 100; page++) {
+    const { donors } = (
+      await call(
+        'GET',
+        `/api/donors?${query({ page, pageSize: 3, sort: 'donationCount|asc' })}`
+      )
+    ).data;
+    if (!donors.length) break;
+    pagedIds.push(...donors.map((d) => d.id));
+  }
+  check(
+    'paging through a sort with ties shows every donor once',
+    new Set(pagedIds).size === pagedIds.length &&
+      pagedIds.length === (await allBy('donationCount|asc')).length,
+    pagedIds.length
+  );
 
   // A donor with a blood type and city to filter by (not every donor has
   // them, so look through the pages).
@@ -252,6 +283,53 @@ async function main() {
     'date filter matches the whole day',
     (await count([`dob|is|${DAY('1990-05-01')}`])) >= 1
   );
+  // The filter panel asks for "at least N donations" and part of a city.
+  const [atLeastZero, atLeastFive, exactlyFive] = [
+    await count(['donationCount|>=|0']),
+    await count(['donationCount|>=|5']),
+    await count(['donationCount|=|5']),
+  ];
+  check(
+    'minimum donations filter',
+    atLeastZero === everyone && atLeastFive >= exactlyFive && exactlyFive >= 1,
+    { atLeastZero, atLeastFive, exactlyFive, everyone }
+  );
+  const cityPart = first.city.slice(1, 4).toLowerCase();
+  check(
+    'city filter matches part of the name',
+    (await count([`city|contains|${cityPart}`])) >= 1,
+    cityPart
+  );
+  // Ranges, checked on the smoke donor (born 1990-05-01, last donation
+  // 2025-01-10).
+  const findsDonor = async (filters) =>
+    (
+      await call(
+        'GET',
+        `/api/donors?${new URLSearchParams([
+          ['search', donorBody.oib],
+          ...filters.map((f) => ['filter', f]),
+        ])}`
+      )
+    ).data.count === 1;
+  const now = new Date();
+  const age = now.getUTCFullYear() - 1990 - (now.getUTCMonth() < 4 ? 1 : 0); // before 1 May this year
+  check(
+    'age range matches the donor',
+    (await findsDonor([`age|>=|${age}`, `age|<=|${age}`])) &&
+      !(await findsDonor([`age|>=|${age + 1}`])) &&
+      !(await findsDonor([`age|<=|${age - 1}`])),
+    age
+  );
+  check(
+    'last donation range includes both days',
+    (await findsDonor([
+      `lastDonation|onOrAfter|${DAY('2025-01-10')}`,
+      `lastDonation|onOrBefore|${DAY('2025-01-10')}`,
+    ])) &&
+      !(await findsDonor([`lastDonation|onOrAfter|${DAY('2025-01-11')}`])) &&
+      !(await findsDonor([`lastDonation|onOrBefore|${DAY('2025-01-09')}`]))
+  );
   res = await call(
     'GET',
     `/api/donors/export?${new URLSearchParams([
@@ -393,6 +471,16 @@ async function main() {
   check('donations sorted by donor', res.status === 200 && res.data.count >= 1);
   res = await call('POST', '/api/donations', { body: { donorId: donor.id } });
   check('invalid donation rejected', res.status === 400, res.status);
+  // The action's page sums up its donations (one successful, 0-).
+  res = await call('GET', `/actions/${action.id}`, { raw: true });
+  check(
+    'action page shows its result',
+    res.status === 200 &&
+      res.data.includes('Successful donations') &&
+      res.data.includes('0- ×1') &&
+      res.data.includes(`/donations/create?actionId=${action.id}`),
+    res.status
+  );
 
   // Detail pages render with data
   for (const path of [
@@ -439,6 +527,14 @@ async function main() {
   });
   const placeAction = res.data;
   check('create action at the place', placeAction?.placeId === place.id);
+  res = await call('GET', `/actions/${placeAction.id}`, { raw: true });
+  check(
+    'action page links to its place',
+    res.status === 200 &&
+      res.data.includes(`/places/${place.id}`) &&
+      res.data.includes('Smoke Hall'),
+    res.status
+  );
   res = await call('GET', `/api/places?${query({ search: 'Smoke Hall' })}`);
   check(
     'places list counts actions',
@@ -459,8 +555,11 @@ async function main() {
   check('page /places renders', res.status === 200, res.status);
   res = await call('GET', `/places/${place.id}`, { raw: true });
   check(
-    'place page shows the place',
-    res.status === 200 && res.data.includes('Smoke Hall 2'),
+    'place page shows the place and its actions',
+    res.status === 200 &&
+      res.data.includes('Smoke Hall 2') &&
+      res.data.includes('Actions held') &&
+      res.data.includes(`/actions/${placeAction.id}`),
     res.status
   );
   res = await call('DELETE', `/api/places/${place.id}`);
@@ -473,6 +572,73 @@ async function main() {
   );
   res = await call('DELETE', `/api/actions/${placeAction.id}`);
   check('delete place action', res.status === 200, res.status);
+
+  // Filters in the donors page URL are applied when the page loads.
+  res = await call(
+    'GET',
+    `/donors?${new URLSearchParams([
+      ['filter', 'gender|is|FEMALE'],
+      ['filter', 'age|>=|30'],
+      ['search', 'Smoke'],
+    ])}`,
+    { raw: true }
+  );
+  check(
+    'donors page shows filters from the URL',
+    res.status === 200 &&
+      res.data.includes('Gender: Female') &&
+      res.data.includes('Age from: 30') &&
+      res.data.includes('value="Smoke"'),
+    res.status
+  );
+
+  res = await call('GET', '/donors?sort=lastDonation|desc&page=2', {
+    raw: true,
+  });
+  check('donors page with sort and page in the URL', res.status === 200);
+
+  // The donor's overview, its edit page, and the old donations link.
+  res = await call('GET', `/donors/${donor.id}`, { raw: true });
+  check(
+    'donor overview shows eligibility, details and donations',
+    res.status === 200 &&
+      res.data.includes('Total donations') &&
+      res.data.includes('Personal details') &&
+      res.data.includes(`/donors/${donor.id}/edit`) &&
+      res.data.includes('id="donations"'),
+    res.status
+  );
+  res = await call('GET', `/donors/${donor.id}/edit`, { raw: true });
+  check(
+    'donor edit page shows the form',
+    res.status === 200 && res.data.includes('name="firstName"'),
+    res.status
+  );
+  res = await call('GET', `/donors/${donor.id}/donations`, {
+    raw: true,
+    redirect: 'manual',
+  });
+  check(
+    'old donor donations link redirects to the overview',
+    [307, 308].includes(res.status),
+    res.status
+  );
+
+  // "New donation" from a donor's page preselects the donor.
+  res = await call('GET', `/donors/${donor.id}`, { raw: true });
+  check(
+    "donor's page links to a new donation for the donor",
+    res.data.includes(`/donations/create?donorId=${donor.id}`),
+    res.status
+  );
+  res = await call('GET', `/donations/create?donorId=${donor.id}`, {
+    raw: true,
+  });
+  check(
+    'new donation page preselects the donor',
+    res.status === 200 && res.data.includes('Smoke Test'),
+    res.status
+  );
 
   // Croatian, picked with the language cookie
   cookies.set('NEXT_LOCALE', 'hr');
@@ -488,6 +654,12 @@ async function main() {
   check(
     'export in Croatian',
     res.data.split('\n')[0].includes('Sljedeće darivanje')
+  );
+  check(
+    // (res.text() drops the UTF-8 byte-order mark, so it isn't checked here.)
+    'Croatian export has translated values',
+    /Muško|Žensko/.test(res.data) &&
+      !/,(MALE|FEMALE|A_POSITIVE|O_NEGATIVE|true|false)(,|\n|$)/.test(res.data)
   );
   cookies.delete('NEXT_LOCALE');
   res = await call('GET', '/donors', { raw: true });

@@ -82,7 +82,10 @@
     "createdAt": "Created At",
     "updatedAt": "Updated At",
     "contactName": "Contact Person",
-    "actionCount": "Actions"
+    "actionCount": "Actions",
+    "bloodTypeShort": "Type",
+    "nextEligibleShort": "Next",
+    "nameShort": "Name"
   },
   "genders": {
     "MALE": "Male",
@@ -111,7 +114,7 @@
       "PERMANENT": "Never",
       "MANUAL": "Check manually",
       "TOO_OLD": "Over age limit",
-      "UNKNOWN_AGE": "Unknown (no birth date)",
+      "UNKNOWN_AGE": "No birth date",
       "INACTIVE": "Inactive"
     },
     "reason": {
@@ -202,7 +205,8 @@
     "note": "Note",
     "createdAt": "Created At",
     "updatedAt": "Updated At",
-    "active": "Active"
+    "active": "Active",
+    "fileName": "donors"
   },
   "places": {
     "title": "Places",
@@ -212,5 +216,46 @@
     "deleteTitle": "Delete Place",
     "deleteText": "Are you sure you want to delete <strong>{title}</strong>?",
     "deleteActions": "{count, plural, =0 {No actions use this place.} one {# action uses this place. It will be kept, without a place.} other {# actions use this place. They will be kept, without a place.}}"
+  },
+  "filters": {
+    "eligibleOnly": "Only donors who can donate now",
+    "clear": "Clear filters",
+    "minDonations": "Minimum donations",
+    "cityPlaceholder": "Part of the name",
+    "active": "Active filters",
+    "chip": "{label}: {value}",
+    "ageFrom": "Age from",
+    "ageTo": "Age to",
+    "lastDonationFrom": "Last donation from",
+    "lastDonationTo": "Last donation to"
+  },
+  "donorOverview": {
+    "donating": "Donating",
+    "personal": "Personal details",
+    "contact": "Contact",
+    "totalDonations": "Total donations",
+    "beforeRecords": "Before records",
+    "age": "{age, plural, one {# year} other {# years}}",
+    "why": "Why"
+  },
+  "actionOverview": {
+    "details": "Action",
+    "time": "Time",
+    "result": "Result",
+    "successful": "Successful donations",
+    "denied": "Denied",
+    "deniedReasons": "Why denied",
+    "bloodTypes": "Blood types collected",
+    "noDonations": "No donations yet"
+  },
+  "placeOverview": {
+    "location": "Location",
+    "contact": "Contact",
+    "actions": "Actions",
+    "actionCount": "Actions held",
+    "donationCount": "Successful donations",
+    "nextAction": "Next action",
+    "lastAction": "Last action",
+    "showOnMap": "Show on map"
   }
 }

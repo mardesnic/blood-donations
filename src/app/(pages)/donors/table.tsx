@@ -5,10 +5,19 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Donor } from '@/generated/prisma/browser';
-import { Button, Tooltip, Typography } from '@mui/material';
+import {
+  Badge,
+  Button,
+  Link as MuiLink,
+  Tooltip,
+  useMediaQuery,
+  useTheme,
+  Typography,
+} from '@mui/material';
+import { TruncatedText } from '@/components/TruncatedText';
+import { rememberDonorsListUrl } from '@/lib/donorsListUrl';
 import Link from 'next/link';
-import { MdAdd } from 'react-icons/md';
+import { MdAdd, MdFilterList } from 'react-icons/md';
 
 import { BLOOD_TYPES, GENDERS } from '@/lib/const';
 import { useTranslations } from 'next-intl';
@@ -20,12 +29,27 @@ import { useDonorsContext } from '@/context/DonorsContext';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { DonorsFilters } from '@/app/(pages)/donors/filters';
+import { DonorsActiveFilters } from '@/app/(pages)/donors/activeFilters';
+import { activeFilters, donorListToSearchParams } from '@/lib/donorFilterModel';
 import { debounce } from '@mui/material/utils';
 
 export default function DonorsTable() {
   const router = useRouter();
   const t = useTranslations();
   const tEligibility = useTranslations('eligibility');
+  // Phones show name, blood type and next eligible date; tablets add the
+  // phone number and donations; wider screens show every column.
+  const theme = useTheme();
+  const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const columnVisibilityModel = {
+    phone: !isPhone,
+    oib: !isTablet,
+    donationCount: !isPhone,
+    lastDonation: !isPhone,
+    gender: !isTablet,
+    dob: !isTablet,
+  };
 
   const [showFilters, setShowFilters] = useState(false);
 
@@ -38,41 +62,65 @@ export default function DonorsTable() {
     changeSortModel,
     isLoading,
     exportDonorsDownloadLink,
+    urlVersion,
+    sortModel,
+    paginationModel,
   } = useDonorsContext();
 
-  const columns: GridColDef[] = [
+  const donorPath = (id: string) =>
+    `${ROUTE_PATHS.PROTECTED.DONORS.path}/${id}`;
+  // Fixed widths for short values, so the name and dates get the room.
+  const columns: GridColDef<DonorListItem>[] = [
     {
       field: 'fullName',
-      headerName: t('fields.name'),
-      flex: 1,
+      headerName: t(isPhone ? 'fields.nameShort' : 'fields.name'),
+      flex: 2,
+      minWidth: isPhone ? 120 : 180,
+      renderCell: (params) => <TruncatedText text={params.value} />,
     },
     {
       field: 'phone',
       headerName: t('fields.phone'),
       flex: 1,
+      minWidth: 130,
       sortable: false,
+      renderCell: (params) => <TruncatedText text={params.value} />,
     },
     {
       field: 'oib',
       headerName: t('fields.oib'),
-      flex: 1,
-      disableColumnMenu: true,
+      width: 135,
     },
     {
       field: 'bloodType',
-      headerName: t('fields.bloodType'),
-      flex: 1,
+      // Short headers on phones, where the columns are narrow.
+      headerName: t(isPhone ? 'fields.bloodTypeShort' : 'fields.bloodType'),
+      width: isPhone ? 80 : 130,
       valueGetter: (value: keyof typeof BLOOD_TYPES) => BLOOD_TYPES[value],
     },
     {
       field: 'donationCount',
       headerName: t('fields.donations'),
-      flex: 1,
+      width: 120,
+      // Opens the donor's donations; the rest of the row opens the donor.
+      renderCell: (params) => (
+        <MuiLink
+          component={Link}
+          href={`${donorPath(params.row.id)}#donations`}
+          onClick={(event: React.MouseEvent) => event.stopPropagation()}
+          underline='always'
+          color='secondary'
+        >
+          {params.value}
+        </MuiLink>
+      ),
     },
     {
       field: 'lastDonation',
       headerName: t('fields.lastDonation'),
       flex: 1,
+      // Room for the title and the sort arrow.
+      minWidth: 195,
       renderCell: (params) => formatDay(params.value),
       valueGetter: (value) => value && new Date(value),
       type: 'date',
@@ -80,25 +128,29 @@ export default function DonorsTable() {
     {
       field: 'gender',
       headerName: t('fields.gender'),
-      flex: 0,
+      width: 85,
       valueGetter: (value: (typeof GENDERS)[number]) =>
         value ? t(`gendersShort.${value}`) : '',
     },
-
     {
       field: 'dob',
       headerName: t('fields.dob'),
       flex: 1,
+      // Room for the title and the sort arrow.
+      minWidth: 180,
       renderCell: (params) => formatDay(params.value),
       valueGetter: (value) => value && new Date(value),
       type: 'date',
     },
     {
       field: 'eligibility',
-      headerName: t('fields.nextEligible'),
+      headerName: t(
+        isPhone ? 'fields.nextEligibleShort' : 'fields.nextEligible'
+      ),
       flex: 1,
+      minWidth: isPhone ? 110 : 190,
       sortable: false,
-      renderCell: (params: { row: DonorListItem }) => {
+      renderCell: (params) => {
         const eligibility = params.row.eligibility;
         return (
           <Tooltip title={eligibilityReason(eligibility, tEligibility)}>
@@ -115,43 +167,49 @@ export default function DonorsTable() {
         );
       },
     },
-    {
-      field: 'actions',
-      headerName: t('fields.actions'),
-      disableColumnMenu: true,
-      sortable: false,
-      minWidth: 200,
-      renderCell: (params: { row: Donor }) => (
-        <Button
-          variant='outlined'
-          size='medium'
-          color='inherit'
-          sx={{ width: '190px' }}
-          onClick={(event) => {
-            event.stopPropagation();
-            router.push(
-              `${ROUTE_PATHS.PROTECTED.DONORS.path}/${params.row.id}/donations`
-            );
-          }}
-        >
-          {t('donors.seeDonations', { count: params.row.donationCount })}
-        </Button>
-      ),
-    },
   ];
 
-  const searchDonorsDelayed = React.useMemo(() => {
-    return debounce((event) => {
-      changeFilterModel({
-        ...filterModel,
-        quickFilterValues: [event.target.value || ''],
-      });
-    }, 500);
-  }, []);
+  // Updates the current model, so filters set while typing are kept.
+  const searchDonorsDelayed = React.useMemo(
+    () =>
+      debounce((event: React.ChangeEvent<HTMLInputElement>) => {
+        const search = event.target.value || '';
+        changeFilterModel((current) => ({
+          ...current,
+          quickFilterValues: [search],
+        }));
+      }, 500),
+    [changeFilterModel]
+  );
+  const filterCount = activeFilters(filterModel).length;
+
+  // Keeps the URL in step with the filters without reloading the page or
+  // adding a history entry for every change.
+  React.useEffect(() => {
+    const query = donorListToSearchParams({
+      filterModel,
+      sortModel,
+      paginationModel,
+    }).toString();
+    const url = `${window.location.pathname}${query ? `?${query}` : ''}`;
+    // The donor pages link back to this exact list.
+    rememberDonorsListUrl(url);
+    if (url !== `${window.location.pathname}${window.location.search}`) {
+      // null lets Next.js keep its own history state with the new URL, so
+      // Back returns to the filtered list.
+      window.history.replaceState(null, '', url);
+    }
+  }, [filterModel, sortModel, paginationModel]);
 
   return (
     <>
-      <Stack direction='row' justifyContent='space-between' alignItems='center'>
+      <Stack
+        direction='row'
+        justifyContent='space-between'
+        alignItems='center'
+        flexWrap='wrap'
+        gap={2}
+      >
         <Typography variant='h1'>{t('donors.title')}</Typography>
         <Stack direction='row' gap={2}>
           <Button
@@ -175,27 +233,40 @@ export default function DonorsTable() {
           direction='row'
           justifyContent='space-between'
           alignItems='center'
+          gap={2}
           sx={{ p: '30px 24px' }}
         >
           <TextField
+            key={urlVersion}
             color='secondary'
             label={t('donors.search')}
             placeholder={t('donors.searchPlaceholder')}
             variant='standard'
-            sx={{ width: '50%' }}
+            sx={{ width: { xs: '100%', md: '50%' } }}
+            defaultValue={filterModel.quickFilterValues?.[0] || ''}
             onChange={searchDonorsDelayed}
           />
-          <Button
-            variant='outlined'
-            size='medium'
-            color='inherit'
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            {t('donors.filter')}
-          </Button>
+          <Badge badgeContent={filterCount} color='primary'>
+            <Button
+              variant={showFilters ? 'contained' : 'outlined'}
+              size='medium'
+              color={showFilters ? 'secondary' : 'inherit'}
+              startIcon={<MdFilterList />}
+              aria-expanded={showFilters}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {t('donors.filter')}
+            </Button>
+          </Badge>
         </Stack>
-        {showFilters && (
+        {showFilters ? (
           <DonorsFilters
+            key={urlVersion}
+            filterModel={filterModel}
+            changeFilterModel={changeFilterModel}
+          />
+        ) : (
+          <DonorsActiveFilters
             filterModel={filterModel}
             changeFilterModel={changeFilterModel}
           />
@@ -206,18 +277,26 @@ export default function DonorsTable() {
           columns={columns}
           loading={isLoading}
           paginationMode='server'
+          columnVisibilityModel={columnVisibilityModel}
+          paginationModel={paginationModel}
           onPaginationModelChange={changePaginationModel}
-          // filterMode='server'
-          // onFilterModelChange={changeFilterModel}
           sortingMode='server'
+          sortModel={sortModel}
+          // Always sorted by something, so there is no "unsorted" step.
+          sortingOrder={['asc', 'desc']}
           onSortModelChange={changeSortModel}
-          filterDebounceMs={500}
-          sx={{ border: 0, mt: '24px' }}
+          disableColumnMenu
+          sx={{
+            border: 0,
+            mt: '24px',
+            '& .donor-inactive': { color: 'text.disabled' },
+          }}
           getRowHeight={() => 55}
-          disableColumnFilter={true}
-          onRowClick={(row) =>
-            router.push(`${ROUTE_PATHS.PROTECTED.DONORS.path}/${row.id}`)
+          getRowClassName={(params) =>
+            params.row.active ? '' : 'donor-inactive'
           }
+          disableColumnFilter={true}
+          onRowClick={(row) => router.push(donorPath(String(row.id)))}
         />
       </Card>
     </>

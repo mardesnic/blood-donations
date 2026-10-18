@@ -9,15 +9,26 @@ import { useDonationsContext } from '@/context/DonationsContext';
 import { useTranslations } from 'next-intl';
 
 export const DonationsHeader = () => {
-  // On an action's page, a new donation belongs to that action.
-  const { action } = useDonationsContext();
+  // On an action's or a donor's page, a new donation belongs to them.
+  const { action, donor } = useDonationsContext();
   const t = useTranslations('donations');
   const createPath = `${ROUTE_PATHS.PROTECTED.DONATIONS.path}/create`;
-  const href = action
-    ? `${createPath}?${new URLSearchParams({ actionId: action.id })}`
-    : createPath;
+  const params = new URLSearchParams();
+  if (action) {
+    params.set('actionId', action.id);
+  }
+  if (donor) {
+    params.set('donorId', donor.id);
+  }
+  const href = params.size ? `${createPath}?${params}` : createPath;
   return (
-    <Stack direction='row' justifyContent='space-between' alignItems='center'>
+    <Stack
+      direction='row'
+      justifyContent='space-between'
+      alignItems='center'
+      flexWrap='wrap'
+      gap={2}
+    >
       <Typography variant='h1'>{t('title')}</Typography>
       <Link href={href}>
         <Button color='secondary' size='medium' startIcon={<MdAdd />}>

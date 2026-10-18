@@ -1,6 +1,12 @@
 'use client';
 
-import { Dialog, DialogContent, DialogTitle } from '@mui/material';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Place } from '@/generated/prisma/browser';
@@ -17,6 +23,8 @@ interface Props {
 export const PlaceQuickAddDialog = ({ open, onClose, onCreated }: Props) => {
   const t = useTranslations('places');
   const { mutateAsync: createPlace, isPending } = useCreatePlace();
+  const theme = useTheme();
+  const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Dialog
@@ -24,6 +32,8 @@ export const PlaceQuickAddDialog = ({ open, onClose, onCreated }: Props) => {
       onClose={onClose}
       fullWidth
       maxWidth='sm'
+      // Full screen on phones, like the action form it opens from.
+      fullScreen={isPhone}
       // A fresh, empty form each time it opens.
       keepMounted={false}
     >

@@ -82,7 +82,10 @@
     "createdAt": "Kreirano",
     "updatedAt": "Ažurirano",
     "contactName": "Kontakt osoba",
-    "actionCount": "Akcije"
+    "actionCount": "Akcije",
+    "bloodTypeShort": "Grupa",
+    "nextEligibleShort": "Sljedeće",
+    "nameShort": "Ime"
   },
   "genders": {
     "MALE": "Muško",
@@ -111,7 +114,7 @@
       "PERMANENT": "Nikad",
       "MANUAL": "Provjeriti ručno",
       "TOO_OLD": "Iznad dobne granice",
-      "UNKNOWN_AGE": "Nepoznato (nema datuma rođenja)",
+      "UNKNOWN_AGE": "Nema datuma rođenja",
       "INACTIVE": "Neaktivan"
     },
     "reason": {
@@ -202,7 +205,8 @@
     "note": "Napomena",
     "createdAt": "Kreirano",
     "updatedAt": "Ažurirano",
-    "active": "Aktivan"
+    "active": "Aktivan",
+    "fileName": "darivatelji"
   },
   "places": {
     "title": "Mjesta",
@@ -212,5 +216,46 @@
     "deleteTitle": "Brisanje mjesta",
     "deleteText": "Jeste li sigurni da želite obrisati <strong>{title}</strong>?",
     "deleteActions": "{count, plural, =0 {Nijedna akcija ne koristi ovo mjesto.} one {# akcija koristi ovo mjesto. Akcija ostaje, ali bez mjesta.} few {# akcije koriste ovo mjesto. Akcije ostaju, ali bez mjesta.} other {# akcija koristi ovo mjesto. Akcije ostaju, ali bez mjesta.}}"
+  },
+  "filters": {
+    "eligibleOnly": "Samo oni koji mogu darivati sada",
+    "clear": "Očisti filtre",
+    "minDonations": "Najmanje darivanja",
+    "cityPlaceholder": "Dio naziva",
+    "active": "Aktivni filtri",
+    "chip": "{label}: {value}",
+    "ageFrom": "Dob od",
+    "ageTo": "Dob do",
+    "lastDonationFrom": "Zadnje darivanje od",
+    "lastDonationTo": "Zadnje darivanje do"
+  },
+  "donorOverview": {
+    "donating": "Darivanje",
+    "personal": "Osobni podaci",
+    "contact": "Kontakt",
+    "totalDonations": "Ukupno darivanja",
+    "beforeRecords": "Prije evidencije",
+    "age": "{age, plural, one {# godina} few {# godine} other {# godina}}",
+    "why": "Razlog"
+  },
+  "actionOverview": {
+    "details": "Akcija",
+    "time": "Vrijeme",
+    "result": "Rezultat",
+    "successful": "Uspješna darivanja",
+    "denied": "Odbijeni",
+    "deniedReasons": "Razlozi odbijanja",
+    "bloodTypes": "Prikupljene krvne grupe",
+    "noDonations": "Još nema darivanja"
+  },
+  "placeOverview": {
+    "location": "Lokacija",
+    "contact": "Kontakt",
+    "actions": "Akcije",
+    "actionCount": "Broj akcija",
+    "donationCount": "Uspješna darivanja",
+    "nextAction": "Sljedeća akcija",
+    "lastAction": "Zadnja akcija",
+    "showOnMap": "Prikaži na karti"
   }
 }

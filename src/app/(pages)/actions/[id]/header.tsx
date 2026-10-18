@@ -1,20 +1,66 @@
+'use client';
+
 import React from 'react';
-import { ROUTE_PATHS } from '@/routes';
-import { Breadcrumbs, Typography } from '@mui/material';
 import Link from 'next/link';
-import { ActionWithPlace } from '@/context/ActionsContext';
+import { Breadcrumbs, Button, Stack, Typography } from '@mui/material';
+import { MdDelete, MdEdit } from 'react-icons/md';
 import { useTranslations } from 'next-intl';
+import { ROUTE_PATHS } from '@/routes';
+import { ActionWithPlace, useActionsContext } from '@/context/ActionsContext';
 
 interface Props {
   action: ActionWithPlace;
 }
 
+// Breadcrumbs plus Edit and Delete, which open the actions dialogs.
 export const ActionDetailsHeader = ({ action }: Props) => {
-  const t = useTranslations('nav');
+  const t = useTranslations();
+  const { openDialog, isLoading } = useActionsContext();
   return (
-    <Breadcrumbs sx={{ mb: 4 }}>
-      <Link href={ROUTE_PATHS.PROTECTED.ACTIONS.path}>{t('actions')}</Link>
-      <Typography>{action.title}</Typography>
-    </Breadcrumbs>
+    <Stack
+      direction='row'
+      justifyContent='space-between'
+      alignItems='center'
+      flexWrap='wrap'
+      gap={2}
+      mb={3}
+    >
+      <Breadcrumbs>
+        <Link href={ROUTE_PATHS.PROTECTED.ACTIONS.path} className='tap-target'>
+          {t('nav.actions')}
+        </Link>
+        {/* Breadcrumbs grey the last item; the title stays prominent. */}
+        <Typography
+          variant='h1'
+          component='h1'
+          color='text.primary'
+          sx={{ mb: 0 }}
+        >
+          {action.title}
+        </Typography>
+      </Breadcrumbs>
+      <Stack direction='row' gap={2}>
+        <Button
+          variant='outlined'
+          color='inherit'
+          size='medium'
+          startIcon={<MdEdit />}
+          disabled={isLoading}
+          onClick={() => openDialog({ type: 'update', action })}
+        >
+          {t('common.edit')}
+        </Button>
+        <Button
+          variant='outlined'
+          color='inherit'
+          size='medium'
+          startIcon={<MdDelete />}
+          disabled={isLoading}
+          onClick={() => openDialog({ type: 'delete', action })}
+        >
+          {t('common.delete')}
+        </Button>
+      </Stack>
+    </Stack>
   );
 };

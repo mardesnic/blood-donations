@@ -13,6 +13,7 @@ import {
   toAppDay,
 } from '@/lib/dates';
 import { DENIAL_END, GAP_MONTHS, MAX_AGE, MIN_AGE } from '@/lib/eligibility';
+import { parseFilterString } from '@/lib/donorFilterModel';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -48,22 +49,8 @@ const BOOLEAN_VALUES: Record<string, boolean> = {
   INACTIVE: false,
 };
 
-// Parses "field|operator|value"; the value may itself contain "|".
-export function parseFilterString(filter: string | null | undefined): {
-  field: string;
-  operator: string;
-  value: string;
-} | null {
-  if (!filter) {
-    return null;
-  }
-  const [field, operator, ...rest] = filter.split('|');
-  const value = rest.join('|');
-  if (!field || !operator || !value) {
-    return null;
-  }
-  return { field, operator, value };
-}
+// Shared with the client, which keeps filters in the URL in this format.
+export { parseFilterString };
 
 // Calendar dates are stored as UTC midnight, so a day filter covers
 // [day 00:00 UTC, next day 00:00 UTC).
@@ -79,6 +66,11 @@ function dateCondition(
   switch (operator) {
     case 'is':
       return { gte: day, lt: nextDay };
+    // The two ends of a from-to range; both days are included.
+    case 'onOrAfter':
+      return { gte: day };
+    case 'onOrBefore':
+      return { lt: nextDay };
     case 'after':
       return { gte: nextDay };
     case 'before':
@@ -135,16 +127,47 @@ function fieldCondition(
   }
 }
 
+// The last birth (or start) day whose `months` are over by today, with the
+// same month arithmetic as computeEligibility.
+function latestStartMonthsBefore(today: Date, months: number): Date {
+  return latestStartEndingBy(
+    today,
+    (start) => addMonths(start, months),
+    addMonths(today, -months)
+  );
+}
+
+const MAX_FILTER_AGE = 150;
+
+// Age in whole years as a date-of-birth condition. Donors without a date of
+// birth never match.
+function ageCondition(
+  operator: string,
+  value: string,
+  today: Date
+): Prisma.DonorWhereInput | null {
+  const age = Number(value);
+  if (!Number.isInteger(age) || age < 0 || age > MAX_FILTER_AGE) {
+    return null;
+  }
+  switch (operator) {
+    // At least `age`: that birthday has passed.
+    case '>=':
+      return { dob: { lte: latestStartMonthsBefore(today, age * 12) } };
+    // At most `age`: the next birthday hasn't.
+    case '<=':
+      return { dob: { gt: latestStartMonthsBefore(today, (age + 1) * 12) } };
+    default:
+      return null;
+  }
+}
+
 // The same rules as computeEligibility, as a query: active, aged 18-65, past
 // the gap after the last donation and not blocked by a denial. Each "latest
 // start" is the last day whose wait is over by today.
 export function eligibleNowWhere(today: Date): Prisma.DonorWhereInput {
   const latestStart = (months: number) =>
-    latestStartEndingBy(
-      today,
-      (start) => addMonths(start, months),
-      addMonths(today, -months)
-    );
+    latestStartMonthsBefore(today, months);
   const denialBlocks = Object.entries(DENIAL_END).flatMap(([reason, end]) => {
     if (!end) {
       return [];
@@ -205,6 +228,9 @@ export function buildDonorFilter(
     .map((parsed) => {
       if (!parsed) {
         return null;
+      }
+      if (parsed.field === 'age') {
+        return ageCondition(parsed.operator, parsed.value, today);
       }
       if (parsed.field === 'eligible') {
         return parsed.operator === 'is' && parsed.value === 'NOW'

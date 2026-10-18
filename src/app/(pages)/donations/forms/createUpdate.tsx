@@ -34,10 +34,6 @@ const Form = ({ donation }: Props) => {
   const router = useRouter();
   const t = useTranslations();
   const goBack = useGoBack(ROUTE_PATHS.PROTECTED.DONATIONS.path);
-  const [searchQuery, setSearchQuery] = React.useState(
-    donation?.donor?.fullName || ''
-  );
-
   const {
     createDonation,
     updateDonation,
@@ -46,6 +42,12 @@ const Form = ({ donation }: Props) => {
     action,
     openDialog,
   } = useDonationsContext();
+
+  // Starts with the donation's (or the preselected) donor, so it is among
+  // the options.
+  const [searchQuery, setSearchQuery] = React.useState(
+    donation?.donor?.fullName || donor?.fullName || ''
+  );
 
   const { isLoading: isDonorsLoading, data } = useGetDonors({
     page: 0,
@@ -232,7 +234,14 @@ const Form = ({ donation }: Props) => {
           ))}
         </TextField>
       )}
-      <Stack direction='row' justifyContent='space-between' mt={3}>
+      {/* Phones stack the buttons full width: Save on top, Delete last. */}
+      <Stack
+        direction={{ xs: 'column-reverse', sm: 'row' }}
+        justifyContent='space-between'
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        gap={2}
+        mt={3}
+      >
         {!!donation && (
           <Button
             onClick={() => openDialog({ type: 'delete', donation })}
@@ -242,7 +251,12 @@ const Form = ({ donation }: Props) => {
             {t('donations.delete')}
           </Button>
         )}
-        <Stack direction='row' justifyContent='flex-end' gap={2} ml='auto'>
+        <Stack
+          direction={{ xs: 'column-reverse', sm: 'row' }}
+          justifyContent='flex-end'
+          gap={2}
+          ml={{ sm: 'auto' }}
+        >
           <Button
             onClick={() => router.back()}
             variant='outlined'

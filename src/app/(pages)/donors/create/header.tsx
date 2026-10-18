@@ -11,7 +11,10 @@ export const CreateDonorHeader = () => {
   return (
     <Typography variant='h1'>
       <Stack direction='row' alignItems='center' gap={1}>
-        <Link href={`${ROUTE_PATHS.PROTECTED.DONORS.path}`}>
+        <Link
+          href={`${ROUTE_PATHS.PROTECTED.DONORS.path}`}
+          className='tap-target'
+        >
           <MdArrowBack size={24} />
         </Link>
         <>{t('new')}</>

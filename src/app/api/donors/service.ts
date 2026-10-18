@@ -1,7 +1,8 @@
 import { prisma } from '@/db';
-import { DATE_FORMAT } from '@/lib/const';
+import { BLOOD_TYPES, DATE_FORMAT } from '@/lib/const';
 import { buildDonorFilter } from '@/lib/donorFilters';
-import { formatDay, toAppDay } from '@/lib/dates';
+import { donorOrderBy } from '@/lib/donorSort';
+import { ageOn, formatDay, toAppDay } from '@/lib/dates';
 import {
   computeEligibility,
   Eligibility,
@@ -64,7 +65,7 @@ export default class DonorService {
     const donors = await prisma.donor.findMany({
       take,
       skip,
-      orderBy: { [sortField]: sort },
+      orderBy: donorOrderBy(sortField, sort),
       where: whereCondition,
       include: {
         _count: {
@@ -86,14 +87,28 @@ export default class DonorService {
     };
   }
 
-  static async findOne(id: string) {
-    return await prisma.donor.findUnique({
+  // The donor for its overview page, with eligibility and age worked out the
+  // same way as in the donors list.
+  static async findOverview(id: string) {
+    const today = toAppDay(new Date()) as Date;
+    const found = await prisma.donor.findUnique({
       where: { id },
-      include: {
-        donations: true,
-        communications: true,
-      },
+      include: { donations: DENIALS },
     });
+    if (!found) {
+      return null;
+    }
+    const { donations, ...donor } = found;
+    return {
+      donor,
+      eligibility: computeEligibility({ ...donor, denials: donations }, today),
+      age: ageOn(donor.dob, today),
+    };
+  }
+
+  // Just the donor: its pages load donations separately, page by page.
+  static async findOne(id: string) {
+    return await prisma.donor.findUnique({ where: { id } });
   }
 
   static async create(data: DonorInput): Promise<Donor> {
@@ -135,15 +150,17 @@ export default class DonorService {
     filters: string[],
     sortField: keyof Donor = 'createdAt',
     sort: string = 'desc',
-    // Translations for the column names ("export" messages) and the
-    // eligibility labels ("eligibility" messages).
-    t: { headers: (key: string) => string; eligibility: EligibilityTranslate }
+    // All messages, for the column names and the values (gender, blood
+    // type, status, eligibility) in the user's language.
+    t: (key: string, values?: Record<string, string | number>) => string
   ): Promise<string> {
+    const tEligibility: EligibilityTranslate = (key, values) =>
+      t(`eligibility.${key}`, values);
     const today = toAppDay(new Date()) as Date;
     const whereCondition = this.constructWhereCondition(search, filters, today);
 
     const donors = await prisma.donor.findMany({
-      orderBy: { [sortField]: sort },
+      orderBy: donorOrderBy(sortField, sort),
       where: whereCondition,
       include: { donations: DENIALS },
     });
@@ -157,22 +174,22 @@ export default class DonorService {
         email: donor.email,
         phone: donor.phone,
         city: donor.city,
-        gender: donor.gender,
-        bloodType: donor.bloodType,
+        gender: t(`genders.${donor.gender}`),
+        bloodType: donor.bloodType ? BLOOD_TYPES[donor.bloodType] : '',
         donations: donor.donationCount,
         lastDonation: formatDay(donor.lastDonation),
         nextEligible: eligibilityLabel(
           computeEligibility({ ...donor, denials: donor.donations }, today),
-          t.eligibility
+          tEligibility
         ),
         dob: formatDay(donor.dob),
         note: donor.note,
         createdAt: dayjs(donor.createdAt).format(DATE_FORMAT),
         updatedAt: dayjs(donor.updatedAt).format(DATE_FORMAT),
-        active: donor.active,
+        active: t(`statuses.${donor.active ? 'ACTIVE' : 'INACTIVE'}`),
       };
       return Object.fromEntries(
-        EXPORT_COLUMNS.map((key) => [t.headers(key), row[key]])
+        EXPORT_COLUMNS.map((key) => [t(`export.${key}`), row[key]])
       );
     });
 

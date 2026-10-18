@@ -33,7 +33,7 @@ export default async function DonationDetails({ params }: Props) {
 
   return (
     <DonationsProvider>
-      <Container component='main' maxWidth='sm'>
+      <Container component='main' maxWidth='sm' disableGutters>
         <UpdateDonationHeader donation={donation} />
         <UpdateDonationBody donation={donation} />
       </Container>

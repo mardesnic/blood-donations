@@ -143,3 +143,14 @@ video {
 [hidden] {
   display: none;
 }
+
+/*
+ * A bigger touch area for small links and icons (back arrows, breadcrumbs,
+ * the logo) without moving them: 8px more on every side.
+ */
+.tap-target {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px;
+  margin: -8px;
+}

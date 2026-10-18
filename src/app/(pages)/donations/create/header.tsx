@@ -12,7 +12,11 @@ export const CreateDonationHeader = () => {
   return (
     <Typography variant='h1'>
       <Stack direction='row' alignItems='center' gap={1}>
-        <Box sx={{ cursor: 'pointer' }} onClick={() => router.back()}>
+        <Box
+          className='tap-target'
+          sx={{ cursor: 'pointer' }}
+          onClick={() => router.back()}
+        >
           <MdArrowBack size={24} />
         </Box>
         <>{t('new')}</>
