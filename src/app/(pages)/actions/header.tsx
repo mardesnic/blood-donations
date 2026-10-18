@@ -10,7 +10,13 @@ export const ActionsHeader = () => {
   const { openDialog } = useActionsContext();
   const t = useTranslations('actions');
   return (
-    <Stack direction='row' justifyContent='space-between' alignItems='center'>
+    <Stack
+      direction='row'
+      justifyContent='space-between'
+      alignItems='center'
+      flexWrap='wrap'
+      gap={2}
+    >
       <Typography variant='h1'>{t('title')}</Typography>
       <Button
         color='secondary'

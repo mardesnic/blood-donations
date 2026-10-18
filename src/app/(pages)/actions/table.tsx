@@ -4,10 +4,16 @@ import * as React from 'react';
 import dayjs from 'dayjs';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Action } from '@/generated/prisma/browser';
-import { Card, IconButton, Stack } from '@mui/material';
+import {
+  Card,
+  IconButton,
+  Stack,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { MdDelete, MdEdit } from 'react-icons/md';
 import { useActionsContext } from '@/context/ActionsContext';
-import { DATE_TIME_FORMAT, PAGE_SIZE } from '@/lib/const';
+import { DATE_FORMAT, DATE_TIME_FORMAT, PAGE_SIZE } from '@/lib/const';
 import { ROUTE_PATHS } from '@/routes';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -25,39 +31,58 @@ export default function ActionsTable() {
   } = useActionsContext();
   const t = useTranslations();
   const router = useRouter();
+  // Phones show title, start date and the buttons; tablets add place and
+  // donation count; wider screens also end time and note.
+  const theme = useTheme();
+  const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const columnVisibilityModel = {
+    place: !isPhone,
+    donationCount: !isPhone,
+    endDateTime: !isTablet,
+    note: !isTablet,
+  };
   const columns: GridColDef[] = [
     {
       field: 'title',
       headerName: t('fields.title'),
-      flex: 1,
+      flex: 1.5,
+      minWidth: isPhone ? 100 : 130,
+      renderCell: (params) => <TruncatedText text={params.value} />,
     },
     {
       field: 'place',
       headerName: t('fields.place'),
       flex: 1,
-      renderCell: (params) => params?.value?.title || t('common.none'),
+      minWidth: 110,
+      renderCell: (params) => (
+        <TruncatedText text={params?.value?.title || t('common.none')} />
+      ),
     },
     {
       field: 'startDateTime',
       headerName: t('fields.startDate'),
-      flex: 1,
-      renderCell: (params) => dayjs(params.value).format(DATE_TIME_FORMAT),
+      // Phones show just the day; room for the title and the sort arrow.
+      width: isPhone ? 125 : 165,
+      renderCell: (params) =>
+        dayjs(params.value).format(isPhone ? DATE_FORMAT : DATE_TIME_FORMAT),
     },
     {
       field: 'endDateTime',
       headerName: t('fields.endDate'),
-      flex: 1,
+      width: 165,
       renderCell: (params) => dayjs(params.value).format(DATE_TIME_FORMAT),
     },
     {
       field: 'donationCount',
-      headerName: t('fields.donationCount'),
-      flex: 1,
+      headerName: t('fields.donations'),
+      width: 120,
     },
     {
       field: 'note',
       headerName: t('fields.note'),
       flex: 1,
+      minWidth: 150,
       renderCell: (params) => <TruncatedText text={params.value} />,
     },
     {
@@ -67,7 +92,7 @@ export default function ActionsTable() {
       sortable: false,
       filterable: false,
       // Two icon buttons plus the table's 24px right padding.
-      width: 130,
+      width: isPhone ? 105 : 130,
       // The row opens the action; these buttons must not.
       renderCell: (params: { row: Action }) => (
         <Stack
@@ -77,12 +102,14 @@ export default function ActionsTable() {
           onClick={(event) => event.stopPropagation()}
         >
           <IconButton
+            size={isPhone ? 'small' : 'medium'}
             aria-label={t('common.edit')}
             onClick={() => openDialog({ type: 'update', action: params.row })}
           >
             <MdEdit />
           </IconButton>
           <IconButton
+            size={isPhone ? 'small' : 'medium'}
             aria-label={t('common.delete')}
             onClick={() => openDialog({ type: 'delete', action: params.row })}
           >
@@ -101,6 +128,8 @@ export default function ActionsTable() {
           },
           pagination: { paginationModel: { pageSize: PAGE_SIZE } },
         }}
+        columnVisibilityModel={columnVisibilityModel}
+        disableColumnMenu
         rows={actions}
         rowCount={count}
         columns={columns}
