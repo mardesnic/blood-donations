@@ -142,3 +142,19 @@ describe('eligibility texts', () => {
     );
   });
 });
+
+describe('overview messages', () => {
+  it('shows the year-on-year change with its sign', () => {
+    const en = translator('en', 'overview');
+    const hr = translator('hr', 'overview');
+    expect(en('vsLastYear', { change: 8 })).toBe(
+      '+8% vs. the same period last year'
+    );
+    expect(en('vsLastYear', { change: -10 })).toBe(
+      '-10% vs. the same period last year'
+    );
+    expect(hr('vsLastYear', { change: 8 })).toBe(
+      '+8% u odnosu na isto razdoblje prošle godine'
+    );
+  });
+});

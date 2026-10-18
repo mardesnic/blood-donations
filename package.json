@@ -24,6 +24,7 @@
     "@mui/icons-material": "^7.3.11",
     "@mui/material": "^7.3.11",
     "@mui/system": "^7.3.11",
+    "@mui/x-charts": "^8.29.3",
     "@mui/x-data-grid": "^8.29.5",
     "@mui/x-date-pickers": "^8.29.5",
     "@prisma/adapter-pg": "^7.10.1",

@@ -27,6 +27,8 @@ const nextConfig = {
   poweredByHeader: false,
   async redirects() {
     return [
+      // The overview is the home page.
+      { source: '/', destination: '/overview', permanent: false },
       // A donor's donations moved to the donor's overview page.
       {
         source: '/donors/:id/donations',

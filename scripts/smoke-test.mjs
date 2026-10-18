@@ -482,6 +482,52 @@ async function main() {
     res.status
   );
 
+  // A report for the smoke donation's day (successful, 0-) and its CSVs.
+  const reportDay = query({ from: '2026-10-01', to: '2026-10-01' });
+  res = await call('GET', `/reports?${reportDay}`, { raw: true });
+  check(
+    'report page for a day',
+    res.status === 200 &&
+      res.data.includes('Period: 01.10.2026. – 01.10.2026.') &&
+      res.data.includes('By month'),
+    res.status
+  );
+  const reportCsv = async (table) =>
+    (
+      await call('GET', `/api/reports/export?${reportDay}&table=${table}`, {
+        raw: true,
+      })
+    ).data;
+  const totalsCsv = await reportCsv('totals');
+  const successfulRow = totalsCsv
+    .split('\n')
+    .find((line) => line.startsWith('Successful donations,'));
+  check(
+    'report totals count the donation',
+    Number(successfulRow?.split(',')[1]) >= 1,
+    successfulRow
+  );
+  check(
+    'report by blood type includes 0-',
+    (await reportCsv('bloodTypes')).includes('0-,')
+  );
+  for (const table of ['months', 'actions', 'genderAge', 'denyReasons']) {
+    res = await call('GET', `/api/reports/export?${reportDay}&table=${table}`, {
+      raw: true,
+    });
+    check(
+      `report ${table} CSV`,
+      res.status === 200 && res.data.length > 0,
+      res.status
+    );
+  }
+  res = await call('GET', `/api/reports/export?${reportDay}&table=donors`);
+  check(
+    'report export rejects an unknown table',
+    res.status === 400,
+    res.status
+  );
+
   // Detail pages render with data
   for (const path of [
     `/donors/${donor.id}`,
@@ -637,6 +683,24 @@ async function main() {
   check(
     'new donation page preselects the donor',
     res.status === 200 && res.data.includes('Smoke Test'),
+    res.status
+  );
+
+  // The overview is the home page.
+  res = await call('GET', '/', { raw: true, redirect: 'manual' });
+  check(
+    'home page redirects to the overview',
+    [307, 308].includes(res.status),
+    res.status
+  );
+  res = await call('GET', '/overview', { raw: true });
+  check(
+    'overview shows the year, who can donate and the chart',
+    res.status === 200 &&
+      res.data.includes('Donations this year') &&
+      res.data.includes('Can donate now') &&
+      res.data.includes('Donations per month') &&
+      res.data.includes('filter=eligible%7Cis%7CNOW'),
     res.status
   );
 
