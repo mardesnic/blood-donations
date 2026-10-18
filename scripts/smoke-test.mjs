@@ -576,10 +576,37 @@ async function main() {
   });
   check('donors page with sort and page in the URL', res.status === 200);
 
-  // "New donation" from a donor's page preselects the donor.
-  res = await call('GET', `/donors/${donor.id}/donations`, { raw: true });
+  // The donor's overview, its edit page, and the old donations link.
+  res = await call('GET', `/donors/${donor.id}`, { raw: true });
   check(
-    "donor's donations page links to a new donation for the donor",
+    'donor overview shows eligibility, details and donations',
+    res.status === 200 &&
+      res.data.includes('Total donations') &&
+      res.data.includes('Personal details') &&
+      res.data.includes(`/donors/${donor.id}/edit`) &&
+      res.data.includes('id="donations"'),
+    res.status
+  );
+  res = await call('GET', `/donors/${donor.id}/edit`, { raw: true });
+  check(
+    'donor edit page shows the form',
+    res.status === 200 && res.data.includes('name="firstName"'),
+    res.status
+  );
+  res = await call('GET', `/donors/${donor.id}/donations`, {
+    raw: true,
+    redirect: 'manual',
+  });
+  check(
+    'old donor donations link redirects to the overview',
+    [307, 308].includes(res.status),
+    res.status
+  );
+
+  // "New donation" from a donor's page preselects the donor.
+  res = await call('GET', `/donors/${donor.id}`, { raw: true });
+  check(
+    "donor's page links to a new donation for the donor",
     res.data.includes(`/donations/create?donorId=${donor.id}`),
     res.status
   );

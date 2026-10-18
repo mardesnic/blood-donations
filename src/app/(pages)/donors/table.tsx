@@ -15,6 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import { TruncatedText } from '@/components/TruncatedText';
+import { rememberDonorsListUrl } from '@/lib/donorsListUrl';
 import Link from 'next/link';
 import { MdAdd, MdFilterList } from 'react-icons/md';
 
@@ -105,7 +106,7 @@ export default function DonorsTable() {
       renderCell: (params) => (
         <MuiLink
           component={Link}
-          href={`${donorPath(params.row.id)}/donations`}
+          href={`${donorPath(params.row.id)}#donations`}
           onClick={(event: React.MouseEvent) => event.stopPropagation()}
           underline='always'
           color='secondary'
@@ -191,6 +192,8 @@ export default function DonorsTable() {
       paginationModel,
     }).toString();
     const url = `${window.location.pathname}${query ? `?${query}` : ''}`;
+    // The donor pages link back to this exact list.
+    rememberDonorsListUrl(url);
     if (url !== `${window.location.pathname}${window.location.search}`) {
       // null lets Next.js keep its own history state with the new URL, so
       // Back returns to the filtered list.

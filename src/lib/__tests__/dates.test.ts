@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDay, parseDay, toAppDay, toDayString } from '@/lib/dates';
+import { ageOn, formatDay, parseDay, toAppDay, toDayString } from '@/lib/dates';
 
 describe('parseDay', () => {
   it('returns null for null, undefined, empty and malformed input', () => {
@@ -61,5 +61,28 @@ describe('formatDay', () => {
 
   it('formats the stored day as DD.MM.YYYY.', () => {
     expect(formatDay(new Date('1990-05-01T00:00:00.000Z'))).toBe('01.05.1990.');
+  });
+});
+
+describe('ageOn', () => {
+  const day = (value: string) => new Date(`${value}T00:00:00.000Z`);
+  const today = day('2026-10-18');
+
+  it('returns null for null, undefined, empty, invalid and future input', () => {
+    for (const dob of [null, undefined, '', 'not a date', day('2027-01-01')]) {
+      expect(ageOn(dob, today)).toBeNull();
+    }
+  });
+
+  it('counts whole years, turning older on the birthday', () => {
+    expect(ageOn(day('1990-10-18'), today)).toBe(36);
+    expect(ageOn(day('1990-10-19'), today)).toBe(35);
+    expect(ageOn('1990-05-01T00:00:00.000Z', today)).toBe(36);
+    expect(ageOn(day('2026-10-18'), today)).toBe(0);
+  });
+
+  it('treats a 29 February birthday like the eligibility rules', () => {
+    expect(ageOn(day('2008-02-29'), day('2026-02-27'))).toBe(17);
+    expect(ageOn(day('2008-02-29'), day('2026-02-28'))).toBe(18);
   });
 });

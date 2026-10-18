@@ -227,5 +227,14 @@
     "ageTo": "Age to",
     "lastDonationFrom": "Last donation from",
     "lastDonationTo": "Last donation to"
+  },
+  "donorOverview": {
+    "donating": "Donating",
+    "personal": "Personal details",
+    "contact": "Contact",
+    "totalDonations": "Total donations",
+    "beforeRecords": "Before records",
+    "age": "{age, plural, one {# year} other {# years}}",
+    "why": "Why"
   }
 }

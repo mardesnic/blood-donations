@@ -22,6 +22,7 @@ export default function DonationsTable() {
     isFetching,
     changePaginationModel,
     changeSortModel,
+    donor,
   } = useDonationsContext();
   const t = useTranslations();
   const columns: GridColDef[] = [
@@ -95,6 +96,8 @@ export default function DonationsTable() {
   return (
     <Card sx={{ mt: 4 }} elevation={2}>
       <DataGrid
+        // On a donor's page every row is that donor.
+        columnVisibilityModel={{ donor: !donor }}
         rows={donations}
         rowCount={count}
         columns={columns}

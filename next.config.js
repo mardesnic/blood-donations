@@ -25,6 +25,16 @@ const nextConfig = {
     styledComponents: true,
   },
   poweredByHeader: false,
+  async redirects() {
+    return [
+      // A donor's donations moved to the donor's overview page.
+      {
+        source: '/donors/:id/donations',
+        destination: '/donors/:id#donations',
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },

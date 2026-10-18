@@ -34,8 +34,13 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
   const router = useRouter();
   const t = useTranslations();
 
+  // An edited donor goes back to its overview, a new one to the list.
   const goToDonorsTable = () => {
-    router.push(`${ROUTE_PATHS.PROTECTED.DONORS.path}`);
+    router.push(
+      donor?.id
+        ? `${ROUTE_PATHS.PROTECTED.DONORS.path}/${donor.id}`
+        : ROUTE_PATHS.PROTECTED.DONORS.path
+    );
   };
 
   const { createDonor, updateDonor, isLoading, openDialog } =

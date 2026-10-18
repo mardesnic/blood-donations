@@ -2,7 +2,7 @@ import { prisma } from '@/db';
 import { DATE_FORMAT } from '@/lib/const';
 import { buildDonorFilter } from '@/lib/donorFilters';
 import { donorOrderBy } from '@/lib/donorSort';
-import { formatDay, toAppDay } from '@/lib/dates';
+import { ageOn, formatDay, toAppDay } from '@/lib/dates';
 import {
   computeEligibility,
   Eligibility,
@@ -84,6 +84,25 @@ export default class DonorService {
         ),
       })),
       count,
+    };
+  }
+
+  // The donor for its overview page, with eligibility and age worked out the
+  // same way as in the donors list.
+  static async findOverview(id: string) {
+    const today = toAppDay(new Date()) as Date;
+    const found = await prisma.donor.findUnique({
+      where: { id },
+      include: { donations: DENIALS },
+    });
+    if (!found) {
+      return null;
+    }
+    const { donations, ...donor } = found;
+    return {
+      donor,
+      eligibility: computeEligibility({ ...donor, denials: donations }, today),
+      age: ageOn(donor.dob, today),
     };
   }
 

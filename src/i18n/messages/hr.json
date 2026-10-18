@@ -227,5 +227,14 @@
     "ageTo": "Dob do",
     "lastDonationFrom": "Zadnje darivanje od",
     "lastDonationTo": "Zadnje darivanje do"
+  },
+  "donorOverview": {
+    "donating": "Darivanje",
+    "personal": "Osobni podaci",
+    "contact": "Kontakt",
+    "totalDonations": "Ukupno darivanja",
+    "beforeRecords": "Prije evidencije",
+    "age": "{age, plural, one {# godina} few {# godine} other {# godina}}",
+    "why": "Razlog"
   }
 }
