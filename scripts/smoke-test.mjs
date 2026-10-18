@@ -471,6 +471,16 @@ async function main() {
   check('donations sorted by donor', res.status === 200 && res.data.count >= 1);
   res = await call('POST', '/api/donations', { body: { donorId: donor.id } });
   check('invalid donation rejected', res.status === 400, res.status);
+  // The action's page sums up its donations (one successful, 0-).
+  res = await call('GET', `/actions/${action.id}`, { raw: true });
+  check(
+    'action page shows its result',
+    res.status === 200 &&
+      res.data.includes('Successful donations') &&
+      res.data.includes('0- ×1') &&
+      res.data.includes(`/donations/create?actionId=${action.id}`),
+    res.status
+  );
 
   // Detail pages render with data
   for (const path of [
@@ -517,6 +527,14 @@ async function main() {
   });
   const placeAction = res.data;
   check('create action at the place', placeAction?.placeId === place.id);
+  res = await call('GET', `/actions/${placeAction.id}`, { raw: true });
+  check(
+    'action page links to its place',
+    res.status === 200 &&
+      res.data.includes(`/places/${place.id}`) &&
+      res.data.includes('Smoke Hall'),
+    res.status
+  );
   res = await call('GET', `/api/places?${query({ search: 'Smoke Hall' })}`);
   check(
     'places list counts actions',

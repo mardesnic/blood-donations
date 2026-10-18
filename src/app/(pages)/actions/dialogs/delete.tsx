@@ -12,10 +12,13 @@ import {
 import React from 'react';
 import { MdDelete } from 'react-icons/md';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { ROUTE_PATHS } from '@/routes';
 
 export const ActionDeleteDialog = () => {
   const { closeDialog, activeDialog, removeAction, isLoading } =
     useActionsContext();
+  const router = useRouter();
   const t = useTranslations();
 
   if (activeDialog?.type !== 'delete') {
@@ -29,6 +32,9 @@ export const ActionDeleteDialog = () => {
   const onSubmit = async () => {
     await removeAction(id);
     closeDialog();
+    // From the action's own page, go back to the list.
+    router.push(ROUTE_PATHS.PROTECTED.ACTIONS.path);
+    router.refresh();
   };
 
   return (

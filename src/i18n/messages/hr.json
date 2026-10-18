@@ -237,5 +237,15 @@
     "beforeRecords": "Prije evidencije",
     "age": "{age, plural, one {# godina} few {# godine} other {# godina}}",
     "why": "Razlog"
+  },
+  "actionOverview": {
+    "details": "Akcija",
+    "time": "Vrijeme",
+    "result": "Rezultat",
+    "successful": "Uspješna darivanja",
+    "denied": "Odbijeni",
+    "deniedReasons": "Razlozi odbijanja",
+    "bloodTypes": "Prikupljene krvne grupe",
+    "noDonations": "Još nema darivanja"
   }
 }

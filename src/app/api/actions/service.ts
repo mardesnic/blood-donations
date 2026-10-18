@@ -1,5 +1,6 @@
 import { prisma } from '@/db';
 import { Action, Prisma } from '@/generated/prisma/client';
+import { summarizeActionDonations } from '@/lib/actionSummary';
 
 export default class ActionService {
   static async find(
@@ -37,6 +38,26 @@ export default class ActionService {
         place: true,
       },
     });
+  }
+
+  // The action for its overview page, with how its donations went.
+  static async findOverview(id: string) {
+    const action = await prisma.action.findUnique({
+      where: { id },
+      include: { place: true },
+    });
+    if (!action) {
+      return null;
+    }
+    const donations = await prisma.donation.findMany({
+      where: { actionId: id },
+      select: {
+        denied: true,
+        denyReason: true,
+        donor: { select: { bloodType: true } },
+      },
+    });
+    return { action, summary: summarizeActionDonations(donations) };
   }
 
   static async create(

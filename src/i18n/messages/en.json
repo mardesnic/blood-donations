@@ -237,5 +237,15 @@
     "beforeRecords": "Before records",
     "age": "{age, plural, one {# year} other {# years}}",
     "why": "Why"
+  },
+  "actionOverview": {
+    "details": "Action",
+    "time": "Time",
+    "result": "Result",
+    "successful": "Successful donations",
+    "denied": "Denied",
+    "deniedReasons": "Why denied",
+    "bloodTypes": "Blood types collected",
+    "noDonations": "No donations yet"
   }
 }

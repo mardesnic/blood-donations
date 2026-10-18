@@ -2,17 +2,14 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import React, { ReactNode } from 'react';
+import React from 'react';
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
   Container,
   Grid,
   Link as MuiLink,
-  Stack,
   Typography,
 } from '@mui/material';
 import { MdEdit } from 'react-icons/md';
@@ -27,6 +24,7 @@ import { DonationsProvider } from '@/context/DonationsContext';
 import { DonationsHeader } from '@/app/(pages)/donations/header';
 import DonationsTable from '@/app/(pages)/donations/table';
 import { DonorDetailsHeader } from './header';
+import { InfoField, InfoSection } from '@/components/InfoSection';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -41,35 +39,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ),
   };
 }
-
-// A label and its value; empty values show a dash.
-const Field = ({ label, value }: { label: string; value: ReactNode }) => (
-  <Box>
-    <Typography variant='body2' color='text.secondary'>
-      {label}
-    </Typography>
-    <Typography component='div' sx={{ wordBreak: 'break-word' }}>
-      {value || value === 0 ? value : '—'}
-    </Typography>
-  </Box>
-);
-
-const Section = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) => (
-  <Card elevation={2} sx={{ height: '100%' }}>
-    <CardContent>
-      <Typography variant='h3' component='h2' sx={{ mb: 2 }}>
-        {title}
-      </Typography>
-      <Stack gap={1.5}>{children}</Stack>
-    </CardContent>
-  </Card>
-);
 
 // Everything about a donor on one page: when they can donate again, their
 // details and their donations.
@@ -107,8 +76,8 @@ export default async function DonorOverviewPage({ params }: Props) {
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <Section title={t('donorOverview.donating')}>
-            <Field
+          <InfoSection title={t('donorOverview.donating')}>
+            <InfoField
               label={t('fields.nextEligible')}
               value={
                 <Typography
@@ -120,20 +89,20 @@ export default async function DonorOverviewPage({ params }: Props) {
                 </Typography>
               }
             />
-            <Field
+            <InfoField
               label={t('donorOverview.why')}
               value={eligibilityReason(eligibility, tEligibility)}
             />
-            <Field
+            <InfoField
               label={t('donorOverview.totalDonations')}
               value={donor.donationCount}
             />
-            <Field
+            <InfoField
               label={t('fields.lastDonation')}
               value={formatDay(donor.lastDonation)}
             />
             {donor.initialDonationCount > 0 && (
-              <Field
+              <InfoField
                 label={t('donorOverview.beforeRecords')}
                 value={[
                   donor.initialDonationCount,
@@ -143,20 +112,20 @@ export default async function DonorOverviewPage({ params }: Props) {
                   .join(' · ')}
               />
             )}
-          </Section>
+          </InfoSection>
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <Section title={t('donorOverview.personal')}>
-            <Field
+          <InfoSection title={t('donorOverview.personal')}>
+            <InfoField
               label={t('fields.bloodType')}
               value={donor.bloodType && BLOOD_TYPES[donor.bloodType]}
             />
-            <Field
+            <InfoField
               label={t('fields.gender')}
               value={t(`genders.${donor.gender}`)}
             />
-            <Field
+            <InfoField
               label={t('fields.dob')}
               value={
                 donor.dob &&
@@ -165,14 +134,17 @@ export default async function DonorOverviewPage({ params }: Props) {
                 }`
               }
             />
-            <Field label={t('fields.oib')} value={donor.oib} />
-            <Field label={t('fields.fatherName')} value={donor.fatherName} />
-          </Section>
+            <InfoField label={t('fields.oib')} value={donor.oib} />
+            <InfoField
+              label={t('fields.fatherName')}
+              value={donor.fatherName}
+            />
+          </InfoSection>
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <Section title={t('donorOverview.contact')}>
-            <Field
+          <InfoSection title={t('donorOverview.contact')}>
+            <InfoField
               label={t('fields.phone')}
               value={
                 donor.phone && (
@@ -182,7 +154,7 @@ export default async function DonorOverviewPage({ params }: Props) {
                 )
               }
             />
-            <Field
+            <InfoField
               label={t('fields.email')}
               value={
                 donor.email && (
@@ -192,18 +164,18 @@ export default async function DonorOverviewPage({ params }: Props) {
                 )
               }
             />
-            <Field label={t('fields.address')} value={donor.address} />
-            <Field label={t('fields.city')} value={donor.city} />
-          </Section>
+            <InfoField label={t('fields.address')} value={donor.address} />
+            <InfoField label={t('fields.city')} value={donor.city} />
+          </InfoSection>
         </Grid>
 
         {donor.note && (
           <Grid size={12}>
-            <Section title={t('fields.note')}>
+            <InfoSection title={t('fields.note')}>
               <Typography sx={{ whiteSpace: 'pre-line' }}>
                 {donor.note}
               </Typography>
-            </Section>
+            </InfoSection>
           </Grid>
         )}
       </Grid>
