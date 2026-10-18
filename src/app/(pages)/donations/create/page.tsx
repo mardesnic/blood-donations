@@ -34,7 +34,7 @@ export default async function CreateDonationPage({ searchParams }: Props) {
       : null;
   return (
     <DonationsProvider action={action ?? undefined} donor={donor ?? undefined}>
-      <Container component='main' maxWidth='sm'>
+      <Container component='main' maxWidth='sm' disableGutters>
         <CreateDonationHeader />
         <CreateDonationBody />
       </Container>

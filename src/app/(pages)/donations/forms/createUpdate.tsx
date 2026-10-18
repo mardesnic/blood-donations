@@ -234,7 +234,14 @@ const Form = ({ donation }: Props) => {
           ))}
         </TextField>
       )}
-      <Stack direction='row' justifyContent='space-between' mt={3}>
+      {/* Phones stack the buttons full width: Save on top, Delete last. */}
+      <Stack
+        direction={{ xs: 'column-reverse', sm: 'row' }}
+        justifyContent='space-between'
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        gap={2}
+        mt={3}
+      >
         {!!donation && (
           <Button
             onClick={() => openDialog({ type: 'delete', donation })}
@@ -244,7 +251,12 @@ const Form = ({ donation }: Props) => {
             {t('donations.delete')}
           </Button>
         )}
-        <Stack direction='row' justifyContent='flex-end' gap={2} ml='auto'>
+        <Stack
+          direction={{ xs: 'column-reverse', sm: 'row' }}
+          justifyContent='flex-end'
+          gap={2}
+          ml={{ sm: 'auto' }}
+        >
           <Button
             onClick={() => router.back()}
             variant='outlined'
