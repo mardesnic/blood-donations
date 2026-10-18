@@ -22,7 +22,13 @@ export const DonationsHeader = () => {
   }
   const href = params.size ? `${createPath}?${params}` : createPath;
   return (
-    <Stack direction='row' justifyContent='space-between' alignItems='center'>
+    <Stack
+      direction='row'
+      justifyContent='space-between'
+      alignItems='center'
+      flexWrap='wrap'
+      gap={2}
+    >
       <Typography variant='h1'>{t('title')}</Typography>
       <Link href={href}>
         <Button color='secondary' size='medium' startIcon={<MdAdd />}>
