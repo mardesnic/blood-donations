@@ -257,20 +257,29 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
         label={t('fields.active')}
       />
 
-      <Stack direction='row' justifyContent='space-between'>
-        <Stack>
-          {donor?.id && (
-            <Button
-              onClick={() => openDialog({ type: 'delete', donor })}
-              variant='outlined'
-              disabled={isLoading}
-            >
-              {t('donors.deleteAccount')}
-            </Button>
-          )}
-        </Stack>
+      {/* Phones stack the buttons full width: Save on top, Delete last. */}
+      <Stack
+        direction={{ xs: 'column-reverse', sm: 'row' }}
+        justifyContent='space-between'
+        alignItems={{ xs: 'stretch', sm: 'center' }}
+        gap={2}
+        mt={2}
+      >
+        {donor?.id && (
+          <Button
+            onClick={() => openDialog({ type: 'delete', donor })}
+            variant='outlined'
+            disabled={isLoading}
+          >
+            {t('donors.deleteAccount')}
+          </Button>
+        )}
 
-        <Stack direction='row' gap={2}>
+        <Stack
+          direction={{ xs: 'column-reverse', sm: 'row' }}
+          gap={2}
+          ml={{ sm: 'auto' }}
+        >
           <Button
             onClick={goToDonorsTable}
             variant='outlined'
