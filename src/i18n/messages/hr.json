@@ -12,7 +12,8 @@
     "menu": "Izbornik",
     "account": "Račun",
     "places": "Mjesta",
-    "overview": "Pregled"
+    "overview": "Pregled",
+    "reports": "Izvještaji"
   },
   "pageTitles": {
     "welcome": "Dobro došli",
@@ -24,7 +25,8 @@
     "donation": "Darivanje - {name}",
     "actions": "Akcije",
     "places": "Mjesta",
-    "overview": "Pregled"
+    "overview": "Pregled",
+    "reports": "Izvještaji"
   },
   "common": {
     "cancel": "Odustani",
@@ -284,5 +286,46 @@
     "recent": "Nedavne akcije",
     "noRecent": "Još nema akcija",
     "result": "{successful} uspješnih · {denied} odbijenih"
+  },
+  "reports": {
+    "title": "Izvještaji",
+    "year": "Godina",
+    "part": "Dio godine",
+    "wholeYear": "Cijela godina",
+    "quarter": "{n}. tromjesečje",
+    "custom": "Prilagođeno",
+    "from": "Od",
+    "to": "Do",
+    "show": "Prikaži",
+    "print": "Ispis",
+    "csv": "CSV",
+    "periodText": "Razdoblje: {from} – {to}",
+    "note": "Darivanja prije evidencije (upisana pri dodavanju darivatelja) nemaju datum pa nisu uključena.",
+    "empty": "Nema podataka za ovo razdoblje",
+    "totals": "Ukupno",
+    "measure": "Pokazatelj",
+    "value": "Vrijednost",
+    "successful": "Uspješna darivanja",
+    "denied": "Odbijena",
+    "attempts": "Svi pokušaji",
+    "denialRate": "Udio odbijenih",
+    "uniqueDonors": "Različitih darivatelja",
+    "firstTime": "Prvi put darivali",
+    "newDonors": "Novi darivatelji (upisani u aplikaciju)",
+    "actionsHeld": "Održane akcije",
+    "months": "Po mjesecima",
+    "month": "Mjesec",
+    "actions": "Po akcijama",
+    "action": "Akcija",
+    "time": "Vrijeme",
+    "withoutAction": "Bez akcije",
+    "bloodTypes": "Po krvnim grupama",
+    "genderAge": "Po spolu i dobi",
+    "ageGroup": "Dob",
+    "total": "Ukupno",
+    "otherAge": "Ostalo",
+    "denyReasons": "Razlozi odbijanja",
+    "count": "Broj",
+    "fileName": "izvjestaj"
   }
 }

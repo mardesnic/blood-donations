@@ -1,5 +1,12 @@
 import { prisma } from '@/db';
-import { APP_TIME_ZONE, appDayStart, parseDay, toAppDay } from '@/lib/dates';
+import {
+  addDays,
+  APP_TIME_ZONE,
+  appDayStart,
+  parseDay,
+  toAppDay,
+} from '@/lib/dates';
+import { buildReport, Report, ReportPeriod } from '@/lib/reports';
 import { eligibleNowWhere } from '@/lib/donorFilters';
 import { BLOOD_TYPES } from '@/lib/const';
 import {
@@ -14,6 +21,79 @@ const BLOOD_TYPE_ORDER = Object.keys(BLOOD_TYPES);
 export type Overview = Awaited<ReturnType<typeof StatsService.overview>>;
 
 export default class StatsService {
+  // Everything a report needs for the period (whole days in the app's time
+  // zone, both ends included).
+  static async report(period: ReportPeriod): Promise<Report> {
+    const range = {
+      gte: appDayStart(period.from),
+      lt: appDayStart(addDays(period.to, 1)),
+    };
+    const [donations, newDonors, actions] = await Promise.all([
+      prisma.donation.findMany({
+        where: { donationDate: range },
+        select: {
+          donationDate: true,
+          denied: true,
+          denyReason: true,
+          actionId: true,
+          donor: {
+            select: {
+              id: true,
+              gender: true,
+              bloodType: true,
+              dob: true,
+              initialDonationCount: true,
+            },
+          },
+        },
+      }),
+      prisma.donor.count({ where: { createdAt: range } }),
+      prisma.action.findMany({
+        where: { startDateTime: range },
+        include: { place: { select: { title: true } } },
+      }),
+    ]);
+    const donorIds = [
+      ...new Set(donations.filter((d) => !d.denied).map((d) => d.donor.id)),
+    ];
+    const [firstDonations, actionCounts] = await Promise.all([
+      prisma.donation.groupBy({
+        by: ['donorId'],
+        where: { denied: false, donorId: { in: donorIds } },
+        _min: { donationDate: true },
+      }),
+      // All of each action's donations, whatever their date.
+      prisma.donation.groupBy({
+        by: ['actionId', 'denied'],
+        where: { actionId: { in: actions.map((a) => a.id) } },
+        _count: { _all: true },
+      }),
+    ]);
+    const actionCount = (id: string, denied: boolean) =>
+      actionCounts.find((c) => c.actionId === id && c.denied === denied)?._count
+        ._all ?? 0;
+    return buildReport({
+      period,
+      donations,
+      firstDonations: new Map(
+        firstDonations.map((row) => [
+          row.donorId,
+          row._min.donationDate as Date,
+        ])
+      ),
+      newDonors,
+      actions: actions.map((action) => ({
+        id: action.id,
+        title: action.title,
+        place: action.place?.title ?? null,
+        startDateTime: action.startDateTime,
+        endDateTime: action.endDateTime,
+        successful: actionCount(action.id, false),
+        denied: actionCount(action.id, true),
+      })),
+    });
+  }
+
   // Everything the overview page shows, for today in the app's time zone.
   static async overview() {
     const now = new Date();

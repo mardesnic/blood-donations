@@ -154,3 +154,19 @@ video {
   padding: 8px;
   margin: -8px;
 }
+
+/*
+ * Printing (e.g. a report saved as PDF): no menu or buttons, flat cards that
+ * don't split across pages.
+ */
+@media print {
+  header.MuiAppBar-root,
+  .no-print {
+    display: none !important;
+  }
+  .MuiCard-root {
+    box-shadow: none !important;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+}

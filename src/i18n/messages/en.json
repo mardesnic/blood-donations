@@ -12,7 +12,8 @@
     "menu": "Menu",
     "account": "Account",
     "places": "Places",
-    "overview": "Overview"
+    "overview": "Overview",
+    "reports": "Reports"
   },
   "pageTitles": {
     "welcome": "Welcome",
@@ -24,7 +25,8 @@
     "donation": "Donation - {name}",
     "actions": "Actions",
     "places": "Places",
-    "overview": "Overview"
+    "overview": "Overview",
+    "reports": "Reports"
   },
   "common": {
     "cancel": "Cancel",
@@ -284,5 +286,46 @@
     "recent": "Recent actions",
     "noRecent": "No actions yet",
     "result": "{successful} successful · {denied} denied"
+  },
+  "reports": {
+    "title": "Reports",
+    "year": "Year",
+    "part": "Part of the year",
+    "wholeYear": "Whole year",
+    "quarter": "Q{n}",
+    "custom": "Custom",
+    "from": "From",
+    "to": "To",
+    "show": "Show",
+    "print": "Print",
+    "csv": "CSV",
+    "periodText": "Period: {from} – {to}",
+    "note": "Donations from before the records (typed in when a donor was added) have no date, so they aren't included.",
+    "empty": "No data for this period",
+    "totals": "Totals",
+    "measure": "Measure",
+    "value": "Value",
+    "successful": "Successful donations",
+    "denied": "Denied",
+    "attempts": "All attempts",
+    "denialRate": "Denial rate",
+    "uniqueDonors": "Different donors",
+    "firstTime": "First-time donors",
+    "newDonors": "New donors (added to the app)",
+    "actionsHeld": "Actions held",
+    "months": "By month",
+    "month": "Month",
+    "actions": "By action",
+    "action": "Action",
+    "time": "Time",
+    "withoutAction": "Without an action",
+    "bloodTypes": "By blood type",
+    "genderAge": "By gender and age",
+    "ageGroup": "Age",
+    "total": "Total",
+    "otherAge": "Other",
+    "denyReasons": "Denial reasons",
+    "count": "Count",
+    "fileName": "report"
   }
 }
