@@ -28,6 +28,7 @@ export default function ActionsTable() {
     openDialog,
     changePaginationModel,
     changeSortModel,
+    place,
   } = useActionsContext();
   const t = useTranslations();
   const router = useRouter();
@@ -37,7 +38,8 @@ export default function ActionsTable() {
   const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const columnVisibilityModel = {
-    place: !isPhone,
+    // On a place's page every row is that place.
+    place: !isPhone && !place,
     donationCount: !isPhone,
     endDateTime: !isTablet,
     note: !isTablet,

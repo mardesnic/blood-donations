@@ -16,7 +16,7 @@ import { DonationDeleteDialog } from '@/app/(pages)/donations/dialogs/delete';
 import { ActionUpdateDialog } from '@/app/(pages)/actions/dialogs/update';
 import { ActionDeleteDialog } from '@/app/(pages)/actions/dialogs/delete';
 import { ActionDetailsHeader } from './header';
-import { ActionTimes } from './times';
+import { ActionTimes } from '@/components/ActionTimes';
 
 type Props = {
   params: Promise<{ id: string }>;

@@ -49,6 +49,46 @@ export default class PlaceService {
     });
   }
 
+  // The place for its overview page, with a summary of its actions.
+  static async findOverview(id: string) {
+    const place = await prisma.place.findUnique({
+      where: { id },
+      include: ACTION_COUNT,
+    });
+    if (!place) {
+      return null;
+    }
+    const now = new Date();
+    const select = {
+      id: true,
+      title: true,
+      startDateTime: true,
+      endDateTime: true,
+    };
+    const [totals, nextAction, lastAction] = await Promise.all([
+      prisma.action.aggregate({
+        where: { placeId: id },
+        _sum: { donationCount: true },
+      }),
+      prisma.action.findFirst({
+        where: { placeId: id, startDateTime: { gte: now } },
+        orderBy: { startDateTime: 'asc' },
+        select,
+      }),
+      prisma.action.findFirst({
+        where: { placeId: id, startDateTime: { lt: now } },
+        orderBy: { startDateTime: 'desc' },
+        select,
+      }),
+    ]);
+    return {
+      place,
+      donationCount: totals._sum.donationCount ?? 0,
+      nextAction,
+      lastAction,
+    };
+  }
+
   static async create(data: Partial<Place>): Promise<Place> {
     return await prisma.place.create({
       data: data as Place,

@@ -247,5 +247,15 @@
     "deniedReasons": "Why denied",
     "bloodTypes": "Blood types collected",
     "noDonations": "No donations yet"
+  },
+  "placeOverview": {
+    "location": "Location",
+    "contact": "Contact",
+    "actions": "Actions",
+    "actionCount": "Actions held",
+    "donationCount": "Successful donations",
+    "nextAction": "Next action",
+    "lastAction": "Last action",
+    "showOnMap": "Show on map"
   }
 }

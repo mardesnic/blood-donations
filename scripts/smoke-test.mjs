@@ -555,8 +555,11 @@ async function main() {
   check('page /places renders', res.status === 200, res.status);
   res = await call('GET', `/places/${place.id}`, { raw: true });
   check(
-    'place page shows the place',
-    res.status === 200 && res.data.includes('Smoke Hall 2'),
+    'place page shows the place and its actions',
+    res.status === 200 &&
+      res.data.includes('Smoke Hall 2') &&
+      res.data.includes('Actions held') &&
+      res.data.includes(`/actions/${placeAction.id}`),
     res.status
   );
   res = await call('DELETE', `/api/places/${place.id}`);
