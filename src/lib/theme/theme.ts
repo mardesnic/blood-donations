@@ -85,6 +85,19 @@ export const theme = createTheme({
         keepMounted: true,
       },
     },
+    // On phones dialog buttons stack full width, the main action on top.
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          [`@media (max-width:${breakpoints.values!.sm - 0.05}px)`]: {
+            flexDirection: 'column-reverse',
+            alignItems: 'stretch',
+            gap: 8,
+            '& > :not(style) ~ :not(style)': { marginLeft: 0 },
+          },
+        },
+      },
+    },
     MuiDataGrid: {
       defaultProps: {
         disableColumnFilter: true,

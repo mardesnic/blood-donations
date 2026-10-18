@@ -43,7 +43,7 @@ export const PlaceDetails = ({ place }: Props) => {
         gap={2}
       >
         <Breadcrumbs>
-          <Link href={ROUTE_PATHS.PROTECTED.PLACES.path}>
+          <Link href={ROUTE_PATHS.PROTECTED.PLACES.path} className='tap-target'>
             {t('nav.places')}
           </Link>
           <Typography>{place.title}</Typography>

@@ -17,7 +17,7 @@ export const DonorBackLink = ({ href }: { href?: string }) => {
     setListUrl(getDonorsListUrl());
   }, []);
   return (
-    <Link href={href || listUrl} aria-label={t('back')}>
+    <Link href={href || listUrl} aria-label={t('back')} className='tap-target'>
       <MdArrowBack size={24} />
     </Link>
   );

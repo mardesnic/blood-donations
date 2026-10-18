@@ -2,7 +2,15 @@
 
 import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Card, IconButton, Stack, TextField } from '@mui/material';
+import {
+  Card,
+  IconButton,
+  Stack,
+  TextField,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
+import { TruncatedText } from '@/components/TruncatedText';
 import { debounce } from '@mui/material/utils';
 import { MdDelete, MdEdit } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
@@ -27,16 +35,62 @@ export default function PlacesTable() {
   const t = useTranslations();
   const router = useRouter();
 
+  // Phones show name, city and the buttons; tablets add contact person and
+  // action count; wider screens also address and phone.
+  const theme = useTheme();
+  const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const columnVisibilityModel = {
+    address: !isTablet,
+    contactName: !isPhone,
+    phone: !isTablet,
+    actionCount: !isPhone,
+  };
+  const truncated = {
+    renderCell: (params: { value?: string | null }) => (
+      <TruncatedText text={params.value} />
+    ),
+  };
   const columns: GridColDef<PlaceListItem>[] = [
-    { field: 'title', headerName: t('fields.title'), flex: 1 },
-    { field: 'city', headerName: t('fields.city'), flex: 1 },
-    { field: 'address', headerName: t('fields.address'), flex: 1 },
-    { field: 'contactName', headerName: t('fields.contactName'), flex: 1 },
-    { field: 'phone', headerName: t('fields.phone'), flex: 1 },
+    {
+      field: 'title',
+      headerName: t('fields.title'),
+      flex: 1.5,
+      minWidth: isPhone ? 110 : 150,
+      ...truncated,
+    },
+    {
+      field: 'city',
+      headerName: t('fields.city'),
+      flex: 1,
+      minWidth: isPhone ? 90 : 120,
+      ...truncated,
+    },
+    {
+      field: 'address',
+      headerName: t('fields.address'),
+      flex: 1,
+      minWidth: 140,
+      ...truncated,
+    },
+    {
+      field: 'contactName',
+      headerName: t('fields.contactName'),
+      flex: 1,
+      minWidth: 150,
+      ...truncated,
+    },
+    {
+      field: 'phone',
+      headerName: t('fields.phone'),
+      width: 150,
+      ...truncated,
+    },
     {
       field: 'actionCount',
       headerName: t('fields.actionCount'),
       sortable: false,
+      width: 100,
       valueGetter: (_, row) => row._count?.actions ?? 0,
     },
     {
@@ -46,7 +100,7 @@ export default function PlacesTable() {
       sortable: false,
       filterable: false,
       // Two icon buttons plus the table's 24px right padding.
-      width: 130,
+      width: isPhone ? 105 : 130,
       // The row opens the place; these buttons must not.
       renderCell: (params) => (
         <Stack
@@ -56,12 +110,14 @@ export default function PlacesTable() {
           onClick={(event) => event.stopPropagation()}
         >
           <IconButton
+            size={isPhone ? 'small' : 'medium'}
             aria-label={t('common.edit')}
             onClick={() => openDialog({ type: 'update', place: params.row })}
           >
             <MdEdit />
           </IconButton>
           <IconButton
+            size={isPhone ? 'small' : 'medium'}
             aria-label={t('common.delete')}
             onClick={() =>
               openDialog({
@@ -107,6 +163,8 @@ export default function PlacesTable() {
           sorting: { sortModel: [{ field: 'title', sort: 'asc' }] },
           pagination: { paginationModel: { pageSize: PAGE_SIZE, page: 0 } },
         }}
+        columnVisibilityModel={columnVisibilityModel}
+        disableColumnMenu
         rows={places}
         rowCount={placeCount}
         columns={columns}

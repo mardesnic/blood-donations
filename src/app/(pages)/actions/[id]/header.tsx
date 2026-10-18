@@ -13,7 +13,9 @@ export const ActionDetailsHeader = ({ action }: Props) => {
   const t = useTranslations('nav');
   return (
     <Breadcrumbs sx={{ mb: 4 }}>
-      <Link href={ROUTE_PATHS.PROTECTED.ACTIONS.path}>{t('actions')}</Link>
+      <Link href={ROUTE_PATHS.PROTECTED.ACTIONS.path} className='tap-target'>
+        {t('actions')}
+      </Link>
       <Typography>{action.title}</Typography>
     </Breadcrumbs>
   );
