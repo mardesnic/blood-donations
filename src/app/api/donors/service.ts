@@ -1,5 +1,5 @@
 import { prisma } from '@/db';
-import { DATE_FORMAT } from '@/lib/const';
+import { BLOOD_TYPES, DATE_FORMAT } from '@/lib/const';
 import { buildDonorFilter } from '@/lib/donorFilters';
 import { donorOrderBy } from '@/lib/donorSort';
 import { ageOn, formatDay, toAppDay } from '@/lib/dates';
@@ -150,10 +150,12 @@ export default class DonorService {
     filters: string[],
     sortField: keyof Donor = 'createdAt',
     sort: string = 'desc',
-    // Translations for the column names ("export" messages) and the
-    // eligibility labels ("eligibility" messages).
-    t: { headers: (key: string) => string; eligibility: EligibilityTranslate }
+    // All messages, for the column names and the values (gender, blood
+    // type, status, eligibility) in the user's language.
+    t: (key: string, values?: Record<string, string | number>) => string
   ): Promise<string> {
+    const tEligibility: EligibilityTranslate = (key, values) =>
+      t(`eligibility.${key}`, values);
     const today = toAppDay(new Date()) as Date;
     const whereCondition = this.constructWhereCondition(search, filters, today);
 
@@ -172,22 +174,22 @@ export default class DonorService {
         email: donor.email,
         phone: donor.phone,
         city: donor.city,
-        gender: donor.gender,
-        bloodType: donor.bloodType,
+        gender: t(`genders.${donor.gender}`),
+        bloodType: donor.bloodType ? BLOOD_TYPES[donor.bloodType] : '',
         donations: donor.donationCount,
         lastDonation: formatDay(donor.lastDonation),
         nextEligible: eligibilityLabel(
           computeEligibility({ ...donor, denials: donor.donations }, today),
-          t.eligibility
+          tEligibility
         ),
         dob: formatDay(donor.dob),
         note: donor.note,
         createdAt: dayjs(donor.createdAt).format(DATE_FORMAT),
         updatedAt: dayjs(donor.updatedAt).format(DATE_FORMAT),
-        active: donor.active,
+        active: t(`statuses.${donor.active ? 'ACTIVE' : 'INACTIVE'}`),
       };
       return Object.fromEntries(
-        EXPORT_COLUMNS.map((key) => [t.headers(key), row[key]])
+        EXPORT_COLUMNS.map((key) => [t(`export.${key}`), row[key]])
       );
     });
 

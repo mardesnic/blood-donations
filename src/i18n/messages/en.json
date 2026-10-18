@@ -205,7 +205,8 @@
     "note": "Note",
     "createdAt": "Created At",
     "updatedAt": "Updated At",
-    "active": "Active"
+    "active": "Active",
+    "fileName": "donors"
   },
   "places": {
     "title": "Places",

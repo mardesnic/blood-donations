@@ -205,7 +205,8 @@
     "note": "Napomena",
     "createdAt": "Kreirano",
     "updatedAt": "Ažurirano",
-    "active": "Aktivan"
+    "active": "Aktivan",
+    "fileName": "darivatelji"
   },
   "places": {
     "title": "Mjesta",

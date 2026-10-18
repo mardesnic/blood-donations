@@ -634,6 +634,12 @@ async function main() {
     'export in Croatian',
     res.data.split('\n')[0].includes('Sljedeće darivanje')
   );
+  check(
+    // (res.text() drops the UTF-8 byte-order mark, so it isn't checked here.)
+    'Croatian export has translated values',
+    /Muško|Žensko/.test(res.data) &&
+      !/,(MALE|FEMALE|A_POSITIVE|O_NEGATIVE|true|false)(,|\n|$)/.test(res.data)
+  );
   cookies.delete('NEXT_LOCALE');
   res = await call('GET', '/donors', { raw: true });
   check(
