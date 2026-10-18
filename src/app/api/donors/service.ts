@@ -87,14 +87,9 @@ export default class DonorService {
     };
   }
 
+  // Just the donor: its pages load donations separately, page by page.
   static async findOne(id: string) {
-    return await prisma.donor.findUnique({
-      where: { id },
-      include: {
-        donations: true,
-        communications: true,
-      },
-    });
+    return await prisma.donor.findUnique({ where: { id } });
   }
 
   static async create(data: DonorInput): Promise<Donor> {

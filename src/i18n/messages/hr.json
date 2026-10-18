@@ -82,7 +82,10 @@
     "createdAt": "Kreirano",
     "updatedAt": "Ažurirano",
     "contactName": "Kontakt osoba",
-    "actionCount": "Akcije"
+    "actionCount": "Akcije",
+    "bloodTypeShort": "Grupa",
+    "nextEligibleShort": "Sljedeće",
+    "nameShort": "Ime"
   },
   "genders": {
     "MALE": "Muško",
@@ -111,7 +114,7 @@
       "PERMANENT": "Nikad",
       "MANUAL": "Provjeriti ručno",
       "TOO_OLD": "Iznad dobne granice",
-      "UNKNOWN_AGE": "Nepoznato (nema datuma rođenja)",
+      "UNKNOWN_AGE": "Nema datuma rođenja",
       "INACTIVE": "Neaktivan"
     },
     "reason": {

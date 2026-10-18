@@ -10,6 +10,8 @@ import {
   Button,
   Link as MuiLink,
   Tooltip,
+  useMediaQuery,
+  useTheme,
   Typography,
 } from '@mui/material';
 import { TruncatedText } from '@/components/TruncatedText';
@@ -34,6 +36,19 @@ export default function DonorsTable() {
   const router = useRouter();
   const t = useTranslations();
   const tEligibility = useTranslations('eligibility');
+  // Phones show name, blood type and next eligible date; tablets add the
+  // phone number and donations; wider screens show every column.
+  const theme = useTheme();
+  const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const columnVisibilityModel = {
+    phone: !isPhone,
+    oib: !isTablet,
+    donationCount: !isPhone,
+    lastDonation: !isPhone,
+    gender: !isTablet,
+    dob: !isTablet,
+  };
 
   const [showFilters, setShowFilters] = useState(false);
 
@@ -57,9 +72,9 @@ export default function DonorsTable() {
   const columns: GridColDef<DonorListItem>[] = [
     {
       field: 'fullName',
-      headerName: t('fields.name'),
+      headerName: t(isPhone ? 'fields.nameShort' : 'fields.name'),
       flex: 2,
-      minWidth: 180,
+      minWidth: isPhone ? 120 : 180,
       renderCell: (params) => <TruncatedText text={params.value} />,
     },
     {
@@ -77,8 +92,9 @@ export default function DonorsTable() {
     },
     {
       field: 'bloodType',
-      headerName: t('fields.bloodType'),
-      width: 130,
+      // Short headers on phones, where the columns are narrow.
+      headerName: t(isPhone ? 'fields.bloodTypeShort' : 'fields.bloodType'),
+      width: isPhone ? 80 : 130,
       valueGetter: (value: keyof typeof BLOOD_TYPES) => BLOOD_TYPES[value],
     },
     {
@@ -127,9 +143,11 @@ export default function DonorsTable() {
     },
     {
       field: 'eligibility',
-      headerName: t('fields.nextEligible'),
+      headerName: t(
+        isPhone ? 'fields.nextEligibleShort' : 'fields.nextEligible'
+      ),
       flex: 1,
-      minWidth: 190,
+      minWidth: isPhone ? 110 : 190,
       sortable: false,
       renderCell: (params) => {
         const eligibility = params.row.eligibility;
@@ -182,7 +200,13 @@ export default function DonorsTable() {
 
   return (
     <>
-      <Stack direction='row' justifyContent='space-between' alignItems='center'>
+      <Stack
+        direction='row'
+        justifyContent='space-between'
+        alignItems='center'
+        flexWrap='wrap'
+        gap={2}
+      >
         <Typography variant='h1'>{t('donors.title')}</Typography>
         <Stack direction='row' gap={2}>
           <Button
@@ -250,6 +274,7 @@ export default function DonorsTable() {
           columns={columns}
           loading={isLoading}
           paginationMode='server'
+          columnVisibilityModel={columnVisibilityModel}
           paginationModel={paginationModel}
           onPaginationModelChange={changePaginationModel}
           sortingMode='server'

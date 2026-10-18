@@ -82,7 +82,10 @@
     "createdAt": "Created At",
     "updatedAt": "Updated At",
     "contactName": "Contact Person",
-    "actionCount": "Actions"
+    "actionCount": "Actions",
+    "bloodTypeShort": "Type",
+    "nextEligibleShort": "Next",
+    "nameShort": "Name"
   },
   "genders": {
     "MALE": "Male",
@@ -111,7 +114,7 @@
       "PERMANENT": "Never",
       "MANUAL": "Check manually",
       "TOO_OLD": "Over age limit",
-      "UNKNOWN_AGE": "Unknown (no birth date)",
+      "UNKNOWN_AGE": "No birth date",
       "INACTIVE": "Inactive"
     },
     "reason": {
