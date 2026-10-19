@@ -12,6 +12,17 @@ type RouteHandler<C> = (req: NextRequest, context: C) => Promise<Response>;
 
 // Rejects requests without a valid session and maps known errors to status
 // codes, so API routes don't rely on middleware alone for authentication.
+// A request that clashes with existing data (409), with a code the client
+// can show a message for.
+export class ConflictError extends Error {
+  constructor(
+    message: string,
+    public code: string
+  ) {
+    super(message);
+  }
+}
+
 export function withAuth<C>(handler: RouteHandler<C>): RouteHandler<C> {
   return async (req, context) => {
     const session = await getCurrentSession();
@@ -25,6 +36,12 @@ export function withAuth<C>(handler: RouteHandler<C>): RouteHandler<C> {
         return NextResponse.json(
           { message: 'Invalid JSON body.' },
           { status: 400 }
+        );
+      }
+      if (error instanceof ConflictError) {
+        return NextResponse.json(
+          { message: error.message, code: error.code },
+          { status: 409 }
         );
       }
       if (error instanceof ValidationError) {

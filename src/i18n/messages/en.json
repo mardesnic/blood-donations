@@ -351,5 +351,13 @@
     "removed": "Removed",
     "saveError": "Couldn't save. Please try again.",
     "change": "Change"
+  },
+  "duplicates": {
+    "oib": "A donor with this OIB already exists:",
+    "nameDob": "A donor with the same name and date of birth already exists:",
+    "name": "Donors with the same name (check the date of birth):",
+    "confirmDifferent": "This is a different person",
+    "pick": "Use this donor",
+    "oibTaken": "This OIB already belongs to another donor."
   }
 }

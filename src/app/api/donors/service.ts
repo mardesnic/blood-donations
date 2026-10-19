@@ -2,6 +2,14 @@ import { prisma } from '@/db';
 import { BLOOD_TYPES, DATE_FORMAT } from '@/lib/const';
 import { buildDonorFilter } from '@/lib/donorFilters';
 import { donorOrderBy } from '@/lib/donorSort';
+import {
+  DUPLICATE_REASONS,
+  DuplicateInput,
+  DuplicateReason,
+  duplicateReason,
+  isOib,
+} from '@/lib/duplicates';
+import { ConflictError } from '@/lib/api';
 import { ageOn, formatDay, toAppDay } from '@/lib/dates';
 import {
   computeEligibility,
@@ -111,8 +119,88 @@ export default class DonorService {
     return await prisma.donor.findUnique({ where: { id } });
   }
 
+  // Donors who may be the same person as `input` (see duplicateReason),
+  // strongest match first, leaving out the donor being edited.
+  static async findDuplicates(input: DuplicateInput, excludeId?: string) {
+    const firstName = input.firstName?.trim();
+    const lastName = input.lastName?.trim();
+    const or: Prisma.DonorWhereInput[] = [];
+    if (isOib(input.oib)) {
+      or.push({ oib: input.oib?.trim() });
+    }
+    if (firstName && lastName) {
+      or.push({
+        firstName: { equals: firstName, mode: 'insensitive' },
+        lastName: { equals: lastName, mode: 'insensitive' },
+      });
+    }
+    if (!or.length) {
+      return [];
+    }
+    const today = toAppDay(new Date()) as Date;
+    const candidates = await prisma.donor.findMany({
+      where: { OR: or, ...(excludeId ? { NOT: { id: excludeId } } : {}) },
+      include: { donations: DENIALS },
+      take: 10,
+    });
+    // With eligibility, like the donors list, for picking one in drive mode.
+    return candidates
+      .map(({ donations, ...donor }) => ({
+        donor: {
+          ...donor,
+          eligibility: computeEligibility(
+            { ...donor, denials: donations },
+            today
+          ),
+        },
+        reason: duplicateReason(donor, input),
+      }))
+      .filter(
+        (
+          match
+        ): match is {
+          donor: Donor & { eligibility: Eligibility };
+          reason: DuplicateReason;
+        } => !!match.reason
+      )
+      .sort(
+        (a, b) =>
+          DUPLICATE_REASONS.indexOf(a.reason) -
+          DUPLICATE_REASONS.indexOf(b.reason)
+      );
+  }
+
+  // One OIB belongs to one person. Only checked when the OIB is set or
+  // changed, so donors that already share one can still be edited.
+  private static async assertOibFree(
+    tx: Prisma.TransactionClient,
+    oib: string | null,
+    id?: string
+  ) {
+    if (!oib) {
+      return;
+    }
+    if (id) {
+      const current = await tx.donor.findUnique({
+        where: { id },
+        select: { oib: true },
+      });
+      if (current?.oib === oib) {
+        return;
+      }
+    }
+    const taken = await tx.donor.findFirst({
+      where: { oib, ...(id ? { NOT: { id } } : {}) },
+      select: { id: true },
+    });
+    if (taken) {
+      throw new ConflictError('Another donor has this OIB.', 'DUPLICATE_OIB');
+    }
+  }
+
   static async create(data: DonorInput): Promise<Donor> {
     return prisma.$transaction(async (tx) => {
+      await this.assertOibFree(tx, data.oib);
       const donor = await tx.donor.create({ data });
       await refreshDonorStats(tx, donor.id);
       return tx.donor.findUniqueOrThrow({ where: { id: donor.id } });
@@ -121,6 +209,7 @@ export default class DonorService {
 
   static async update(id: string, data: DonorInput) {
     return prisma.$transaction(async (tx) => {
+      await this.assertOibFree(tx, data.oib, id);
       await tx.donor.update({ where: { id }, data });
       await refreshDonorStats(tx, id);
       return tx.donor.findUniqueOrThrow({ where: { id } });

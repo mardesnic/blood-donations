@@ -21,6 +21,12 @@ import { ROUTE_PATHS } from '@/routes';
 import { toDayString } from '@/lib/dates';
 import { useTranslations } from 'next-intl';
 import { useRevalidateOnLocaleChange } from '@/hooks/useRevalidateOnLocaleChange';
+import {
+  duplicatesBlockSaving,
+  useDuplicateDonors,
+} from '@/hooks/useDuplicateDonors';
+import { DuplicateDonorWarning } from '@/components/DuplicateDonorWarning';
+import { useAlertContext } from '@/context/AlertContext';
 
 // Stored calendar dates (UTC midnight) as a local day for the date pickers.
 const toDayjs = (value: Date | null | undefined): Dayjs | null =>
@@ -32,6 +38,7 @@ interface Props {
 
 export const DonorCreateUpdateForm = ({ donor }: Props) => {
   const router = useRouter();
+  const { showAlert } = useAlertContext();
   const t = useTranslations();
 
   // An edited donor goes back to its overview, a new one to the list.
@@ -79,6 +86,9 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
         .min(0, t('validation.donationCountMin')),
     }),
     onSubmit: async (values) => {
+      if (duplicatesBlockSaving(matches, confirmedDifferent)) {
+        return;
+      }
       const newValues = {
         ...values,
         // Calendar days are sent as YYYY-MM-DD so no time zone can shift them.
@@ -87,19 +97,42 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
           ? values.initialLastDonation.format('YYYY-MM-DD')
           : '',
       };
-      if (donor?.id) {
-        await updateDonor({
-          ...newValues,
-          id: donor.id,
-        } as unknown as Donor);
-      } else {
-        await createDonor(newValues as unknown as Donor);
+      try {
+        if (donor?.id) {
+          await updateDonor({
+            ...newValues,
+            id: donor.id,
+          } as unknown as Donor);
+        } else {
+          await createDonor(newValues as unknown as Donor);
+        }
+      } catch (error) {
+        showAlert(
+          (error as Error).message === 'DUPLICATE_OIB'
+            ? t('duplicates.oibTaken')
+            : t('drive.saveError'),
+          'error'
+        );
+        return;
       }
 
       goToDonorsTable();
     },
   });
   useRevalidateOnLocaleChange(formik);
+
+  // Existing donors who may be the same person (not the donor being edited).
+  const [confirmedDifferent, setConfirmedDifferent] = React.useState(false);
+  const matches = useDuplicateDonors({
+    firstName: formik.values.firstName,
+    lastName: formik.values.lastName,
+    dob: formik.values.dob?.isValid()
+      ? formik.values.dob.format('YYYY-MM-DD')
+      : '',
+    oib: formik.values.oib,
+    excludeId: donor?.id,
+  });
+  const blocked = duplicatesBlockSaving(matches, confirmedDifferent);
 
   return (
     <Box component='form' onSubmit={formik.handleSubmit} noValidate>
@@ -257,6 +290,12 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
         label={t('fields.active')}
       />
 
+      <DuplicateDonorWarning
+        matches={matches}
+        confirmedDifferent={confirmedDifferent}
+        onConfirmDifferent={setConfirmedDifferent}
+      />
+
       {/* Phones stack the buttons full width: Save on top, Delete last. */}
       <Stack
         direction={{ xs: 'column-reverse', sm: 'row' }}
@@ -290,7 +329,7 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
           </Button>
           <Button
             type='submit'
-            disabled={isLoading}
+            disabled={isLoading || blocked}
             color='secondary'
             size='medium'
           >

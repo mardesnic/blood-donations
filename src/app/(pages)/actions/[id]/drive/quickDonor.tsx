@@ -21,13 +21,20 @@ import { useTranslations } from 'next-intl';
 import { Donor } from '@/generated/prisma/browser';
 import { BLOOD_TYPES, DATE_FORMAT, GENDERS } from '@/lib/const';
 import { useRevalidateOnLocaleChange } from '@/hooks/useRevalidateOnLocaleChange';
+import { DonorListItem } from '@/hooks/useDonors';
+import {
+  duplicatesBlockSaving,
+  useDuplicateDonors,
+} from '@/hooks/useDuplicateDonors';
+import { DuplicateDonorWarning } from '@/components/DuplicateDonorWarning';
 
 interface Props {
   open: boolean;
   // What was typed in the search, split into first and last name.
   initialName: string;
   onClose: () => void;
-  onCreated: (donor: Donor) => void;
+  // A new donor, or an existing one picked from the duplicate warning.
+  onCreated: (donor: DonorListItem) => void;
 }
 
 // The few fields needed to record a new donor at a drive; the rest can be
@@ -66,6 +73,9 @@ export const QuickDonorDialog = ({
       }),
     }),
     onSubmit: async (values) => {
+      if (duplicatesBlockSaving(matches, confirmedDifferent)) {
+        return;
+      }
       setError('');
       const response = await fetch('/api/donors', {
         method: 'POST',
@@ -75,13 +85,30 @@ export const QuickDonorDialog = ({
         }),
       });
       if (!response.ok) {
-        setError(t('drive.saveError'));
+        const body = await response.json().catch(() => null);
+        setError(
+          body?.code === 'DUPLICATE_OIB'
+            ? t('duplicates.oibTaken')
+            : t('drive.saveError')
+        );
         return;
       }
       onCreated((await response.json()) as Donor);
     },
   });
   useRevalidateOnLocaleChange(formik);
+
+  // Someone already in the app? Then pick them instead of adding again.
+  const [confirmedDifferent, setConfirmedDifferent] = React.useState(false);
+  const matches = useDuplicateDonors({
+    firstName: formik.values.firstName,
+    lastName: formik.values.lastName,
+    dob: formik.values.dob?.isValid()
+      ? formik.values.dob.format('YYYY-MM-DD')
+      : '',
+    oib: formik.values.oib,
+  });
+  const blocked = duplicatesBlockSaving(matches, confirmedDifferent);
 
   const field = (name: 'firstName' | 'lastName' | 'oib' | 'phone') => ({
     name,
@@ -172,6 +199,12 @@ export const QuickDonorDialog = ({
               <TextField {...field('phone')} label={t('fields.phone')} />
             </Grid>
           </Grid>
+          <DuplicateDonorWarning
+            matches={matches}
+            confirmedDifferent={confirmedDifferent}
+            onConfirmDifferent={setConfirmedDifferent}
+            onPick={(match) => onCreated(match.donor)}
+          />
           {error && <Stack sx={{ color: 'error.main', mt: 1 }}>{error}</Stack>}
           <Stack
             direction={{ xs: 'column-reverse', sm: 'row' }}
@@ -190,7 +223,7 @@ export const QuickDonorDialog = ({
             <Button
               type='submit'
               color='secondary'
-              disabled={formik.isSubmitting}
+              disabled={formik.isSubmitting || blocked}
             >
               {t('donors.add')}
             </Button>

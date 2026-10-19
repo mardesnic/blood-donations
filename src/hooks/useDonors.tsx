@@ -58,7 +58,9 @@ const createDonor = async (data: Partial<Donor>): Promise<void> => {
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    throw new Error('Failed to create donor.');
+    // The server's error code (e.g. DUPLICATE_OIB) when it sends one.
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.code || 'Failed to create donor.');
   }
 };
 
@@ -78,7 +80,9 @@ const updateDonor = async (data: Partial<Donor>): Promise<void> => {
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    throw new Error('Failed to update donor.');
+    // The server's error code (e.g. DUPLICATE_OIB) when it sends one.
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.code || 'Failed to update donor.');
   }
 };
 

@@ -22,7 +22,7 @@ import { GoDotFill } from 'react-icons/go';
 import dayjs, { Dayjs } from 'dayjs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { DenyReasonType, Donor } from '@/generated/prisma/browser';
+import { DenyReasonType } from '@/generated/prisma/browser';
 import { BLOOD_TYPES, DATE_TIME_FORMAT, reactQueryKeys } from '@/lib/const';
 import { eligibilityLabel, eligibilityReason } from '@/lib/eligibility';
 import { defaultDonationTime } from '@/lib/drive';
@@ -441,7 +441,7 @@ export const DriveMode = ({ action }: { action: DriveAction }) => {
           open
           initialName={donor ? '' : input}
           onClose={() => setQuickAdd(false)}
-          onCreated={(created: Donor) => {
+          onCreated={(created) => {
             setQuickAdd(false);
             setDonor(created);
             setInput(created.fullName || '');

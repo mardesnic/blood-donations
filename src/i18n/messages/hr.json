@@ -351,5 +351,13 @@
     "removed": "Uklonjeno",
     "saveError": "Spremanje nije uspjelo. Pokušajte ponovno.",
     "change": "Promijeni"
+  },
+  "duplicates": {
+    "oib": "Darivatelj s ovim OIB-om već postoji:",
+    "nameDob": "Već postoji darivatelj s istim imenom i datumom rođenja:",
+    "name": "Darivatelji s istim imenom (provjerite datum rođenja):",
+    "confirmDifferent": "Ovo je druga osoba",
+    "pick": "Odaberi ovog darivatelja",
+    "oibTaken": "Ovaj OIB već ima drugi darivatelj."
   }
 }
