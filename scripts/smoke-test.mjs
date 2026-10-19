@@ -195,6 +195,39 @@ async function main() {
   res = await call('POST', '/api/donors', { body: donorBody });
   const donor = res.data;
   check('create donor', res.status === 200 && Boolean(donor?.id), res.data);
+
+  // Possible duplicates: same OIB, same name and date of birth.
+  const duplicates = async (params) =>
+    (await call('GET', `/api/donors/duplicates?${query(params)}`)).data.matches;
+  let matches = await duplicates({ oib: donorBody.oib });
+  check(
+    'duplicate check finds the same OIB',
+    matches.some((m) => m.donor.id === donor.id && m.reason === 'oib'),
+    matches
+  );
+  matches = await duplicates({
+    firstName: 'smoke',
+    lastName: 'TEST',
+    dob: donorBody.dob,
+  });
+  check(
+    'duplicate check finds the same name and date of birth',
+    matches.some((m) => m.donor.id === donor.id && m.reason === 'nameDob'),
+    matches
+  );
+  matches = await duplicates({ oib: donorBody.oib, excludeId: donor.id });
+  check(
+    'duplicate check leaves out the donor being edited',
+    matches.length === 0
+  );
+  res = await call('POST', '/api/donors', {
+    body: { ...donorBody, firstName: 'Other', email: '' },
+  });
+  check(
+    'second donor with the same OIB is refused',
+    res.status === 409 && res.data.code === 'DUPLICATE_OIB',
+    res
+  );
   res = await call('PUT', `/api/donors/${donor.id}`, {
     body: { ...donorBody, city: 'Split' },
   });
@@ -480,6 +513,20 @@ async function main() {
       res.data.includes('0- ×1') &&
       res.data.includes(`/donations/create?actionId=${action.id}`),
     res.status
+  );
+
+  // Drive mode: the page and its running count (one successful donation).
+  res = await call('GET', `/actions/${action.id}/drive`, { raw: true });
+  check(
+    'drive mode page',
+    res.status === 200 && res.data.includes('Drive mode'),
+    res.status
+  );
+  res = await call('GET', `/api/actions/${action.id}/summary`);
+  check(
+    'drive mode count',
+    res.status === 200 && res.data.successful === 1 && res.data.denied === 0,
+    res.data
   );
 
   // A report for the smoke donation's day (successful, 0-) and its CSVs.

@@ -327,5 +327,37 @@
     "denyReasons": "Denial reasons",
     "count": "Count",
     "fileName": "report"
+  },
+  "drive": {
+    "open": "Drive mode",
+    "title": "Drive mode",
+    "summary": "{successful} successful · {denied} denied",
+    "search": "Donor",
+    "searchPlaceholder": "Name, OIB or phone",
+    "noResults": "No donor found",
+    "newDonor": "New donor",
+    "alreadyRecorded": "Already recorded at this action",
+    "successful": "Successful donation",
+    "denied": "Denied",
+    "chooseReason": "Why was the donor denied?",
+    "note": "Note (optional)",
+    "time": "Time",
+    "saved": "{name}: saved",
+    "savedDenied": "{name}: denied ({reason}), saved",
+    "recent": "Recorded at this action",
+    "noneYet": "No donations recorded yet",
+    "undo": "Undo",
+    "confirmUndo": "Remove?",
+    "removed": "Removed",
+    "saveError": "Couldn't save. Please try again.",
+    "change": "Change"
+  },
+  "duplicates": {
+    "oib": "A donor with this OIB already exists:",
+    "nameDob": "A donor with the same name and date of birth already exists:",
+    "name": "Donors with the same name (check the date of birth):",
+    "confirmDifferent": "This is a different person",
+    "pick": "Use this donor",
+    "oibTaken": "This OIB already belongs to another donor."
   }
 }
