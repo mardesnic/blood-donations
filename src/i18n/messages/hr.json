@@ -327,5 +327,29 @@
     "denyReasons": "Razlozi odbijanja",
     "count": "Broj",
     "fileName": "izvjestaj"
+  },
+  "drive": {
+    "open": "Unos na akciji",
+    "title": "Unos na akciji",
+    "summary": "{successful} uspješnih · {denied} odbijenih",
+    "search": "Darivatelj",
+    "searchPlaceholder": "Ime, OIB ili telefon",
+    "noResults": "Nema takvog darivatelja",
+    "newDonor": "Novi darivatelj",
+    "alreadyRecorded": "Već upisan na ovoj akciji",
+    "successful": "Uspješno darivanje",
+    "denied": "Odbijen",
+    "chooseReason": "Zašto je odbijen?",
+    "note": "Napomena (nije obavezna)",
+    "time": "Vrijeme",
+    "saved": "{name}: spremljeno",
+    "savedDenied": "{name}: odbijen ({reason}), spremljeno",
+    "recent": "Upisano na ovoj akciji",
+    "noneYet": "Još nema upisanih darivanja",
+    "undo": "Poništi",
+    "confirmUndo": "Ukloniti?",
+    "removed": "Uklonjeno",
+    "saveError": "Spremanje nije uspjelo. Pokušajte ponovno.",
+    "change": "Promijeni"
   }
 }

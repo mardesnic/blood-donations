@@ -40,6 +40,17 @@ export default class ActionService {
     });
   }
 
+  static async donationCounts(id: string) {
+    const rows = await prisma.donation.groupBy({
+      by: ['denied'],
+      where: { actionId: id },
+      _count: { _all: true },
+    });
+    const count = (denied: boolean) =>
+      rows.find((row) => row.denied === denied)?._count._all ?? 0;
+    return { successful: count(false), denied: count(true) };
+  }
+
   // The action for its overview page, with how its donations went.
   static async findOverview(id: string) {
     const action = await prisma.action.findUnique({

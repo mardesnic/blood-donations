@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Breadcrumbs, Button, Stack, Typography } from '@mui/material';
-import { MdDelete, MdEdit } from 'react-icons/md';
+import { MdBolt, MdDelete, MdEdit } from 'react-icons/md';
 import { useTranslations } from 'next-intl';
 import { ROUTE_PATHS } from '@/routes';
 import { ActionWithPlace, useActionsContext } from '@/context/ActionsContext';
@@ -39,7 +39,13 @@ export const ActionDetailsHeader = ({ action }: Props) => {
           {action.title}
         </Typography>
       </Breadcrumbs>
-      <Stack direction='row' gap={2}>
+      <Stack direction='row' gap={2} flexWrap='wrap'>
+        {/* Quick entry of donations at the drive. */}
+        <Link href={`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${action.id}/drive`}>
+          <Button color='secondary' size='medium' startIcon={<MdBolt />}>
+            {t('drive.open')}
+          </Button>
+        </Link>
         <Button
           variant='outlined'
           color='inherit'

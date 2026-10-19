@@ -482,6 +482,20 @@ async function main() {
     res.status
   );
 
+  // Drive mode: the page and its running count (one successful donation).
+  res = await call('GET', `/actions/${action.id}/drive`, { raw: true });
+  check(
+    'drive mode page',
+    res.status === 200 && res.data.includes('Drive mode'),
+    res.status
+  );
+  res = await call('GET', `/api/actions/${action.id}/summary`);
+  check(
+    'drive mode count',
+    res.status === 200 && res.data.successful === 1 && res.data.denied === 0,
+    res.data
+  );
+
   // A report for the smoke donation's day (successful, 0-) and its CSVs.
   const reportDay = query({ from: '2026-10-01', to: '2026-10-01' });
   res = await call('GET', `/reports?${reportDay}`, { raw: true });
