@@ -779,6 +779,69 @@ async function main() {
     res.data.includes('<html lang="en"') && res.data.includes('Donors')
   );
 
+  // Call list and contact log
+  const callListCount = async (params) =>
+    (
+      await call(
+        'GET',
+        `/api/call-list?${query({ bloodType: 'O_NEGATIVE', ...params })}`
+      )
+    ).data.count;
+  const smokeEligible = await eligibleNow();
+  const beforeContact = await callListCount({});
+  res = await call('POST', `/api/donors/${donor.id}/communications`, {
+    body: { type: 'FAX' },
+  });
+  check('contact with unknown type rejected', res.status === 400, res.status);
+  res = await call(
+    'POST',
+    '/api/donors/00000000-0000-0000-0000-000000000000/communications',
+    { body: { type: 'CALL' } }
+  );
+  check('contact for missing donor is 404', res.status === 404, res.status);
+  res = await call('POST', `/api/donors/${donor.id}/communications`, {
+    body: { type: 'EMAIL', note: '  Coming on Friday  ' },
+  });
+  const contact = res.data;
+  check(
+    'log contact',
+    res.status === 200 &&
+      contact?.type === 'EMAIL' &&
+      contact.note === 'Coming on Friday',
+    res.data
+  );
+  check(
+    'contacted donor leaves the call list',
+    beforeContact - (await callListCount({})) === (smokeEligible ? 1 : 0) &&
+      (await callListCount({ hideContacted: '0' })) === beforeContact
+  );
+  res = await call('GET', `/api/donors/${donor.id}/communications`);
+  check(
+    'contact history',
+    res.status === 200 && res.data.contacts?.[0]?.id === contact?.id,
+    res.data
+  );
+  res = await call('GET', `/donors/${donor.id}`, { raw: true });
+  check(
+    'donor page shows the last contact',
+    res.status === 200 && /Last contacted|Zadnji kontakt/.test(res.data)
+  );
+  res = await call('GET', '/call-list', { raw: true });
+  check('page /call-list renders', res.status === 200, res.status);
+  res = await call('DELETE', `/api/communications/${contact.id}`);
+  check('delete contact', res.status === 200, res.status);
+  res = await call('DELETE', `/api/communications/${contact.id}`);
+  check('delete deleted contact is 404', res.status === 404, res.status);
+  check(
+    'deleted contact puts the donor back',
+    (await callListCount({})) === beforeContact
+  );
+  // Left in place: deleting the donor removes it too.
+  res = await call('POST', `/api/donors/${donor.id}/communications`, {
+    body: { type: 'CALL' },
+  });
+  check('log a call', res.status === 200 && res.data?.type === 'CALL');
+
   // Clean up
   res = await call('DELETE', `/api/donations/${donation.id}`);
   check('delete donation', res.status === 200, res.status);

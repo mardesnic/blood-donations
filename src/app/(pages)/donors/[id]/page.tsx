@@ -14,10 +14,12 @@ import {
 } from '@mui/material';
 import { MdEdit } from 'react-icons/md';
 import DonorService from '@/app/api/donors/service';
+import CommunicationService from '@/app/api/communications/service';
 import { pageTitle } from '@/i18n/metadata';
 import { getDisplayName } from '@/lib/utils';
 import { formatDay } from '@/lib/dates';
 import { BLOOD_TYPES } from '@/lib/const';
+import { formatContactDay } from '@/lib/callList';
 import { eligibilityLabel, eligibilityReason } from '@/lib/eligibility';
 import { ROUTE_PATHS } from '@/routes';
 import { DonationsProvider } from '@/context/DonationsContext';
@@ -25,6 +27,7 @@ import { DonationsHeader } from '@/app/(pages)/donations/header';
 import DonationsTable from '@/app/(pages)/donations/table';
 import { DonorDetailsHeader } from './header';
 import { InfoField, InfoSection } from '@/components/InfoSection';
+import { ContactLog } from './contactLog';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -49,6 +52,7 @@ export default async function DonorOverviewPage({ params }: Props) {
     notFound();
   }
   const { donor, eligibility, age } = overview;
+  const lastContact = await CommunicationService.lastContact(donor.id);
   const t = await getTranslations();
   const tEligibility = await getTranslations('eligibility');
   const donorPath = `${ROUTE_PATHS.PROTECTED.DONORS.path}/${donor.id}`;
@@ -166,11 +170,22 @@ export default async function DonorOverviewPage({ params }: Props) {
             />
             <InfoField label={t('fields.address')} value={donor.address} />
             <InfoField label={t('fields.city')} value={donor.city} />
+            <InfoField
+              label={t('donorOverview.lastContact')}
+              value={
+                lastContact
+                  ? t('contacts.summary', {
+                      type: t(`contacts.types.${lastContact.type}`),
+                      date: formatContactDay(lastContact.createdAt),
+                    })
+                  : t('contacts.none')
+              }
+            />
           </InfoSection>
         </Grid>
 
         {donor.note && (
-          <Grid size={12}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <InfoSection title={t('fields.note')}>
               <Typography sx={{ whiteSpace: 'pre-line' }}>
                 {donor.note}
@@ -178,6 +193,14 @@ export default async function DonorOverviewPage({ params }: Props) {
             </InfoSection>
           </Grid>
         )}
+
+        <Grid size={{ xs: 12, md: donor.note ? 6 : 12 }}>
+          <ContactLog
+            donorId={donor.id}
+            donorName={getDisplayName([donor.firstName, donor.lastName])}
+            hasPhone={!!donor.phone}
+          />
+        </Grid>
       </Grid>
 
       {/* The table's "New donation" button preselects this donor. */}
