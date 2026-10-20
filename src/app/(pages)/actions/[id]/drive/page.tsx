@@ -46,6 +46,15 @@ export default async function DriveModePage({ params }: Props) {
       <Typography color='text.secondary' sx={{ mb: 3 }}>
         <ActionTimes start={action.startDateTime} end={action.endDateTime} />
         {action.place ? ` · ${action.place.title}` : ''}
+        {' · '}
+        {/* The expected donors' sheet, to tick off on paper. */}
+        <Link
+          href={`${actionPath}/print?sheet=expected`}
+          style={{ textDecoration: 'underline' }}
+          className='tap-target'
+        >
+          {t('driveSheets.expected')}
+        </Link>
       </Typography>
       <DriveMode
         action={{

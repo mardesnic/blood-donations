@@ -12,6 +12,7 @@ datasource db {
 }
 
 enum CommunicationType {
+  CALL
   SMS
   EMAIL
   PUSH
@@ -126,6 +127,7 @@ model Communication {
   donor     Donor             @relation(fields: [donorId], references: [id])
 
   @@index([type])
+  @@index([donorId, createdAt])
 }
 
 model Place {

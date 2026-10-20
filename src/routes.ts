@@ -7,6 +7,7 @@ export const ROUTE_PATHS = {
     DONATIONS: { path: '/donations', labelKey: 'donations' },
     ACTIONS: { path: '/actions', labelKey: 'actions' },
     PLACES: { path: '/places', labelKey: 'places' },
+    CALL_LIST: { path: '/call-list', labelKey: 'callList' },
     REPORTS: { path: '/reports', labelKey: 'reports' },
   },
   PUBLIC: {

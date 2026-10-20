@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { ageOn, formatDay, parseDay, toAppDay, toDayString } from '@/lib/dates';
+import {
+  ageOn,
+  formatAppDateTime,
+  formatDay,
+  parseDay,
+  toAppDay,
+  toDayString,
+} from '@/lib/dates';
 
 describe('parseDay', () => {
   it('returns null for null, undefined, empty and malformed input', () => {
@@ -84,5 +91,23 @@ describe('ageOn', () => {
   it('treats a 29 February birthday like the eligibility rules', () => {
     expect(ageOn(day('2008-02-29'), day('2026-02-27'))).toBe(17);
     expect(ageOn(day('2008-02-29'), day('2026-02-28'))).toBe(18);
+  });
+});
+
+describe('formatAppDateTime', () => {
+  it('is empty for null, undefined, empty and invalid input', () => {
+    expect(formatAppDateTime(null)).toBe('');
+    expect(formatAppDateTime(undefined)).toBe('');
+    expect(formatAppDateTime('')).toBe('');
+    expect(formatAppDateTime('nope')).toBe('');
+  });
+
+  it('shows the time in Zagreb, summer and winter', () => {
+    expect(formatAppDateTime('2026-10-18T21:30:00.000Z')).toBe(
+      '18.10.2026. 23:30'
+    );
+    expect(formatAppDateTime(new Date('2026-12-31T23:30:00.000Z'))).toBe(
+      '01.01.2027. 00:30'
+    );
   });
 });

@@ -1,5 +1,6 @@
 import { prisma } from '@/db';
 import { Donation, Prisma } from '@/generated/prisma/client';
+import { ConflictError } from '@/lib/api';
 import { refreshActionStats, refreshDonorStats } from '../donors/stats';
 
 export default class DonationService {
@@ -75,6 +76,13 @@ export default class DonationService {
     }
     return prisma.$transaction(async (tx) => {
       const before = await tx.donation.findUniqueOrThrow({ where: { id } });
+      // The donor is fixed once saved (see the edit form).
+      if (data.donorId && data.donorId !== before.donorId) {
+        throw new ConflictError(
+          'A donation cannot be moved to another donor.',
+          'DONOR_LOCKED'
+        );
+      }
       const donation = await tx.donation.update({ where: { id }, data });
       for (const donorId of Array.from(
         new Set([before.donorId, donation.donorId])

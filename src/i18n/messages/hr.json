@@ -13,7 +13,8 @@
     "account": "Račun",
     "places": "Mjesta",
     "overview": "Pregled",
-    "reports": "Izvještaji"
+    "reports": "Izvještaji",
+    "callList": "Pozivi"
   },
   "pageTitles": {
     "welcome": "Dobro došli",
@@ -26,7 +27,8 @@
     "actions": "Akcije",
     "places": "Mjesta",
     "overview": "Pregled",
-    "reports": "Izvještaji"
+    "reports": "Izvještaji",
+    "callList": "Pozivi"
   },
   "common": {
     "cancel": "Odustani",
@@ -183,7 +185,11 @@
     "completed": "Uspješno",
     "deleteTitle": "Brisanje darivanja",
     "deleteText": "Ova radnja se ne može poništiti. Brisanjem darivanja trajno se uklanjaju svi povezani podaci.",
-    "deleteConfirm": "Da, obriši darivanje"
+    "deleteConfirm": "Da, obriši darivanje",
+    "noAction": "Bez akcije",
+    "donorLocked": "Darivatelj se ne može promijeniti. Ako je pogrešan, obrišite ovo darivanje i upišite ga ponovo za pravog darivatelja.",
+    "recorded": "Upisano {date}",
+    "changed": "izmijenjeno {date}"
   },
   "actions": {
     "title": "Akcije",
@@ -239,7 +245,8 @@
     "totalDonations": "Ukupno darivanja",
     "beforeRecords": "Prije evidencije",
     "age": "{age, plural, one {# godina} few {# godine} other {# godina}}",
-    "why": "Razlog"
+    "why": "Razlog",
+    "lastContact": "Zadnji kontakt"
   },
   "actionOverview": {
     "details": "Akcija",
@@ -359,5 +366,67 @@
     "confirmDifferent": "Ovo je druga osoba",
     "pick": "Odaberi ovog darivatelja",
     "oibTaken": "Ovaj OIB već ima drugi darivatelj."
+  },
+  "callList": {
+    "title": "Pozivi darivatelja",
+    "intro": "Darivatelji koji sada mogu darivati i imaju broj telefona ili e-mail. Prvi su oni kojima je od zadnjeg darivanja prošlo najviše vremena.",
+    "bloodTypes": "Krvne grupe",
+    "anyCity": "Svi gradovi",
+    "hideContacted": "Sakrij kontaktirane u zadnjih",
+    "hideOption": "{days, plural, =0 {Prikaži sve} one {# dan} few {# dana} other {# dana}}",
+    "count": "{count, plural, one {# darivatelj} few {# darivatelja} other {# darivatelja}}",
+    "empty": "Nema darivatelja za kontakt uz ove filtre.",
+    "lastContact": "Zadnji kontakt",
+    "neverContacted": "Još bez kontakta",
+    "neverDonated": "Još bez darivanja",
+    "donations": "{count, plural, one {# darivanje} few {# darivanja} other {# darivanja}}",
+    "loadError": "Popis za pozive nije učitan.",
+    "showMore": "Prikaži još",
+    "narrowDown": "Prikazano je prvih {shown}. Suzite filtre za ostale.",
+    "anyBloodType": "Sve krvne grupe"
+  },
+  "contacts": {
+    "types": {
+      "CALL": "Poziv",
+      "SMS": "SMS",
+      "EMAIL": "E-mail",
+      "PUSH": "Obavijest"
+    },
+    "log": "Zabilježi kontakt",
+    "logTitle": "Kontakt: {name}",
+    "type": "Način",
+    "note": "Bilješka",
+    "notePlaceholder": "Npr. dolazi u petak, nije se javio/la",
+    "saved": "Kontakt spremljen",
+    "saveError": "Kontakt nije spremljen.",
+    "undo": "Poništi",
+    "deleted": "Kontakt obrisan",
+    "delete": "Obriši kontakt",
+    "deleteError": "Kontakt nije obrisan.",
+    "history": "Kontakti",
+    "none": "Još bez kontakta",
+    "summary": "{type} · {date}",
+    "save": "Spremi"
+  },
+  "driveSheets": {
+    "open": "Ispis / CSV",
+    "title": "Ispis i CSV",
+    "expected": "Očekivani darivatelji",
+    "results": "Rezultati",
+    "expectedHint": "Darivatelji kontaktirani s popisa za pozive u {days} dana prije akcije. Prazni redovi na kraju su za one koji dođu bez poziva.",
+    "resultsHint": "Darivanja zabilježena na ovoj akciji.",
+    "noExpected": "Za ovu akciju nitko nije kontaktiran s popisa za pozive.",
+    "noResults": "Još nema zabilježenih darivanja.",
+    "name": "Prezime i ime",
+    "contacted": "Kontakt",
+    "donated": "Darivao/la",
+    "deniedReason": "Odbijen/a (razlog)",
+    "result": "Rezultat",
+    "resultSuccessful": "Darivao/la",
+    "resultDenied": "Odbijen/a",
+    "print": "Ispiši",
+    "download": "Preuzmi CSV",
+    "fileName": "akcija",
+    "totals": "Darivalo: {successful} · odbijeno: {denied}"
   }
 }

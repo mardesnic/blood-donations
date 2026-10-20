@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Breadcrumbs, Button, Stack, Typography } from '@mui/material';
-import { MdBolt, MdDelete, MdEdit } from 'react-icons/md';
+import { MdBolt, MdDelete, MdEdit, MdPrint } from 'react-icons/md';
 import { useTranslations } from 'next-intl';
 import { ROUTE_PATHS } from '@/routes';
 import { ActionWithPlace, useActionsContext } from '@/context/ActionsContext';
@@ -44,6 +44,17 @@ export const ActionDetailsHeader = ({ action }: Props) => {
         <Link href={`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${action.id}/drive`}>
           <Button color='secondary' size='medium' startIcon={<MdBolt />}>
             {t('drive.open')}
+          </Button>
+        </Link>
+        {/* Who is expected, or how it went, on paper or as CSV. */}
+        <Link href={`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${action.id}/print`}>
+          <Button
+            variant='outlined'
+            color='inherit'
+            size='medium'
+            startIcon={<MdPrint />}
+          >
+            {t('driveSheets.open')}
           </Button>
         </Link>
         <Button

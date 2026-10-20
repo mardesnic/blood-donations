@@ -13,7 +13,8 @@
     "account": "Account",
     "places": "Places",
     "overview": "Overview",
-    "reports": "Reports"
+    "reports": "Reports",
+    "callList": "Call list"
   },
   "pageTitles": {
     "welcome": "Welcome",
@@ -26,7 +27,8 @@
     "actions": "Actions",
     "places": "Places",
     "overview": "Overview",
-    "reports": "Reports"
+    "reports": "Reports",
+    "callList": "Call list"
   },
   "common": {
     "cancel": "Cancel",
@@ -183,7 +185,11 @@
     "completed": "Completed",
     "deleteTitle": "Delete Donation",
     "deleteText": "This action cannot be undone. Deleting the donation will permanently remove all associated information.",
-    "deleteConfirm": "Yes, Delete Donation"
+    "deleteConfirm": "Yes, Delete Donation",
+    "noAction": "No action",
+    "donorLocked": "The donor can't be changed. If it's wrong, delete this donation and enter it again for the right donor.",
+    "recorded": "Recorded {date}",
+    "changed": "changed {date}"
   },
   "actions": {
     "title": "Actions",
@@ -239,7 +245,8 @@
     "totalDonations": "Total donations",
     "beforeRecords": "Before records",
     "age": "{age, plural, one {# year} other {# years}}",
-    "why": "Why"
+    "why": "Why",
+    "lastContact": "Last contacted"
   },
   "actionOverview": {
     "details": "Action",
@@ -359,5 +366,67 @@
     "confirmDifferent": "This is a different person",
     "pick": "Use this donor",
     "oibTaken": "This OIB already belongs to another donor."
+  },
+  "callList": {
+    "title": "Call list",
+    "intro": "Donors who can donate now and have a phone number or e-mail. Those longest since their last donation come first.",
+    "bloodTypes": "Blood types",
+    "anyCity": "Any city",
+    "hideContacted": "Hide contacted in the last",
+    "hideOption": "{days, plural, =0 {Show everyone} one {# day} other {# days}}",
+    "count": "{count, plural, one {# donor} other {# donors}}",
+    "empty": "No donors to contact with these filters.",
+    "lastContact": "Last contacted",
+    "neverContacted": "Not contacted yet",
+    "neverDonated": "No donations yet",
+    "donations": "{count, plural, one {# donation} other {# donations}}",
+    "loadError": "Couldn't load the call list.",
+    "showMore": "Show more",
+    "narrowDown": "Showing the first {shown}. Narrow the filters to see others.",
+    "anyBloodType": "Any blood type"
+  },
+  "contacts": {
+    "types": {
+      "CALL": "Phone call",
+      "SMS": "SMS",
+      "EMAIL": "E-mail",
+      "PUSH": "Notification"
+    },
+    "log": "Log contact",
+    "logTitle": "Log contact with {name}",
+    "type": "How",
+    "note": "Note",
+    "notePlaceholder": "E.g. coming on Friday, didn't answer",
+    "saved": "Contact saved",
+    "saveError": "Couldn't save the contact.",
+    "undo": "Undo",
+    "deleted": "Contact deleted",
+    "delete": "Delete contact",
+    "deleteError": "Couldn't delete the contact.",
+    "history": "Contacts",
+    "none": "Not contacted yet",
+    "summary": "{type} · {date}",
+    "save": "Save"
+  },
+  "driveSheets": {
+    "open": "Print / CSV",
+    "title": "Print and CSV",
+    "expected": "Expected donors",
+    "results": "Results",
+    "expectedHint": "Donors contacted from the call list in the {days} days before the drive. Empty rows at the end are for walk-ins.",
+    "resultsHint": "Donations recorded for this drive.",
+    "noExpected": "Nobody was contacted for this drive from the call list.",
+    "noResults": "No donations recorded yet.",
+    "name": "Last and first name",
+    "contacted": "Contacted",
+    "donated": "Donated",
+    "deniedReason": "Denied (reason)",
+    "result": "Result",
+    "resultSuccessful": "Donated",
+    "resultDenied": "Denied",
+    "print": "Print",
+    "download": "Download CSV",
+    "fileName": "drive",
+    "totals": "{successful} donated · {denied} denied"
   }
 }
