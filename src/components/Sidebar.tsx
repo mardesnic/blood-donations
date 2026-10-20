@@ -1,6 +1,6 @@
 'use client';
 
-import { menuRoutes, ROUTE_PATHS } from '@/routes';
+import { adminMenuRoutes, menuRoutes, ROUTE_PATHS } from '@/routes';
 import { useCurrentUser } from '@/context/CurrentUserContext';
 import {
   Box,
@@ -55,7 +55,7 @@ export const Sidebar = () => {
       >
         <DrawerContent>
           <List>
-            {menuRoutes(isAdmin).map((page, i) => (
+            {menuRoutes().map((page, i) => (
               <ListItem key={`${i}${page.path}`} disablePadding>
                 <ListItemButton
                   component={Link}
@@ -75,6 +75,17 @@ export const Sidebar = () => {
                 />
               </ListItem>
             )}
+            {adminMenuRoutes(isAdmin).map((page) => (
+              <ListItem key={page.path} disablePadding>
+                <ListItemButton
+                  component={Link}
+                  href={page.path}
+                  onClick={() => setShowDrawer(false)}
+                >
+                  <ListItemText primary={t(page.labelKey)} />
+                </ListItemButton>
+              </ListItem>
+            ))}
             <ListItem disablePadding>
               <ListItemButton
                 component={Link}

@@ -11,16 +11,17 @@ import {
   MenuItem,
   Stack,
 } from '@mui/material';
-import { ROUTE_PATHS } from '@/routes';
+import { adminMenuRoutes, ROUTE_PATHS } from '@/routes';
 import { signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useCurrentUser } from '@/context/CurrentUserContext';
 
 export const UserDropdown = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const t = useTranslations('nav');
-  const { user } = useCurrentUser();
+  const { user, isAdmin } = useCurrentUser();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -75,6 +76,17 @@ export const UserDropdown = () => {
           </MenuItem>
         )}
         {user && <Divider />}
+        {adminMenuRoutes(isAdmin).map((route) => (
+          <MenuItem
+            key={route.path}
+            component={Link}
+            href={route.path}
+            selected={pathname.startsWith(route.path)}
+            onClick={handleClose}
+          >
+            {t(route.labelKey)}
+          </MenuItem>
+        ))}
         <MenuItem
           component={Link}
           href={ROUTE_PATHS.ACCOUNT.PASSWORD.path}

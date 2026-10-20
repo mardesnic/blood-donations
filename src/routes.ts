@@ -1,5 +1,6 @@
-// labelKey is a message key under "nav"; adminOnly pages are left out of the
-// menu for volunteers (their APIs refuse them anyway).
+// labelKey is a message key under "nav". adminOnly pages are kept out of the
+// main menu: admins find them in the account menu, volunteers don't see
+// them at all (their APIs refuse them anyway).
 export const ROUTE_PATHS = {
   PROTECTED: {
     // The home page; "/" redirects here (next.config.js).
@@ -21,9 +22,22 @@ export const ROUTE_PATHS = {
   },
 } as const;
 
-// The menu entries this user may see.
-export function menuRoutes(isAdmin: boolean) {
+type ProtectedRoute =
+  (typeof ROUTE_PATHS.PROTECTED)[keyof typeof ROUTE_PATHS.PROTECTED];
+
+const isAdminOnly = (route: ProtectedRoute) =>
+  'adminOnly' in route && route.adminOnly;
+
+// The main menu: the pages everyone works with day to day.
+export function menuRoutes() {
   return Object.values(ROUTE_PATHS.PROTECTED).filter(
-    (route) => isAdmin || !('adminOnly' in route && route.adminOnly)
+    (route) => !isAdminOnly(route)
   );
+}
+
+// Admin pages, shown in the account menu; none for volunteers.
+export function adminMenuRoutes(isAdmin: boolean) {
+  return isAdmin
+    ? Object.values(ROUTE_PATHS.PROTECTED).filter(isAdminOnly)
+    : [];
 }

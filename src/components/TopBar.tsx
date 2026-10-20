@@ -5,7 +5,6 @@ import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import React from 'react';
 import { UserDropdown } from './UserDropdown';
 import { menuRoutes, ROUTE_PATHS } from '@/routes';
-import { useCurrentUser } from '@/context/CurrentUserContext';
 import Link from 'next/link';
 import { Sidebar } from './Sidebar';
 import { usePathname } from 'next/navigation';
@@ -15,7 +14,6 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 export const TopBar = () => {
   const pathname = usePathname();
   const t = useTranslations();
-  const { isAdmin } = useCurrentUser();
 
   return (
     <AppBar position='sticky'>
@@ -42,7 +40,7 @@ export const TopBar = () => {
               ml: 2,
             }}
           >
-            {menuRoutes(isAdmin).map((route) => (
+            {menuRoutes().map((route) => (
               <Link href={route.path} key={`${route.path}`}>
                 <Button
                   variant='text'
