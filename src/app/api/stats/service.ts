@@ -9,6 +9,7 @@ import {
 import { buildReport, Report, ReportPeriod } from '@/lib/reports';
 import { eligibleNowWhere } from '@/lib/donorFilters';
 import { BLOOD_TYPES } from '@/lib/const';
+import { ONE_BEFORE_MILESTONE } from '@/lib/milestones';
 import {
   fillMonths,
   MonthRow,
@@ -17,6 +18,9 @@ import {
 } from '@/lib/overviewStats';
 
 const BLOOD_TYPE_ORDER = Object.keys(BLOOD_TYPES);
+
+// Donors listed on the overview as close to a milestone.
+const NEAR_MILESTONE_SHOWN = 8;
 
 export type Overview = Awaited<ReturnType<typeof StatsService.overview>>;
 
@@ -28,7 +32,7 @@ export default class StatsService {
       gte: appDayStart(period.from),
       lt: appDayStart(addDays(period.to, 1)),
     };
-    const [donations, newDonors, actions] = await Promise.all([
+    const [donations, newDonors, actions, milestoneDonors] = await Promise.all([
       prisma.donation.findMany({
         where: { donationDate: range },
         select: {
@@ -51,6 +55,28 @@ export default class StatsService {
       prisma.action.findMany({
         where: { startDateTime: range },
         include: { place: { select: { title: true } } },
+      }),
+      prisma.donor.findMany({
+        where: {
+          OR: [
+            { donations: { some: { denied: false, donationDate: range } } },
+            {
+              initialLastDonation: { gte: period.from, lte: period.to },
+            },
+          ],
+        },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          bloodType: true,
+          initialDonationCount: true,
+          initialLastDonation: true,
+          donations: {
+            where: { denied: false },
+            select: { donationDate: true },
+          },
+        },
       }),
     ]);
     const donorIds = [
@@ -82,6 +108,10 @@ export default class StatsService {
         ])
       ),
       newDonors,
+      milestoneDonors: milestoneDonors.map(({ donations: list, ...donor }) => ({
+        ...donor,
+        successfulDonationDates: list.map((d) => d.donationDate),
+      })),
       actions: actions.map((action) => ({
         id: action.id,
         title: action.title,
@@ -103,6 +133,10 @@ export default class StatsService {
     const monthsFrom = appDayStart(parseDay(`${months[0]}-01`) as Date);
     const inThisYear = { gte: thisYear.from, lt: thisYear.to };
     const eligible = eligibleNowWhere(today);
+    // Can donate now, and the next donation reaches a milestone.
+    const nearMilestone = {
+      AND: [eligible, { donationCount: { in: ONE_BEFORE_MILESTONE } }],
+    };
 
     const [
       successfulThisYear,
@@ -117,6 +151,8 @@ export default class StatsService {
       denyReasons,
       upcomingActions,
       recentActions,
+      nearMilestoneDonors,
+      nearMilestoneCount,
     ] = await Promise.all([
       prisma.donation.count({
         where: { denied: false, donationDate: inThisYear },
@@ -172,6 +208,23 @@ export default class StatsService {
           _count: { select: { donations: { where: { denied: true } } } },
         },
       }),
+      prisma.donor.findMany({
+        where: nearMilestone,
+        orderBy: [
+          { donationCount: 'desc' },
+          { lastName: 'asc' },
+          { firstName: 'asc' },
+        ],
+        take: NEAR_MILESTONE_SHOWN,
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          bloodType: true,
+          donationCount: true,
+        },
+      }),
+      prisma.donor.count({ where: nearMilestone }),
     ]);
 
     const eligibleCounts = new Map(
@@ -198,6 +251,13 @@ export default class StatsService {
       denyReasons: denyReasons
         .map((row) => ({ reason: row.denyReason, count: row._count._all }))
         .sort((a, b) => b.count - a.count),
+      nearMilestone: {
+        donors: nearMilestoneDonors.map((donor) => ({
+          ...donor,
+          milestone: donor.donationCount + 1,
+        })),
+        count: nearMilestoneCount,
+      },
       upcomingActions: upcomingActions.map((action) => ({
         id: action.id,
         title: action.title,

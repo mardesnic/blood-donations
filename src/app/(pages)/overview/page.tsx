@@ -19,6 +19,7 @@ import { pageTitle } from '@/i18n/metadata';
 import { BLOOD_TYPES } from '@/lib/const';
 import { percentChange, percentOf } from '@/lib/overviewStats';
 import { filterModelToSearchParams } from '@/lib/donorFilterModel';
+import { getDisplayName } from '@/lib/utils';
 import { ROUTE_PATHS } from '@/routes';
 import { InfoSection } from '@/components/InfoSection';
 import { ActionTimes } from '@/components/ActionTimes';
@@ -264,6 +265,54 @@ export default async function OverviewPage() {
               )}
             </InfoSection>
           </Stack>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <InfoSection title={t('milestones.close')}>
+            <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+              {t('milestones.closeHint')}
+            </Typography>
+            {stats.nearMilestone.donors.length ? (
+              <Table size='small'>
+                <TableBody>
+                  {stats.nearMilestone.donors.map((donor) => (
+                    <TableRow key={donor.id}>
+                      <TableCell>
+                        <Link
+                          href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${donor.id}`}
+                          style={{ textDecoration: 'underline' }}
+                          className='tap-target'
+                        >
+                          {getDisplayName([donor.firstName, donor.lastName])}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        {donor.bloodType ? BLOOD_TYPES[donor.bloodType] : ''}
+                      </TableCell>
+                      <TableCell align='right'>
+                        {t('milestones.reachesNext', {
+                          milestone: donor.milestone,
+                        })}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <Typography sx={{ color: 'text.secondary' }}>
+                {t('milestones.noneClose')}
+              </Typography>
+            )}
+            {stats.nearMilestone.count > stats.nearMilestone.donors.length && (
+              <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                {t('milestones.more', {
+                  count:
+                    stats.nearMilestone.count -
+                    stats.nearMilestone.donors.length,
+                })}
+              </Typography>
+            )}
+          </InfoSection>
         </Grid>
       </Grid>
     </>

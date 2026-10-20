@@ -258,6 +258,21 @@
     "why": "Why",
     "lastContact": "Last contacted"
   },
+  "milestones": {
+    "label": "Milestone",
+    "reached": "{milestone} donations",
+    "reachedOn": "reached {date}",
+    "beforeRecords": "before records",
+    "next": "Next: {milestone} ({remaining, plural, one {# donation} other {# donations}} to go)",
+    "allReached": "All milestones reached",
+    "close": "Close to a milestone",
+    "closeHint": "Can donate now, and their next donation reaches a milestone.",
+    "reachesNext": "→ {milestone}",
+    "noneClose": "Nobody is one donation away from a milestone right now.",
+    "more": "and {count} more",
+    "reportTitle": "Milestones reached",
+    "date": "Date"
+  },
   "actionOverview": {
     "details": "Action",
     "time": "Time",

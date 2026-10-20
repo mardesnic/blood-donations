@@ -1,5 +1,6 @@
 import { BLOOD_TYPES } from '@/lib/const';
 import { addMonths, ageOn, parseDay, toAppDay, toDayString } from '@/lib/dates';
+import { milestoneDates } from '@/lib/milestones';
 import { MonthTotals, percentOf } from '@/lib/overviewStats';
 
 // A report period: whole calendar days in the app's time zone, both ends
@@ -69,6 +70,18 @@ export interface ReportAction {
   denied: number;
 }
 
+// A donor who may have reached a milestone in the period, with the dates of
+// all their successful donations.
+export interface ReportMilestoneDonor {
+  id: string;
+  firstName: string;
+  lastName: string;
+  bloodType: string | null;
+  initialDonationCount: number;
+  initialLastDonation: Date | null;
+  successfulDonationDates: Date[];
+}
+
 export interface ReportInput {
   period: ReportPeriod;
   // The donations dated within the period.
@@ -78,6 +91,9 @@ export interface ReportInput {
   newDonors: number;
   // The actions that start within the period.
   actions: ReportAction[] | null | undefined;
+  // Donors with a successful donation (or their initial last donation) in
+  // the period.
+  milestoneDonors?: ReportMilestoneDonor[] | null;
 }
 
 export const AGE_GROUPS = [
@@ -161,6 +177,33 @@ export function buildReport(input: ReportInput) {
 
   const withoutAction = donations.filter((d) => !d.actionId);
 
+  const milestones = (input.milestoneDonors || [])
+    .flatMap((donor) =>
+      milestoneDates(
+        donor.initialDonationCount,
+        donor.initialLastDonation,
+        donor.successfulDonationDates
+      )
+        .filter(
+          ({ date }) =>
+            !!date && date >= input.period.from && date <= input.period.to
+        )
+        .map(({ milestone, date }) => ({
+          donorId: donor.id,
+          firstName: donor.firstName,
+          lastName: donor.lastName,
+          bloodType: donor.bloodType,
+          milestone,
+          date: date as Date,
+        }))
+    )
+    .sort(
+      (a, b) =>
+        a.date.getTime() - b.date.getTime() ||
+        a.lastName.localeCompare(b.lastName, 'hr') ||
+        a.firstName.localeCompare(b.firstName, 'hr')
+    );
+
   return {
     totals: {
       successful: successful.length,
@@ -187,6 +230,7 @@ export function buildReport(input: ReportInput) {
     genderAge: genderAge.filter(
       (row) => row.total > 0 || AGE_GROUPS.some((g) => g.key === row.group)
     ),
+    milestones,
     denyReasons: [...count(denied.map((d) => d.denyReason))]
       .map(([reason, total]) => ({ reason, count: total }))
       .sort((a, b) => b.count - a.count),

@@ -198,6 +198,7 @@ export default async function ReportsPage({ searchParams }: Props) {
         <Grid size={{ xs: 12, md: 4 }}>{table('bloodTypes')}</Grid>
         <Grid size={{ xs: 12, md: 4 }}>{table('genderAge')}</Grid>
         <Grid size={{ xs: 12, md: 4 }}>{table('denyReasons')}</Grid>
+        <Grid size={12}>{table('milestones')}</Grid>
       </Grid>
     </>
   );

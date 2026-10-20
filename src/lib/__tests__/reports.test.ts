@@ -79,7 +79,9 @@ describe('buildReport', () => {
         firstDonations: empty === null ? null : undefined,
         newDonors: 0,
         actions: empty,
+        milestoneDonors: empty,
       });
+      expect(report.milestones).toEqual([]);
       expect(report.totals).toEqual({
         successful: 0,
         denied: 0,
@@ -241,5 +243,78 @@ describe('buildReport', () => {
     expect(report.actions.map((a) => a.id)).toEqual(['early', 'late']);
     expect(report.totals.actions).toBe(2);
     expect(report.withoutAction).toEqual({ successful: 1, denied: 1 });
+  });
+});
+
+describe('buildReport milestones', () => {
+  // Successful donations on the 10th of each month, 09:00 UTC, from
+  // January 2026.
+  const monthly = (count: number) =>
+    Array.from({ length: count }, (_, i) => new Date(Date.UTC(2026, i, 10, 9)));
+  const donor = {
+    id: 'd1',
+    firstName: 'Ana',
+    lastName: 'Horvat',
+    bloodType: 'A_POSITIVE',
+    initialDonationCount: 0,
+    initialLastDonation: null,
+  };
+
+  it('lists milestones reached within the period, by date', () => {
+    const report = buildReport({
+      period: { from: day('2026-03-01'), to: day('2026-06-30') },
+      donations: [],
+      firstDonations: null,
+      newDonors: 0,
+      actions: [],
+      milestoneDonors: [
+        // 8 before the records: the 10th is the 2nd recorded (February,
+        // before the period), the 20th the 12th (December, after it).
+        {
+          ...donor,
+          id: 'd2',
+          firstName: 'Ivo',
+          initialDonationCount: 8,
+          successfulDonationDates: monthly(12),
+        },
+        // 15 before the records: the 20th is the 5th recorded (May).
+        {
+          ...donor,
+          id: 'd3',
+          lastName: 'Babić',
+          initialDonationCount: 15,
+          successfulDonationDates: monthly(5),
+        },
+        // Exactly 10 before the records, the last on 1 April: reached then.
+        {
+          ...donor,
+          id: 'd4',
+          lastName: 'Zorić',
+          initialDonationCount: 10,
+          initialLastDonation: day('2026-04-01'),
+          successfulDonationDates: [],
+        },
+        // 4 recorded, nowhere near.
+        { ...donor, successfulDonationDates: monthly(4) },
+      ],
+    });
+    expect(report.milestones).toEqual([
+      {
+        donorId: 'd4',
+        firstName: 'Ana',
+        lastName: 'Zorić',
+        bloodType: 'A_POSITIVE',
+        milestone: 10,
+        date: day('2026-04-01'),
+      },
+      {
+        donorId: 'd3',
+        firstName: 'Ana',
+        lastName: 'Babić',
+        bloodType: 'A_POSITIVE',
+        milestone: 20,
+        date: day('2026-05-10'),
+      },
+    ]);
   });
 });

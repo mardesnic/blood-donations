@@ -1,5 +1,7 @@
 import { actionTimesText } from '@/components/ActionTimes';
 import { BLOOD_TYPES } from '@/lib/const';
+import { formatDay } from '@/lib/dates';
+import { getDisplayName } from '@/lib/utils';
 import { Report } from '@/lib/reports';
 
 type Translate = (
@@ -14,6 +16,7 @@ export const REPORT_TABLES = [
   'bloodTypes',
   'genderAge',
   'denyReasons',
+  'milestones',
 ] as const;
 export type ReportTableKey = (typeof REPORT_TABLES)[number];
 
@@ -145,6 +148,23 @@ export function reportTables(
       rows: report.denyReasons.map((r) => [
         r.reason ? t(`denyReasons.${r.reason}`) : unknown,
         r.count,
+      ]),
+    },
+    {
+      key: 'milestones',
+      title: t('milestones.reportTitle'),
+      columns: [
+        t('milestones.date'),
+        t('fields.donor'),
+        t('fields.bloodType'),
+        t('milestones.label'),
+      ],
+      numeric: [false, false, false, true],
+      rows: report.milestones.map((m) => [
+        formatDay(m.date),
+        getDisplayName([m.lastName, m.firstName]),
+        m.bloodType ? BLOOD_TYPES[m.bloodType] || m.bloodType : unknown,
+        m.milestone,
       ]),
     },
   ];

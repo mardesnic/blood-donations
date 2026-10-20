@@ -258,6 +258,21 @@
     "why": "Razlog",
     "lastContact": "Zadnji kontakt"
   },
+  "milestones": {
+    "label": "Jubilej",
+    "reached": "{milestone} darivanja",
+    "reachedOn": "dosegnuto {date}",
+    "beforeRecords": "prije evidencije",
+    "next": "Sljedeći: {milestone} (još {remaining, plural, one {# darivanje} few {# darivanja} other {# darivanja}})",
+    "allReached": "Svi jubileji dosegnuti",
+    "close": "Pred jubilejem",
+    "closeHint": "Mogu darivati sada, a sljedećim darivanjem dosežu jubilej.",
+    "reachesNext": "→ {milestone}",
+    "noneClose": "Trenutačno nitko nije jedno darivanje od jubileja.",
+    "more": "i još {count}",
+    "reportTitle": "Dosegnuti jubileji",
+    "date": "Datum"
+  },
   "actionOverview": {
     "details": "Akcija",
     "time": "Vrijeme",
