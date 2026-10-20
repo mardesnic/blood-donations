@@ -27,7 +27,7 @@ export interface ReportTable {
 }
 
 // The report's tables in the user's language, shared by the page and the
-// CSV export so both always show the same thing.
+// Excel export so both always show the same thing.
 export function reportTables(
   report: Report,
   t: Translate,

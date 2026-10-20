@@ -1,5 +1,5 @@
 import { prisma } from '@/db';
-import { BLOOD_TYPES, DATE_FORMAT } from '@/lib/const';
+import { BLOOD_TYPES } from '@/lib/const';
 import { buildDonorFilter } from '@/lib/donorFilters';
 import { donorOrderBy } from '@/lib/donorSort';
 import {
@@ -10,7 +10,7 @@ import {
   isOib,
 } from '@/lib/duplicates';
 import { ConflictError } from '@/lib/api';
-import { ageOn, formatDay, toAppDay } from '@/lib/dates';
+import { ageOn, toAppDay } from '@/lib/dates';
 import {
   computeEligibility,
   Eligibility,
@@ -22,9 +22,7 @@ import { refreshActionStats, refreshDonorStats } from './stats';
 
 type DonorInput = ReturnType<typeof donorDataFromBody>;
 import { Donor, Prisma } from '@/generated/prisma/client';
-import dayjs from 'dayjs';
-import { format } from 'fast-csv';
-import { Readable } from 'stream';
+import { excelDateTime, ExcelValue } from '@/lib/excel';
 
 // The export's columns in order; their names are in the "export" messages.
 const EXPORT_COLUMNS = [
@@ -242,7 +240,7 @@ export default class DonorService {
     // All messages, for the column names and the values (gender, blood
     // type, status, eligibility) in the user's language.
     t: (key: string, values?: Record<string, string | number>) => string
-  ): Promise<string> {
+  ): Promise<{ columns: string[]; rows: ExcelValue[][] }> {
     const tEligibility: EligibilityTranslate = (key, values) =>
       t(`eligibility.${key}`, values);
     const today = toAppDay(new Date()) as Date;
@@ -254,8 +252,8 @@ export default class DonorService {
       include: { donations: DENIALS },
     });
 
-    const csvData = donors.map((donor) => {
-      const row: Record<(typeof EXPORT_COLUMNS)[number], unknown> = {
+    const rows = donors.map((donor) => {
+      const row: Record<(typeof EXPORT_COLUMNS)[number], ExcelValue> = {
         firstName: donor.firstName,
         lastName: donor.lastName,
         fatherName: donor.fatherName,
@@ -266,42 +264,24 @@ export default class DonorService {
         gender: t(`genders.${donor.gender}`),
         bloodType: donor.bloodType ? BLOOD_TYPES[donor.bloodType] : '',
         donations: donor.donationCount,
-        lastDonation: formatDay(donor.lastDonation),
+        lastDonation: donor.lastDonation,
         nextEligible: eligibilityLabel(
           computeEligibility({ ...donor, denials: donor.donations }, today),
           tEligibility
         ),
-        dob: formatDay(donor.dob),
+        dob: donor.dob,
         note: donor.note,
-        createdAt: dayjs(donor.createdAt).format(DATE_FORMAT),
-        updatedAt: dayjs(donor.updatedAt).format(DATE_FORMAT),
+        createdAt: excelDateTime(donor.createdAt),
+        updatedAt: excelDateTime(donor.updatedAt),
         active: t(`statuses.${donor.active ? 'ACTIVE' : 'INACTIVE'}`),
       };
-      return Object.fromEntries(
-        EXPORT_COLUMNS.map((key) => [t(`export.${key}`), row[key]])
-      );
+      return EXPORT_COLUMNS.map((key) => row[key]);
     });
 
-    // Convert donors to CSV
-    const csvStream = format({ headers: true });
-    csvData.forEach((donor) => csvStream.write(donor));
-    csvStream.end();
-
-    // Convert stream to a promise of a string
-    const streamToString = (stream: Readable): Promise<string> => {
-      const chunks: Buffer[] = [];
-      return new Promise((resolve, reject) => {
-        stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
-        stream.on('error', reject);
-        stream.on('end', () =>
-          resolve(
-            Buffer.concat(chunks as unknown as Uint8Array[]).toString('utf-8')
-          )
-        );
-      });
+    return {
+      columns: EXPORT_COLUMNS.map((key) => t(`export.${key}`)),
+      rows,
     };
-
-    return streamToString(csvStream);
   }
 
   private static constructWhereCondition(

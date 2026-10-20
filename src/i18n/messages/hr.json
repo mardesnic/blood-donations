@@ -172,7 +172,7 @@
   },
   "donors": {
     "title": "Darivatelji",
-    "exportCsv": "Izvoz CSV",
+    "exportExcel": "Izvoz u Excel",
     "new": "Novi darivatelj",
     "search": "Pretraga",
     "searchPlaceholder": "Ime, e-mail itd...",
@@ -315,7 +315,7 @@
     "to": "Do",
     "show": "Prikaži",
     "print": "Ispis",
-    "csv": "CSV",
+    "excel": "Excel",
     "periodText": "Razdoblje: {from} – {to}",
     "note": "Darivanja prije evidencije (upisana pri dodavanju darivatelja) nemaju datum pa nisu uključena.",
     "empty": "Nema podataka za ovo razdoblje",
@@ -419,8 +419,8 @@
     "save": "Spremi"
   },
   "driveSheets": {
-    "open": "Ispis / CSV",
-    "title": "Ispis i CSV",
+    "open": "Ispis / Excel",
+    "title": "Ispis i Excel",
     "expected": "Očekivani darivatelji",
     "results": "Rezultati",
     "expectedHint": "Darivatelji kontaktirani s popisa za pozive u {days} dana prije akcije. Prazni redovi na kraju su za one koji dođu bez poziva.",
@@ -435,7 +435,7 @@
     "resultSuccessful": "Darivao/la",
     "resultDenied": "Odbijen/a",
     "print": "Ispiši",
-    "download": "Preuzmi CSV",
+    "download": "Preuzmi Excel",
     "fileName": "akcija",
     "totals": "Darivalo: {successful} · odbijeno: {denied}"
   },

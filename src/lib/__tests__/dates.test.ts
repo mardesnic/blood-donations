@@ -5,6 +5,7 @@ import {
   formatDay,
   parseDay,
   toAppDay,
+  toAppWallClock,
   toDayString,
 } from '@/lib/dates';
 
@@ -108,6 +109,25 @@ describe('formatAppDateTime', () => {
     );
     expect(formatAppDateTime(new Date('2026-12-31T23:30:00.000Z'))).toBe(
       '01.01.2027. 00:30'
+    );
+  });
+});
+
+describe('toAppWallClock', () => {
+  it('is null for null, undefined, empty and invalid input', () => {
+    expect(toAppWallClock(null)).toBeNull();
+    expect(toAppWallClock(undefined)).toBeNull();
+    expect(toAppWallClock('')).toBeNull();
+    expect(toAppWallClock('nope')).toBeNull();
+  });
+
+  it('writes the time in Zagreb as UTC', () => {
+    // Summer time (UTC+2) and winter time (UTC+1).
+    expect(toAppWallClock('2026-10-18T21:30:00.000Z')).toEqual(
+      new Date('2026-10-18T23:30:00.000Z')
+    );
+    expect(toAppWallClock(new Date('2026-12-31T23:15:00.000Z'))).toEqual(
+      new Date('2027-01-01T00:15:00.000Z')
     );
   });
 });
