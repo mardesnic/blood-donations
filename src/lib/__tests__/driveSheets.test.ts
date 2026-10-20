@@ -88,7 +88,7 @@ describe('driveSheet', () => {
     );
     expect(sheet.rows).toEqual([
       [
-        '1',
+        1,
         'Horvat Ana',
         'A+',
         '01.05.1990.',
@@ -98,7 +98,7 @@ describe('driveSheet', () => {
         '',
         '',
       ],
-      ['2', 'Šimić Ivo', '', '', '', '', '', '', ''],
+      [2, 'Šimić Ivo', '', '', '', '', '', '', ''],
     ]);
     expect(sheet.rows[0]).toHaveLength(sheet.columns.length);
   });

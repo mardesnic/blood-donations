@@ -172,7 +172,7 @@
   },
   "donors": {
     "title": "Donors",
-    "exportCsv": "Export CSV",
+    "exportExcel": "Export to Excel",
     "new": "New Donor",
     "search": "Search",
     "searchPlaceholder": "Name, email, etc...",
@@ -315,7 +315,7 @@
     "to": "To",
     "show": "Show",
     "print": "Print",
-    "csv": "CSV",
+    "excel": "Excel",
     "periodText": "Period: {from} – {to}",
     "note": "Donations from before the records (typed in when a donor was added) have no date, so they aren't included.",
     "empty": "No data for this period",
@@ -419,8 +419,8 @@
     "save": "Save"
   },
   "driveSheets": {
-    "open": "Print / CSV",
-    "title": "Print and CSV",
+    "open": "Print / Excel",
+    "title": "Print and Excel",
     "expected": "Expected donors",
     "results": "Results",
     "expectedHint": "Donors contacted from the call list in the {days} days before the drive. Empty rows at the end are for walk-ins.",
@@ -435,7 +435,7 @@
     "resultSuccessful": "Donated",
     "resultDenied": "Denied",
     "print": "Print",
-    "download": "Download CSV",
+    "download": "Download Excel",
     "fileName": "drive",
     "totals": "{successful} donated · {denied} denied"
   },

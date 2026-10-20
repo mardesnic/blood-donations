@@ -58,7 +58,7 @@ export const ActionDetailsHeader = ({ action }: Props) => {
             {t('drive.open')}
           </Button>
         </Link>
-        {/* Who is expected, or how it went, on paper or as CSV. */}
+        {/* Who is expected, or how it went, on paper or in Excel. */}
         <Link href={`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${action.id}/print`}>
           <Button
             variant='outlined'

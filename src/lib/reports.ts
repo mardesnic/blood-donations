@@ -100,7 +100,7 @@ function ageGroup(dob: Date | null, day: Date | null): string {
   return AGE_GROUPS.find((g) => age >= g.min && age <= g.max)?.key ?? 'other';
 }
 
-// Everything the reports page and its CSV exports show for a period.
+// Everything the reports page and its Excel exports show for a period.
 export function buildReport(input: ReportInput) {
   const donations = input.donations || [];
   const firstDonations = input.firstDonations || new Map<string, Date>();

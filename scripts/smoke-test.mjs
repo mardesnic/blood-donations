@@ -6,6 +6,8 @@
 //
 // Never point this at production: it creates and deletes records.
 
+import readXlsxFile from 'read-excel-file/node';
+
 const BASE = process.argv[2] || 'http://localhost:3000';
 const ADMIN = { email: 'admin@admin.admin', password: 'AdminPassword123' };
 const cookies = new Map();
@@ -47,6 +49,23 @@ async function call(method, path, { body, form, raw, redirect } = {}) {
     return { status: res.status, data: text };
   }
 }
+
+// An Excel download's first sheet as rows of cells (rows: [] when the
+// response isn't an .xlsx file).
+async function sheet(path) {
+  const res = await fetch(BASE + path, {
+    headers: { cookie: [...cookies].map(([k, v]) => `${k}=${v}`).join('; ') },
+  });
+  const isXlsx = (res.headers.get('content-type') || '').includes(
+    'spreadsheetml'
+  );
+  const rows = isXlsx
+    ? (await readXlsxFile(Buffer.from(await res.arrayBuffer())))[0].data
+    : [];
+  return { status: res.status, rows };
+}
+
+const rowText = (row) => (row || []).join(' | ');
 
 function check(name, ok, detail) {
   if (!ok) failures += 1;
@@ -167,14 +186,13 @@ async function main() {
   res = await call('GET', `/api/donors?${query({ search: first.lastName })}`);
   check('search by last name', res.status === 200 && res.data.count >= 1);
 
-  res = await call('GET', '/api/donors/export', { raw: true });
-  const rows = res.data.trim().split('\n');
+  const donorSheet = await sheet('/api/donors/export');
   check(
-    'CSV export',
-    res.status === 200 &&
-      rows[0].startsWith('Name,') &&
-      rows.length === total + 1,
-    rows.length
+    'Excel export',
+    donorSheet.status === 200 &&
+      donorSheet.rows[0]?.[0] === 'Name' &&
+      donorSheet.rows.length === total + 1,
+    donorSheet.rows.length
   );
 
   // Donor create / update
@@ -363,23 +381,24 @@ async function main() {
       !(await findsDonor([`lastDonation|onOrAfter|${DAY('2025-01-11')}`])) &&
       !(await findsDonor([`lastDonation|onOrBefore|${DAY('2025-01-09')}`]))
   );
-  res = await call(
-    'GET',
+  const filteredSheet = await sheet(
     `/api/donors/export?${new URLSearchParams([
       ['filter', 'gender|is|FEMALE'],
       ['filter', 'active|is|ACTIVE'],
-    ])}`,
-    { raw: true }
+    ])}`
   );
   check(
     'export applies every filter',
-    res.data.trim().split('\n').length ===
+    filteredSheet.rows.length ===
       (await count(['gender|is|FEMALE', 'active|is|ACTIVE'])) + 1
   );
-  check('export has no "Invalid Date"', !res.data.includes('Invalid Date'));
+  check(
+    'export has no "Invalid Date"',
+    !filteredSheet.rows.some((row) => rowText(row).includes('Invalid Date'))
+  );
   check(
     'export has a Next Eligible column',
-    res.data.split('\n')[0].includes('Next Eligible')
+    filteredSheet.rows[0]?.includes('Next Eligible')
   );
   res = await call('DELETE', `/api/donors/${minimal.id}`);
   check('delete minimal donor', res.status === 200, res.status);
@@ -540,7 +559,7 @@ async function main() {
     res.data
   );
 
-  // A report for the smoke donation's day (successful, 0-) and its CSVs.
+  // A report for the smoke donation's day (successful, 0-) and its Excel files.
   const reportDay = query({ from: '2026-10-01', to: '2026-10-01' });
   res = await call('GET', `/reports?${reportDay}`, { raw: true });
   check(
@@ -550,33 +569,26 @@ async function main() {
       res.data.includes('By month'),
     res.status
   );
-  const reportCsv = async (table) =>
-    (
-      await call('GET', `/api/reports/export?${reportDay}&table=${table}`, {
-        raw: true,
-      })
-    ).data;
-  const totalsCsv = await reportCsv('totals');
-  const successfulRow = totalsCsv
-    .split('\n')
-    .find((line) => line.startsWith('Successful donations,'));
+  const reportSheet = (table) =>
+    sheet(`/api/reports/export?${reportDay}&table=${table}`);
+  const successfulRow = (await reportSheet('totals')).rows.find(
+    (row) => row[0] === 'Successful donations'
+  );
   check(
     'report totals count the donation',
-    Number(successfulRow?.split(',')[1]) >= 1,
+    successfulRow?.[1] >= 1,
     successfulRow
   );
   check(
     'report by blood type includes 0-',
-    (await reportCsv('bloodTypes')).includes('0-,')
+    (await reportSheet('bloodTypes')).rows.some((row) => row[0] === '0-')
   );
   for (const table of ['months', 'actions', 'genderAge', 'denyReasons']) {
-    res = await call('GET', `/api/reports/export?${reportDay}&table=${table}`, {
-      raw: true,
-    });
+    const report = await reportSheet(table);
     check(
-      `report ${table} CSV`,
-      res.status === 200 && res.data.length > 0,
-      res.status
+      `report ${table} Excel file`,
+      report.status === 200 && report.rows.length > 0,
+      report.status
     );
   }
   res = await call('GET', `/api/reports/export?${reportDay}&table=donors`);
@@ -778,16 +790,25 @@ async function main() {
       res.data.includes('Darivatelji'),
     res.status
   );
-  res = await call('GET', '/api/donors/export', { raw: true });
+  const croatianSheet = await sheet('/api/donors/export');
   check(
     'export in Croatian',
-    res.data.split('\n')[0].includes('Sljedeće darivanje')
+    croatianSheet.rows[0]?.includes('Sljedeće darivanje')
   );
+  const croatianCells = croatianSheet.rows.slice(1).flat();
   check(
-    // (res.text() drops the UTF-8 byte-order mark, so it isn't checked here.)
     'Croatian export has translated values',
-    /Muško|Žensko/.test(res.data) &&
-      !/,(MALE|FEMALE|A_POSITIVE|O_NEGATIVE|true|false)(,|\n|$)/.test(res.data)
+    croatianCells.some((cell) => cell === 'Muško' || cell === 'Žensko') &&
+      !croatianCells.some((cell) =>
+        [
+          'MALE',
+          'FEMALE',
+          'A_POSITIVE',
+          'O_NEGATIVE',
+          'true',
+          'false',
+        ].includes(cell)
+      )
   );
   cookies.delete('NEXT_LOCALE');
   res = await call('GET', '/donors', { raw: true });
@@ -859,14 +880,15 @@ async function main() {
   });
   check('log a call', res.status === 200 && res.data?.type === 'CALL');
 
-  // Drive sheets (print page and CSV)
-  res = await call('GET', `/api/actions/${action.id}/export?sheet=results`, {
-    raw: true,
-  });
+  // Drive sheets (print page and Excel)
+  let driveSheet = await sheet(
+    `/api/actions/${action.id}/export?sheet=results`
+  );
   check(
-    'drive results CSV lists the donation',
-    res.status === 200 && res.data.split('\n')[1]?.includes('Test Smoke'),
-    res.data
+    'drive results Excel file lists the donation',
+    driveSheet.status === 200 &&
+      rowText(driveSheet.rows[1]).includes('Test Smoke'),
+    driveSheet.rows
   );
   // Move the drive to tomorrow, so the call just logged falls in the 30
   // days before it.
@@ -879,13 +901,14 @@ async function main() {
     },
   });
   check('move action to tomorrow', res.status === 200, res.status);
-  res = await call('GET', `/api/actions/${action.id}/export?sheet=expected`, {
-    raw: true,
-  });
+  driveSheet = await sheet(`/api/actions/${action.id}/export?sheet=expected`);
   check(
-    'expected donors CSV lists the contacted donor',
-    res.status === 200 && /Test Smoke.*(Phone call|Poziv)/.test(res.data),
-    res.data
+    'expected donors Excel file lists the contacted donor',
+    driveSheet.status === 200 &&
+      driveSheet.rows.some((row) =>
+        /Test Smoke.*(Phone call|Poziv)/.test(rowText(row))
+      ),
+    driveSheet.rows
   );
   for (const sheet of ['', '?sheet=expected', '?sheet=results']) {
     res = await call('GET', `/actions/${action.id}/print${sheet}`, {
@@ -901,7 +924,7 @@ async function main() {
     'GET',
     '/api/actions/00000000-0000-0000-0000-000000000000/export'
   );
-  check('missing action CSV is 404', res.status === 404, res.status);
+  check('missing action export is 404', res.status === 404, res.status);
 
   // Users and roles: a volunteer signs in with a temporary password, must
   // change it, can't delete, and is locked out once deactivated. The same

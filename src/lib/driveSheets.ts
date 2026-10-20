@@ -68,7 +68,8 @@ export interface DriveSheet {
   key: DriveSheetKey;
   title: string;
   columns: string[];
-  rows: string[][];
+  // The first column is the row number.
+  rows: (string | number)[][];
 }
 
 type Translate = (
@@ -86,7 +87,7 @@ const name = (donor: SheetDonor) =>
 const bloodType = (donor: SheetDonor) =>
   donor.bloodType ? BLOOD_TYPES[donor.bloodType] : '';
 
-// A sheet in the user's language, shared by the print page and the CSV
+// A sheet in the user's language, shared by the print page and the Excel
 // export. Rows are numbered and sorted by last name.
 export function driveSheet(
   key: DriveSheetKey,
@@ -115,7 +116,7 @@ export function driveSheet(
         t('driveSheets.deniedReason'),
       ],
       rows: [...(data?.expected || [])].sort(byName).map((donor, index) => [
-        String(index + 1),
+        index + 1,
         name(donor),
         bloodType(donor),
         formatDay(donor.dob),
@@ -151,7 +152,7 @@ export function driveSheet(
     rows: [...(data?.results || [])]
       .sort((a, b) => byName(a.donor, b.donor))
       .map((donation, index) => [
-        String(index + 1),
+        index + 1,
         name(donation.donor),
         bloodType(donation.donor),
         donation.donor.oib || '',

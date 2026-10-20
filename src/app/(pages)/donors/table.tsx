@@ -229,7 +229,7 @@ export default function DonorsTable() {
             href={exportDonorsDownloadLink}
             target='_blank'
           >
-            {t('donors.exportCsv')}
+            {t('donors.exportExcel')}
           </Button>
           <Link href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/create`}>
             <Button color='secondary' size='medium' startIcon={<MdAdd />}>

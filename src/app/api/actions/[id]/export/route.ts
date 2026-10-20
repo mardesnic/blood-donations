@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getTranslations } from 'next-intl/server';
 import ActionService from '../../service';
 import { withAuth } from '@/lib/api';
-import { toCsv } from '@/lib/csv';
 import { toDayString } from '@/lib/dates';
 import { driveSheet, fileSlug, parseDriveSheet } from '@/lib/driveSheets';
+import { toXlsx, xlsxResponseInit } from '@/lib/excel';
 
-// A drive's sheet as CSV: /api/actions/[id]/export?sheet=expected|results
+// A drive's sheet as an Excel file: /api/actions/[id]/export?sheet=expected|results
 // (results by default).
 export const GET = withAuth(
   async (req: NextRequest, context: { params: Promise<{ id: string }> }) => {
@@ -21,7 +21,7 @@ export const GET = withAuth(
       data,
       t
     );
-    // e.g. akcija-gradska-akcija-2026-10-24-ocekivani-darivatelji.csv
+    // e.g. akcija-gradska-akcija-2026-10-24-ocekivani-darivatelji.xlsx
     const fileName = [
       t('driveSheets.fileName'),
       fileSlug(data.action.title),
@@ -30,12 +30,9 @@ export const GET = withAuth(
     ]
       .filter(Boolean)
       .join('-');
-    return new NextResponse(await toCsv(sheet.columns, sheet.rows), {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': `attachment; filename=${fileName}.csv`,
-      },
-    });
+    return new NextResponse(
+      new Uint8Array(await toXlsx(sheet.columns, sheet.rows, sheet.title)),
+      xlsxResponseInit(fileName)
+    );
   }
 );

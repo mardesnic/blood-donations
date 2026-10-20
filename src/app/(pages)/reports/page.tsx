@@ -36,16 +36,16 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: await pageTitle(t('reports')) };
 }
 
-// One report table in a card, with a link to download it as CSV.
+// One report table in a card, with a link to download it as an Excel file.
 const ReportCard = ({
   table,
-  csvUrl,
-  csvLabel,
+  downloadUrl,
+  downloadLabel,
   emptyText,
 }: {
   table: ReportTable;
-  csvUrl: string;
-  csvLabel: string;
+  downloadUrl: string;
+  downloadLabel: string;
   emptyText: string;
 }) => (
   <Card elevation={2} sx={{ height: '100%' }}>
@@ -63,13 +63,13 @@ const ReportCard = ({
         </Typography>
         {table.rows.length > 0 && (
           <MuiLink
-            href={csvUrl}
+            href={downloadUrl}
             color='secondary'
             variant='body2'
             className='no-print tap-target'
           >
             <MdDownload style={{ marginRight: 4 }} />
-            {csvLabel}
+            {downloadLabel}
           </MuiLink>
         )}
       </Stack>
@@ -119,8 +119,8 @@ const ReportCard = ({
   </Card>
 );
 
-// Donations for a chosen period, as tables that can be downloaded as CSV
-// or printed.
+// Donations for a chosen period, as tables that can be downloaded as Excel
+// files or printed.
 export default async function ReportsPage({ searchParams }: Props) {
   const { from, to } = await searchParams;
   const today = toAppDay(new Date()) as Date;
@@ -133,12 +133,12 @@ export default async function ReportsPage({ searchParams }: Props) {
     return (
       <ReportCard
         table={item}
-        csvUrl={`/api/reports/export?${new URLSearchParams({
+        downloadUrl={`/api/reports/export?${new URLSearchParams({
           from: toDayString(period.from),
           to: toDayString(period.to),
           table: key,
         })}`}
-        csvLabel={t('reports.csv')}
+        downloadLabel={t('reports.excel')}
         emptyText={t('reports.empty')}
       />
     );

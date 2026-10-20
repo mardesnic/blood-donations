@@ -135,3 +135,19 @@ export function formatAppDateTime(
     ? ''
     : dayjs(date).tz(APP_TIME_ZONE).format(DATE_TIME_FORMAT);
 }
+
+// A moment's date and time in APP_TIME_ZONE, written as that time in UTC
+// (for Excel, which has no time zones), or null when empty or invalid.
+export function toAppWallClock(
+  moment: Date | string | null | undefined
+): Date | null {
+  if (!moment) {
+    return null;
+  }
+  const date = new Date(moment);
+  return Number.isNaN(date.getTime())
+    ? null
+    : new Date(
+        `${dayjs(date).tz(APP_TIME_ZONE).format('YYYY-MM-DDTHH:mm:ss.SSS')}Z`
+      );
+}
