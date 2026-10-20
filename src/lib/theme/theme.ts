@@ -3,7 +3,7 @@ import {
   createTheme,
   TypographyVariantsOptions,
 } from '@mui/material/styles';
-import { Open_Sans } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import type {} from '@mui/x-data-grid/themeAugmentation';
 import type {} from '@mui/x-date-pickers/themeAugmentation';
 import { PAGE_SIZE } from '../const';
@@ -18,15 +18,21 @@ const breakpoints: BreakpointsOptions = {
   },
 };
 
-const openSans = Open_Sans({
-  weight: ['400', '500', '700'],
+// A variable font, so every weight comes from one file. Its Latin Extended
+// part (č, ć, đ, š, ž) loads when a page needs it.
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
 });
 
+// Digits of equal width, so counts line up in right-aligned table columns.
+// Only there: Inter also widens hyphens with it, so "0-" or a phone number
+// would look spaced out.
+const tabularNumbers = { fontVariantNumeric: 'tabular-nums' } as const;
+
 const typography: TypographyVariantsOptions = {
   fontSize: 16,
-  fontFamily: openSans.style.fontFamily,
+  fontFamily: inter.style.fontFamily,
   h1: {
     fontSize: 24,
     fontWeight: 700,
@@ -84,6 +90,11 @@ export const theme = createTheme({
         },
       },
     },
+    MuiTableCell: {
+      styleOverrides: {
+        alignRight: tabularNumbers,
+      },
+    },
     MuiDialog: {
       defaultProps: {
         keepMounted: true,
@@ -119,6 +130,7 @@ export const theme = createTheme({
       },
       styleOverrides: {
         root: {
+          '& .MuiDataGrid-cell--textRight': tabularNumbers,
           'input[type=search]': { minWidth: 205 },
           '& .MuiDataGrid-row': {
             cursor: 'pointer',
