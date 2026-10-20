@@ -309,7 +309,6 @@ export default class DonorService {
     filters: string[],
     today: Date
   ): Prisma.DonorWhereInput {
-    let whereCondition = {};
     let searchCondition = {};
     const filterCondition = buildDonorFilter(filters, today);
     if (search?.length) {
@@ -327,11 +326,8 @@ export default class DonorService {
       Object.values(searchCondition).length &&
       Object.values(filterCondition).length
     ) {
-      whereCondition = { AND: [searchCondition, filterCondition] };
-    } else {
-      whereCondition = { ...searchCondition, ...filterCondition };
+      return { AND: [searchCondition, filterCondition] };
     }
-
-    return whereCondition;
+    return { ...searchCondition, ...filterCondition };
   }
 }

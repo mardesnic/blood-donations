@@ -116,7 +116,6 @@ export default class PlaceService {
     filterOperator: string,
     filterTerm: string
   ): Prisma.PlaceWhereInput {
-    let whereCondition = {};
     let searchCondition = {};
     let filterCondition = {};
     if (search?.length) {
@@ -145,10 +144,8 @@ export default class PlaceService {
       Object.values(searchCondition).length &&
       Object.values(filterCondition).length
     ) {
-      whereCondition = { AND: [searchCondition, filterCondition] };
-    } else {
-      whereCondition = { ...searchCondition, ...filterCondition };
+      return { AND: [searchCondition, filterCondition] };
     }
-    return whereCondition;
+    return { ...searchCondition, ...filterCondition };
   }
 }
