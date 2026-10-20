@@ -131,43 +131,54 @@ const Form = ({ donation }: Props) => {
 
   return (
     <Box component='form' onSubmit={formik.handleSubmit} noValidate>
-      <Autocomplete
-        disablePortal
-        fullWidth
-        id='donors-selector'
-        options={data?.donors || []}
-        value={formik.values.donor}
-        onChange={(event, value) => {
-          formik.setFieldValue('donorId', value?.id);
-          formik.setFieldValue('donor', value);
-        }}
-        onBlur={formik.handleBlur}
-        onInputChange={searchDonorDelayed}
-        getOptionKey={(option: Donor) => option.id}
-        getOptionLabel={(option) => option.fullName || ''}
-        isOptionEqualToValue={(option, value) => option.id === value?.id}
-        loading={isDonorsLoading}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label={t('fields.donor')}
-            onBlur={formik.handleBlur}
-            error={formik.touched.donorId && Boolean(formik.errors.donorId)}
-            helperText={formik.touched.donorId && formik.errors.donorId}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <React.Fragment>
-                  {isDonorsLoading ? (
-                    <CircularProgress color='inherit' size={20} />
-                  ) : null}
-                  {params.InputProps.endAdornment}
-                </React.Fragment>
-              ),
-            }}
-          />
-        )}
-      />
+      {/* A saved donation stays with its donor: moving it would change two
+          people's totals and eligibility by accident. */}
+      {donation ? (
+        <TextField
+          label={t('fields.donor')}
+          value={donation.donor?.fullName || ''}
+          helperText={t('donations.donorLocked')}
+          slotProps={{ input: { readOnly: true } }}
+        />
+      ) : (
+        <Autocomplete
+          disablePortal
+          fullWidth
+          id='donors-selector'
+          options={data?.donors || []}
+          value={formik.values.donor}
+          onChange={(event, value) => {
+            formik.setFieldValue('donorId', value?.id);
+            formik.setFieldValue('donor', value);
+          }}
+          onBlur={formik.handleBlur}
+          onInputChange={searchDonorDelayed}
+          getOptionKey={(option: Donor) => option.id}
+          getOptionLabel={(option) => option.fullName || ''}
+          isOptionEqualToValue={(option, value) => option.id === value?.id}
+          loading={isDonorsLoading}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={t('fields.donor')}
+              onBlur={formik.handleBlur}
+              error={formik.touched.donorId && Boolean(formik.errors.donorId)}
+              helperText={formik.touched.donorId && formik.errors.donorId}
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <React.Fragment>
+                    {isDonorsLoading ? (
+                      <CircularProgress color='inherit' size={20} />
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                  </React.Fragment>
+                ),
+              }}
+            />
+          )}
+        />
+      )}
 
       <TextField
         label={t('fields.action')}

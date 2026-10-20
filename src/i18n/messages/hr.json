@@ -185,7 +185,11 @@
     "completed": "Uspješno",
     "deleteTitle": "Brisanje darivanja",
     "deleteText": "Ova radnja se ne može poništiti. Brisanjem darivanja trajno se uklanjaju svi povezani podaci.",
-    "deleteConfirm": "Da, obriši darivanje"
+    "deleteConfirm": "Da, obriši darivanje",
+    "noAction": "Bez akcije",
+    "donorLocked": "Darivatelj se ne može promijeniti. Ako je pogrešan, obrišite ovo darivanje i upišite ga ponovo za pravog darivatelja.",
+    "recorded": "Upisano {date}",
+    "changed": "izmijenjeno {date}"
   },
   "actions": {
     "title": "Akcije",

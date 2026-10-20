@@ -465,6 +465,17 @@ async function main() {
       res.data.denyReason === 'ONE_MONTH',
     res.data
   );
+  const otherDonor = (
+    await call('GET', `/api/donors?${query({ pageSize: '2' })}`)
+  ).data.donors.find((d) => d.id !== donor.id);
+  res = await call('PUT', `/api/donations/${donation.id}`, {
+    body: { ...donationBody, donorId: otherDonor.id },
+  });
+  check(
+    'moving a donation to another donor is refused',
+    res.status === 409 && res.data?.code === 'DONOR_LOCKED',
+    res.data
+  );
   stats = await findDonor(donorBody.oib);
   check(
     'denied donation does not count',
@@ -575,6 +586,12 @@ async function main() {
     res.status
   );
 
+  res = await call('GET', `/donations/${donation.id}`, { raw: true });
+  check(
+    'donation page links to its donor and action',
+    res.data.includes(`href="/donors/${donor.id}"`) &&
+      res.data.includes(`href="/actions/${action.id}"`)
+  );
   // Detail pages render with data
   for (const path of [
     `/donors/${donor.id}`,

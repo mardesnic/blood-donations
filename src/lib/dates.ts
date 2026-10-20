@@ -1,5 +1,10 @@
 import dayjs from 'dayjs';
-import { DATE_FORMAT } from './const';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import { DATE_FORMAT, DATE_TIME_FORMAT } from './const';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 // Calendar dates (date of birth, last donation) are stored as UTC midnight of
 // the day. Donation times are real moments; their calendar day is taken in the
@@ -115,4 +120,18 @@ export function appDayStart(day: Date): Date {
     }
   }
   return day;
+}
+
+// A moment (e.g. when a record was saved) as date and time in
+// APP_TIME_ZONE, or '' when empty or invalid.
+export function formatAppDateTime(
+  moment: Date | string | null | undefined
+): string {
+  if (!moment) {
+    return '';
+  }
+  const date = new Date(moment);
+  return Number.isNaN(date.getTime())
+    ? ''
+    : dayjs(date).tz(APP_TIME_ZONE).format(DATE_TIME_FORMAT);
 }

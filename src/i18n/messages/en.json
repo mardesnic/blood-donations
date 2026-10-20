@@ -185,7 +185,11 @@
     "completed": "Completed",
     "deleteTitle": "Delete Donation",
     "deleteText": "This action cannot be undone. Deleting the donation will permanently remove all associated information.",
-    "deleteConfirm": "Yes, Delete Donation"
+    "deleteConfirm": "Yes, Delete Donation",
+    "noAction": "No action",
+    "donorLocked": "The donor can't be changed. If it's wrong, delete this donation and enter it again for the right donor.",
+    "recorded": "Recorded {date}",
+    "changed": "changed {date}"
   },
   "actions": {
     "title": "Actions",
