@@ -35,7 +35,6 @@ export function resolveLocale(
     .sort((a, b) => b.quality - a.quality);
   return (
     (preferred.find((entry) => isLocale(entry.language))?.language as
-      | Locale
-      | undefined) ?? DEFAULT_LOCALE
+      Locale | undefined) ?? DEFAULT_LOCALE
   );
 }

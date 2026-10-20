@@ -123,8 +123,7 @@ export const CallList = () => {
             value={query.bloodTypes}
             onChange={(event) => {
               const value = event.target.value as unknown as
-                | BloodType[]
-                | string;
+                BloodType[] | string;
               setQuery({
                 bloodTypes: (typeof value === 'string'
                   ? value.split(',')
