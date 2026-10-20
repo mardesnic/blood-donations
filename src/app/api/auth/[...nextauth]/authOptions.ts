@@ -5,6 +5,7 @@ import { NextAuthOptions } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { FailureLimiter } from '@/lib/rateLimit';
 import { TOO_MANY_ATTEMPTS } from '@/lib/const';
+import { isStaffRole, normalizeEmail } from '@/lib/users';
 
 // Failed sign-ins allowed per 15 minutes before further attempts are refused.
 const WINDOW_MS = 15 * 60 * 1000;
@@ -38,16 +39,15 @@ export const authOptions: NextAuthOptions = {
         if (!credentials || !credentials.email || !credentials.password) {
           return null;
         }
-        // Lower-cased so "A@x" and "a@x" share one failure counter.
-        const email = credentials.email.trim().toLowerCase();
+        // Stored lower-cased, so "A@x" signs in as "a@x" and shares its
+        // failure counter.
+        const email = normalizeEmail(credentials.email);
         const ip = clientIp(req?.headers);
         if (failuresByEmail.isLimited(email) || failuresByIp.isLimited(ip)) {
           throw new Error(TOO_MANY_ATTEMPTS);
         }
         try {
-          const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
-          });
+          const user = await prisma.user.findUnique({ where: { email } });
 
           // Compare against a dummy hash for unknown emails so the response
           // time doesn't reveal which emails have an account.
@@ -55,9 +55,15 @@ export const authOptions: NextAuthOptions = {
             credentials.password,
             user?.password ?? DUMMY_HASH
           );
-          if (user && valid) {
+          // Deactivated users, and any future non-staff role, can't sign in
+          // here; they get the same answer as a wrong password.
+          if (user && valid && user.active && isStaffRole(user.role)) {
             failuresByEmail.reset(email);
-            return user;
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { lastLoginAt: new Date() },
+            });
+            return { id: user.id, email: user.email, name: user.name };
           }
         } catch (error) {
           console.warn(error);
@@ -70,11 +76,27 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    // The token carries what the proxy needs without a database lookup:
+    // whether the user must replace a temporary password. It is set at
+    // sign-in and re-read when the client calls update() after a change.
+    // API routes and pages still check the database (getCurrentUser).
+    jwt: async ({ token, trigger }) => {
+      if ((trigger === 'signIn' || trigger === 'update') && token.sub) {
+        const user = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { name: true, mustChangePassword: true },
+        });
+        token.name = user?.name ?? '';
+        token.mustChangePassword = !!user?.mustChangePassword;
+      }
+      return token;
+    },
     session: ({ session, token }) => ({
       ...session,
       user: {
         ...session.user,
         id: token.sub,
+        mustChangePassword: !!token.mustChangePassword,
       },
     }),
   },

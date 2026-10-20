@@ -903,6 +903,138 @@ async function main() {
   );
   check('missing action CSV is 404', res.status === 404, res.status);
 
+  // Users and roles: a volunteer signs in with a temporary password, must
+  // change it, can't delete, and is locked out once deactivated. The same
+  // volunteer is reused on later runs (users are never deleted).
+  const VOLUNTEER_EMAIL = 'smoke.volunteer@example.com';
+  const volunteerBody = {
+    name: 'Smoke Volunteer',
+    email: 'Smoke.Volunteer@Example.com',
+    role: 'VOLUNTEER',
+  };
+  res = await call('POST', '/api/users', { body: volunteerBody });
+  let volunteer = res.data?.user;
+  let temporaryPassword = res.data?.temporaryPassword;
+  if (res.status === 409) {
+    check(
+      'duplicate user email is refused',
+      res.data?.code === 'DUPLICATE_EMAIL'
+    );
+    volunteer = (await call('GET', '/api/users')).data.users.find(
+      (u) => u.email === VOLUNTEER_EMAIL
+    );
+    await call('PUT', `/api/users/${volunteer.id}`, {
+      body: { ...volunteerBody, active: true },
+    });
+    res = await call('POST', `/api/users/${volunteer.id}/reset-password`);
+    temporaryPassword = res.data?.temporaryPassword;
+  }
+  check(
+    'create volunteer with a temporary password',
+    volunteer?.email === VOLUNTEER_EMAIL &&
+      /^[A-Za-z2-9]{12}$/.test(temporaryPassword || ''),
+    res.data
+  );
+  res = await call('POST', '/api/users', { body: volunteerBody });
+  check(
+    'duplicate user email is refused',
+    res.data?.code === 'DUPLICATE_EMAIL'
+  );
+  res = await call('PUT', `/api/users/${session.user.id}`, {
+    body: { name: 'Admin', email: ADMIN.email, role: 'VOLUNTEER' },
+  });
+  check('admin cannot demote themselves', res.data?.code === 'SELF_CHANGE');
+
+  const adminCookies = new Map(cookies);
+  const signIn = async (email, password) => {
+    cookies.clear();
+    const { data: csrfData } = await call('GET', '/api/auth/csrf');
+    await call('POST', '/api/auth/callback/credentials', {
+      form: { csrfToken: csrfData.csrfToken, email, password, json: 'true' },
+      redirect: 'manual',
+    });
+    return (await call('GET', '/api/auth/session')).data;
+  };
+  // Upper-case letters in the email still sign in.
+  let volunteerSession = await signIn(volunteerBody.email, temporaryPassword);
+  check(
+    'volunteer signs in with the temporary password',
+    volunteerSession?.user?.mustChangePassword === true,
+    volunteerSession
+  );
+  res = await call('GET', '/api/donors');
+  check(
+    'temporary password blocks the API',
+    res.status === 403 && res.data?.code === 'PASSWORD_CHANGE_REQUIRED',
+    res.data
+  );
+  res = await call('GET', '/overview', { raw: true, redirect: 'manual' });
+  check(
+    'temporary password redirects pages to the password change',
+    res.status === 307,
+    res.status
+  );
+  const newPassword = 'smoke-volunteer-password';
+  res = await call('PUT', '/api/account/password', {
+    body: { currentPassword: 'wrong', newPassword },
+  });
+  check('wrong current password is refused', res.status === 403, res.status);
+  res = await call('PUT', '/api/account/password', {
+    body: { currentPassword: temporaryPassword, newPassword: 'short' },
+  });
+  check('short new password is refused', res.status === 400, res.status);
+  res = await call('PUT', '/api/account/password', {
+    body: { currentPassword: temporaryPassword, newPassword },
+  });
+  check('volunteer changes the password', res.status === 200, res.data);
+  // What the form's update() does: refresh the session token.
+  const { data: volunteerCsrf } = await call('GET', '/api/auth/csrf');
+  await call('POST', '/api/auth/session', {
+    body: { csrfToken: volunteerCsrf.csrfToken, data: {} },
+  });
+  res = await call('GET', '/overview', { raw: true, redirect: 'manual' });
+  check('pages open after the change', res.status === 200, res.status);
+
+  res = await call('DELETE', `/api/donors/${donor.id}`);
+  check(
+    'volunteer cannot delete a donor',
+    res.status === 403 && res.data?.code === 'ADMIN_ONLY',
+    res.data
+  );
+  res = await call('GET', '/api/users');
+  check('volunteer cannot list users', res.status === 403, res.status);
+  const adminContact = (
+    await call('GET', `/api/donors/${donor.id}/communications`)
+  ).data.contacts[0];
+  res = await call('DELETE', `/api/communications/${adminContact.id}`);
+  check("volunteer cannot delete another's contact", res.status === 403);
+  res = await call('POST', `/api/donors/${donor.id}/communications`, {
+    body: { type: 'SMS' },
+  });
+  check(
+    'contact records who logged it',
+    res.data?.createdBy?.name === 'Smoke Volunteer',
+    res.data
+  );
+  res = await call('DELETE', `/api/communications/${res.data?.id}`);
+  check('volunteer deletes their own contact', res.status === 200);
+  const volunteerCookies = new Map(cookies);
+
+  cookies.clear();
+  adminCookies.forEach((value, key) => cookies.set(key, value));
+  res = await call('PUT', `/api/users/${volunteer.id}`, {
+    body: { ...volunteerBody, active: false },
+  });
+  check('deactivate volunteer', res.status === 200 && !res.data.active);
+  cookies.clear();
+  volunteerCookies.forEach((value, key) => cookies.set(key, value));
+  res = await call('GET', '/api/donors');
+  check('deactivated user is signed out of the API', res.status === 401);
+  volunteerSession = await signIn(VOLUNTEER_EMAIL, newPassword);
+  check('deactivated user cannot sign in', !volunteerSession?.user);
+  cookies.clear();
+  adminCookies.forEach((value, key) => cookies.set(key, value));
+
   // Clean up
   res = await call('DELETE', `/api/donations/${donation.id}`);
   check('delete donation', res.status === 200, res.status);

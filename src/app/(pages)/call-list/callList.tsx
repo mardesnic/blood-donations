@@ -28,7 +28,7 @@ import {
   CallListQuery,
   callListToSearchParams,
   ContactType,
-  formatContactDay,
+  contactSummary,
   HIDE_CONTACTED_DAYS,
   parseCallListQuery,
 } from '@/lib/callList';
@@ -357,10 +357,7 @@ const CallListRow = ({
             >
               {t('callList.lastContact')}:{' '}
               {lastContact
-                ? t('contacts.summary', {
-                    type: t(`contacts.types.${lastContact.type}`),
-                    date: formatContactDay(lastContact.createdAt),
-                  })
+                ? contactSummary(lastContact, t)
                 : t('callList.neverContacted')}
             </Typography>
             {lastContact?.note && (

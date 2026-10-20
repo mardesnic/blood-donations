@@ -44,12 +44,29 @@ enum DenyReasonType {
   PERMANENT
 }
 
+// Staff of the app. A later mobile app for donors will add a DONOR role,
+// so staff-only code checks for ADMIN or VOLUNTEER, never just "signed in".
+enum Role {
+  ADMIN
+  VOLUNTEER
+}
+
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique @db.VarChar(100)
-  password  String   @db.VarChar(100)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String          @id @default(uuid())
+  // Stored lower-cased.
+  email              String          @unique @db.VarChar(100)
+  password           String          @db.VarChar(100)
+  name               String          @default("") @db.VarChar(100)
+  role               Role            @default(VOLUNTEER)
+  // Deactivated users can't sign in; their records keep their name.
+  active             Boolean         @default(true)
+  // Set for a temporary password, until the user picks their own.
+  mustChangePassword Boolean         @default(false)
+  lastLoginAt        DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  donations          Donation[]
+  communications     Communication[]
 }
 
 model Donor {
@@ -99,6 +116,9 @@ model Donation {
   updatedAt    DateTime        @updatedAt
   donor        Donor           @relation(fields: [donorId], references: [id])
   action       Action?         @relation(fields: [actionId], references: [id])
+  // Who entered it; null for older donations.
+  createdById  String?
+  createdBy    User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
 }
 
 model Action {
@@ -118,13 +138,16 @@ model Action {
 }
 
 model Communication {
-  id        String            @id @default(uuid())
-  donorId   String
-  type      CommunicationType
-  note      String?           @db.Text
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  donor     Donor             @relation(fields: [donorId], references: [id])
+  id          String            @id @default(uuid())
+  donorId     String
+  type        CommunicationType
+  note        String?           @db.Text
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  donor       Donor             @relation(fields: [donorId], references: [id])
+  // Who logged it; null for older contacts.
+  createdById String?
+  createdBy   User?             @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([type])
   @@index([donorId, createdAt])

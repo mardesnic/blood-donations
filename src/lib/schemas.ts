@@ -1,4 +1,4 @@
-import { DenyReasonType } from '@/generated/prisma/browser';
+import { DenyReasonType, Role } from '@/generated/prisma/browser';
 import * as Yup from 'yup';
 
 // An empty string from a "None" select option means no relation.
@@ -48,6 +48,14 @@ export const donationSchema = Yup.object({
     .transform((value) => (value === '' ? null : value)),
   donationDate: Yup.date().required(),
   note: optionalText(),
+});
+
+// A staff user as an admin edits them. The email is stored lower-cased.
+export const userSchema = Yup.object({
+  name: Yup.string().trim().required().max(100),
+  email: Yup.string().trim().lowercase().email().required().max(100),
+  role: Yup.mixed<Role>().oneOf([Role.ADMIN, Role.VOLUNTEER]).required(),
+  active: Yup.boolean().default(true),
 });
 
 // Validates a request body and keeps only the fields the schema declares, so

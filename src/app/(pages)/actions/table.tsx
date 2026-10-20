@@ -18,6 +18,7 @@ import { ROUTE_PATHS } from '@/routes';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { TruncatedText } from '@/components/TruncatedText';
+import { useCurrentUser } from '@/context/CurrentUserContext';
 
 export default function ActionsTable() {
   const {
@@ -31,6 +32,7 @@ export default function ActionsTable() {
     place,
   } = useActionsContext();
   const t = useTranslations();
+  const { isAdmin } = useCurrentUser();
   const router = useRouter();
   // Phones show title, start date and the buttons; tablets add place and
   // donation count; wider screens also end time and note.
@@ -93,8 +95,9 @@ export default function ActionsTable() {
       disableColumnMenu: true,
       sortable: false,
       filterable: false,
-      // Two icon buttons plus the table's 24px right padding.
-      width: isPhone ? 105 : 130,
+      // Icon buttons (delete only for admins) plus the table's 24px right
+      // padding.
+      width: isAdmin ? (isPhone ? 105 : 130) : isPhone ? 65 : 80,
       // The row opens the action; these buttons must not.
       renderCell: (params: { row: Action }) => (
         <Stack
@@ -110,13 +113,16 @@ export default function ActionsTable() {
           >
             <MdEdit />
           </IconButton>
-          <IconButton
-            size={isPhone ? 'small' : 'medium'}
-            aria-label={t('common.delete')}
-            onClick={() => openDialog({ type: 'delete', action: params.row })}
-          >
-            <MdDelete />
-          </IconButton>
+          {/* Only admins delete. */}
+          {isAdmin && (
+            <IconButton
+              size={isPhone ? 'small' : 'medium'}
+              aria-label={t('common.delete')}
+              onClick={() => openDialog({ type: 'delete', action: params.row })}
+            >
+              <MdDelete />
+            </IconButton>
+          )}
         </Stack>
       ),
     },

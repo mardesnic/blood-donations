@@ -1,5 +1,6 @@
 import { BloodType, CommunicationType } from '@/generated/prisma/browser';
 import { addDays, appDayStart, formatDay, toAppDay } from '@/lib/dates';
+import { userName } from '@/lib/users';
 
 // Ways of contacting a donor that can be logged by hand (PUSH is for the app).
 export const CONTACT_TYPES = [
@@ -84,6 +85,35 @@ export function callListToSearchParams(
 // `days` days before today. Null when nothing is hidden.
 export function contactedSince(days: number, today: Date): Date | null {
   return days > 0 ? appDayStart(addDays(today, -days)) : null;
+}
+
+type Translate = (
+  key: string,
+  values?: Record<string, string | number>
+) => string;
+
+// "Poziv · 19.10.2026. · Ana": how, when and (when known) who; '' for no
+// contact.
+export function contactSummary(
+  contact:
+    | {
+        type: string;
+        createdAt: Date | string;
+        createdBy?: { name?: string | null; email?: string | null } | null;
+      }
+    | null
+    | undefined,
+  t: Translate
+): string {
+  if (!contact) {
+    return '';
+  }
+  const author = userName(contact.createdBy);
+  const summary = t('contacts.summary', {
+    type: t(`contacts.types.${contact.type}`),
+    date: formatContactDay(contact.createdAt),
+  });
+  return author ? `${summary} · ${author}` : summary;
 }
 
 // The day (in the app's time zone) a contact was logged, or '' when unknown.

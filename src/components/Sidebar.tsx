@@ -1,6 +1,7 @@
 'use client';
 
-import { ROUTE_PATHS } from '@/routes';
+import { menuRoutes, ROUTE_PATHS } from '@/routes';
+import { useCurrentUser } from '@/context/CurrentUserContext';
 import {
   Box,
   Divider,
@@ -29,6 +30,7 @@ const DrawerContent = styled(Box)(() => ({
 export const Sidebar = () => {
   const router = useRouter();
   const t = useTranslations('nav');
+  const { user, isAdmin } = useCurrentUser();
   const [showDrawer, setShowDrawer] = useState(false);
 
   const handleSignOut = async () => {
@@ -53,7 +55,7 @@ export const Sidebar = () => {
       >
         <DrawerContent>
           <List>
-            {Object.values(ROUTE_PATHS.PROTECTED).map((page, i) => (
+            {menuRoutes(isAdmin).map((page, i) => (
               <ListItem key={`${i}${page.path}`} disablePadding>
                 <ListItemButton
                   component={Link}
@@ -65,6 +67,23 @@ export const Sidebar = () => {
               </ListItem>
             ))}
             <Divider sx={{ my: 2 }} />
+            {user && (
+              <ListItem>
+                <ListItemText
+                  primary={user.name || user.email}
+                  secondary={t(`roles.${user.role}`)}
+                />
+              </ListItem>
+            )}
+            <ListItem disablePadding>
+              <ListItemButton
+                component={Link}
+                href={ROUTE_PATHS.ACCOUNT.PASSWORD.path}
+                onClick={() => setShowDrawer(false)}
+              >
+                <ListItemText primary={t('changePassword')} />
+              </ListItemButton>
+            </ListItem>
             <ListItem disablePadding>
               <ListItemButton onClick={handleSignOut}>
                 <ListItemText primary={t('signOut')} />

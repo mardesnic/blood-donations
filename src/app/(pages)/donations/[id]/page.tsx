@@ -9,6 +9,7 @@ import { DonationsProvider } from '@/context/DonationsContext';
 import UpdateDonationBody from './body';
 import { DonationDeleteDialog } from '../dialogs/delete';
 import { formatAppDateTime } from '@/lib/dates';
+import { userName } from '@/lib/users';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -44,7 +45,12 @@ export default async function DonationDetails({ params }: Props) {
         <UpdateDonationBody donation={donation} />
         <Typography variant='body2' color='text.secondary' sx={{ mt: 2 }}>
           {[
-            t('recorded', { date: formatAppDateTime(donation.createdAt) }),
+            donation.createdBy
+              ? t('recordedBy', {
+                  date: formatAppDateTime(donation.createdAt),
+                  name: userName(donation.createdBy),
+                })
+              : t('recorded', { date: formatAppDateTime(donation.createdAt) }),
             changed &&
               t('changed', { date: formatAppDateTime(donation.updatedAt) }),
           ]

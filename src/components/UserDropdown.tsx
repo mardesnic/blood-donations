@@ -1,16 +1,26 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { MdAccountCircle } from 'react-icons/md';
-import { IconButton, Menu, MenuItem, Stack } from '@mui/material';
+import {
+  Divider,
+  IconButton,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Stack,
+} from '@mui/material';
 import { ROUTE_PATHS } from '@/routes';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useCurrentUser } from '@/context/CurrentUserContext';
 
 export const UserDropdown = () => {
   const router = useRouter();
   const t = useTranslations('nav');
+  const { user } = useCurrentUser();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -50,6 +60,22 @@ export const UserDropdown = () => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
+        {user && (
+          <MenuItem disabled sx={{ '&.Mui-disabled': { opacity: 1 } }}>
+            <ListItemText
+              primary={user.name || user.email}
+              secondary={t(`roles.${user.role}`)}
+            />
+          </MenuItem>
+        )}
+        {user && <Divider />}
+        <MenuItem
+          component={Link}
+          href={ROUTE_PATHS.ACCOUNT.PASSWORD.path}
+          onClick={handleClose}
+        >
+          {t('changePassword')}
+        </MenuItem>
         <MenuItem onClick={handleSignOut}>{t('signOut')}</MenuItem>
       </Menu>
     </div>

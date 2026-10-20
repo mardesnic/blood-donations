@@ -25,6 +25,7 @@ import { useRouter } from 'next/navigation';
 import { useGoBack } from '@/hooks/useGoBack';
 import { useTranslations } from 'next-intl';
 import { useRevalidateOnLocaleChange } from '@/hooks/useRevalidateOnLocaleChange';
+import { useCurrentUser } from '@/context/CurrentUserContext';
 
 interface Props {
   donation?: DonationWithDonor;
@@ -33,6 +34,7 @@ interface Props {
 const Form = ({ donation }: Props) => {
   const router = useRouter();
   const t = useTranslations();
+  const { isAdmin } = useCurrentUser();
   const goBack = useGoBack(ROUTE_PATHS.PROTECTED.DONATIONS.path);
   const {
     createDonation,
@@ -253,7 +255,8 @@ const Form = ({ donation }: Props) => {
         gap={2}
         mt={3}
       >
-        {!!donation && (
+        {/* Only admins delete. */}
+        {!!donation && isAdmin && (
           <Button
             onClick={() => openDialog({ type: 'delete', donation })}
             variant='outlined'

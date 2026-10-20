@@ -4,7 +4,8 @@ import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import React from 'react';
 import { UserDropdown } from './UserDropdown';
-import { ROUTE_PATHS } from '@/routes';
+import { menuRoutes, ROUTE_PATHS } from '@/routes';
+import { useCurrentUser } from '@/context/CurrentUserContext';
 import Link from 'next/link';
 import { Sidebar } from './Sidebar';
 import { usePathname } from 'next/navigation';
@@ -14,6 +15,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 export const TopBar = () => {
   const pathname = usePathname();
   const t = useTranslations();
+  const { isAdmin } = useCurrentUser();
 
   return (
     <AppBar position='sticky'>
@@ -34,7 +36,7 @@ export const TopBar = () => {
         </Typography>
         <>
           <Box display={{ xs: 'none', md: 'flex' }} sx={{ flexGrow: 1, ml: 2 }}>
-            {Object.values(ROUTE_PATHS.PROTECTED).map((route) => (
+            {menuRoutes(isAdmin).map((route) => (
               <Link href={route.path} key={`${route.path}`}>
                 <Button
                   variant='text'

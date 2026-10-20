@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { ValidationError } from 'yup';
-import { getCurrentSession } from '@/app/api/auth/service';
+import { CurrentUser, getCurrentUser } from '@/app/api/auth/service';
 import {
   DONOR_SORT_FIELDS,
   parsePagination,
@@ -11,23 +11,31 @@ import {
 import { MAX_PAGE_SIZE, PAGE_SIZE } from '@/lib/const';
 
 vi.mock('@/app/api/auth/service', () => ({
-  getCurrentSession: vi.fn(),
+  getCurrentUser: vi.fn(),
 }));
 
-const mockedSession = vi.mocked(getCurrentSession);
+const mockedUser = vi.mocked(getCurrentUser);
+const user = (overrides: Partial<CurrentUser> = {}): CurrentUser => ({
+  id: 'u1',
+  email: 'ana@example.com',
+  name: 'Ana',
+  role: 'VOLUNTEER',
+  mustChangePassword: false,
+  ...overrides,
+});
 const request = () => new NextRequest('http://localhost/api/donors');
 
 describe('withAuth', () => {
-  it('returns 401 without a session and does not call the handler', async () => {
-    mockedSession.mockResolvedValue(null);
+  it('returns 401 without an active user and does not call the handler', async () => {
+    mockedUser.mockResolvedValue(null);
     const handler = vi.fn();
     const res = await withAuth(handler)(request(), {});
     expect(res.status).toBe(401);
     expect(handler).not.toHaveBeenCalled();
   });
 
-  it('calls the handler with a session', async () => {
-    mockedSession.mockResolvedValue({ expires: '' });
+  it('calls the handler with the user', async () => {
+    mockedUser.mockResolvedValue(user());
     const res = await withAuth(async () => Response.json({ ok: true }))(
       request(),
       {}
@@ -35,8 +43,41 @@ describe('withAuth', () => {
     expect(res.status).toBe(200);
   });
 
+  it('passes the user to the handler', async () => {
+    mockedUser.mockResolvedValue(user());
+    const handler = vi.fn(async () => Response.json({}));
+    await withAuth(handler)(request(), {});
+    expect(handler).toHaveBeenCalledWith(expect.anything(), {}, user());
+  });
+
+  it('refuses admin-only routes to volunteers with 403', async () => {
+    mockedUser.mockResolvedValue(user());
+    const handler = vi.fn();
+    const res = await withAuth(handler, { admin: true })(request(), {});
+    expect(res.status).toBe(403);
+    expect((await res.json()).code).toBe('ADMIN_ONLY');
+    expect(handler).not.toHaveBeenCalled();
+
+    mockedUser.mockResolvedValue(user({ role: 'ADMIN' }));
+    const ok = await withAuth(async () => Response.json({}), {
+      admin: true,
+    })(request(), {});
+    expect(ok.status).toBe(200);
+  });
+
+  it('allows only the password change with a temporary password', async () => {
+    mockedUser.mockResolvedValue(user({ mustChangePassword: true }));
+    const res = await withAuth(async () => Response.json({}))(request(), {});
+    expect(res.status).toBe(403);
+    expect((await res.json()).code).toBe('PASSWORD_CHANGE_REQUIRED');
+    const ok = await withAuth(async () => Response.json({}), {
+      allowTemporaryPassword: true,
+    })(request(), {});
+    expect(ok.status).toBe(200);
+  });
+
   it('maps validation errors to 400', async () => {
-    mockedSession.mockResolvedValue({ expires: '' });
+    mockedUser.mockResolvedValue(user());
     const res = await withAuth(async () => {
       throw new ValidationError('title is required');
     })(request(), {});
@@ -44,7 +85,7 @@ describe('withAuth', () => {
   });
 
   it('maps invalid JSON to 400', async () => {
-    mockedSession.mockResolvedValue({ expires: '' });
+    mockedUser.mockResolvedValue(user());
     const res = await withAuth(async () => {
       JSON.parse('{');
       return Response.json({});
@@ -53,7 +94,7 @@ describe('withAuth', () => {
   });
 
   it('hides unexpected errors behind a generic 500', async () => {
-    mockedSession.mockResolvedValue({ expires: '' });
+    mockedUser.mockResolvedValue(user());
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const res = await withAuth(async () => {
       throw new Error('connection string with password');

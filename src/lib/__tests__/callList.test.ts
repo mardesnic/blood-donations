@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   callListToSearchParams,
+  contactSummary,
   contactedSince,
   DEFAULT_HIDE_CONTACTED_DAYS,
   formatContactDay,
@@ -114,6 +115,29 @@ describe('formatContactDay', () => {
     expect(formatContactDay('2026-10-18T21:30:00.000Z')).toBe('18.10.2026.');
     expect(formatContactDay(new Date('2026-10-18T22:30:00.000Z'))).toBe(
       '19.10.2026.'
+    );
+  });
+});
+
+describe('contactSummary', () => {
+  const t = (key: string, values?: Record<string, string | number>) =>
+    values ? `${key}(${Object.values(values).join(',')})` : key;
+
+  it('is empty for null and undefined', () => {
+    expect(contactSummary(null, t)).toBe('');
+    expect(contactSummary(undefined, t)).toBe('');
+  });
+
+  it('adds who logged it when known', () => {
+    const contact = {
+      type: 'CALL',
+      createdAt: '2026-10-18T21:30:00.000Z',
+    };
+    expect(contactSummary(contact, t)).toBe(
+      'contacts.summary(contacts.types.CALL,18.10.2026.)'
+    );
+    expect(contactSummary({ ...contact, createdBy: { name: 'Ana' } }, t)).toBe(
+      'contacts.summary(contacts.types.CALL,18.10.2026.) · Ana'
     );
   });
 });
