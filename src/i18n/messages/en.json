@@ -403,5 +403,26 @@
     "none": "Not contacted yet",
     "summary": "{type} · {date}",
     "save": "Save"
+  },
+  "driveSheets": {
+    "open": "Print / CSV",
+    "title": "Print and CSV",
+    "expected": "Expected donors",
+    "results": "Results",
+    "expectedHint": "Donors contacted from the call list in the {days} days before the drive. Empty rows at the end are for walk-ins.",
+    "resultsHint": "Donations recorded for this drive.",
+    "noExpected": "Nobody was contacted for this drive from the call list.",
+    "noResults": "No donations recorded yet.",
+    "name": "Last and first name",
+    "contacted": "Contacted",
+    "donated": "Donated",
+    "deniedReason": "Denied (reason)",
+    "result": "Result",
+    "resultSuccessful": "Donated",
+    "resultDenied": "Denied",
+    "print": "Print",
+    "download": "Download CSV",
+    "fileName": "drive",
+    "totals": "{successful} donated · {denied} denied"
   }
 }

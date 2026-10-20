@@ -1,6 +1,7 @@
 import { prisma } from '@/db';
 import { Action, Prisma } from '@/generated/prisma/client';
 import { summarizeActionDonations } from '@/lib/actionSummary';
+import { expectedContactWindow } from '@/lib/driveSheets';
 
 export default class ActionService {
   static async find(
@@ -69,6 +70,66 @@ export default class ActionService {
       },
     });
     return { action, summary: summarizeActionDonations(donations) };
+  }
+
+  // What the drive's sheets list (see driveSheets): donors contacted for
+  // it, with their latest contact in that window, and its donations.
+  static async sheetData(id: string) {
+    const action = await prisma.action.findUnique({
+      where: { id },
+      include: { place: true },
+    });
+    if (!action) {
+      return null;
+    }
+    const window = expectedContactWindow(
+      action.startDateTime,
+      action.endDateTime
+    );
+    const contactWhere = { createdAt: { gte: window.from, lte: window.to } };
+    const [contacted, donations] = await Promise.all([
+      prisma.donor.findMany({
+        where: { communications: { some: contactWhere } },
+        select: {
+          firstName: true,
+          lastName: true,
+          bloodType: true,
+          oib: true,
+          dob: true,
+          phone: true,
+          communications: {
+            where: contactWhere,
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: { type: true, createdAt: true, note: true },
+          },
+        },
+      }),
+      prisma.donation.findMany({
+        where: { actionId: id },
+        select: {
+          denied: true,
+          denyReason: true,
+          note: true,
+          donor: {
+            select: {
+              firstName: true,
+              lastName: true,
+              bloodType: true,
+              oib: true,
+            },
+          },
+        },
+      }),
+    ]);
+    return {
+      action,
+      expected: contacted.map(({ communications, ...donor }) => ({
+        ...donor,
+        contact: communications[0] ?? null,
+      })),
+      results: donations,
+    };
   }
 
   static async create(

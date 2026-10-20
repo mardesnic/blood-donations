@@ -842,6 +842,50 @@ async function main() {
   });
   check('log a call', res.status === 200 && res.data?.type === 'CALL');
 
+  // Drive sheets (print page and CSV)
+  res = await call('GET', `/api/actions/${action.id}/export?sheet=results`, {
+    raw: true,
+  });
+  check(
+    'drive results CSV lists the donation',
+    res.status === 200 && res.data.split('\n')[1]?.includes('Test Smoke'),
+    res.data
+  );
+  // Move the drive to tomorrow, so the call just logged falls in the 30
+  // days before it.
+  const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  res = await call('PUT', `/api/actions/${action.id}`, {
+    body: {
+      ...actionBody,
+      startDateTime: tomorrow.toISOString(),
+      endDateTime: new Date(tomorrow.getTime() + 60 * 60 * 1000).toISOString(),
+    },
+  });
+  check('move action to tomorrow', res.status === 200, res.status);
+  res = await call('GET', `/api/actions/${action.id}/export?sheet=expected`, {
+    raw: true,
+  });
+  check(
+    'expected donors CSV lists the contacted donor',
+    res.status === 200 && /Test Smoke.*(Phone call|Poziv)/.test(res.data),
+    res.data
+  );
+  for (const sheet of ['', '?sheet=expected', '?sheet=results']) {
+    res = await call('GET', `/actions/${action.id}/print${sheet}`, {
+      raw: true,
+    });
+    check(
+      `page /actions/[id]/print${sheet} renders`,
+      res.status === 200 && res.data.includes('Test Smoke'),
+      res.status
+    );
+  }
+  res = await call(
+    'GET',
+    '/api/actions/00000000-0000-0000-0000-000000000000/export'
+  );
+  check('missing action CSV is 404', res.status === 404, res.status);
+
   // Clean up
   res = await call('DELETE', `/api/donations/${donation.id}`);
   check('delete donation', res.status === 200, res.status);
