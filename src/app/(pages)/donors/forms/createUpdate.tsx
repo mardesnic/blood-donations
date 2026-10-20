@@ -27,6 +27,7 @@ import {
 } from '@/hooks/useDuplicateDonors';
 import { DuplicateDonorWarning } from '@/components/DuplicateDonorWarning';
 import { useAlertContext } from '@/context/AlertContext';
+import { useCurrentUser } from '@/context/CurrentUserContext';
 
 // Stored calendar dates (UTC midnight) as a local day for the date pickers.
 const toDayjs = (value: Date | null | undefined): Dayjs | null =>
@@ -40,6 +41,7 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
   const router = useRouter();
   const { showAlert } = useAlertContext();
   const t = useTranslations();
+  const { isAdmin } = useCurrentUser();
 
   // An edited donor goes back to its overview, a new one to the list.
   const goToDonorsTable = () => {
@@ -304,7 +306,8 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
         gap={2}
         mt={2}
       >
-        {donor?.id && (
+        {/* Only admins delete. */}
+        {donor?.id && isAdmin && (
           <Button
             onClick={() => openDialog({ type: 'delete', donor })}
             variant='outlined'

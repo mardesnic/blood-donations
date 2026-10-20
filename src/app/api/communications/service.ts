@@ -3,12 +3,18 @@ import { Prisma } from '@/generated/prisma/client';
 import { eligibleNowWhere } from '@/lib/donorFilters';
 import { CallListQuery, contactedSince, ContactType } from '@/lib/callList';
 import { toAppDay } from '@/lib/dates';
+import { ForbiddenError } from '@/lib/api';
+import { isAdmin } from '@/lib/users';
+import { CurrentUser } from '@/app/api/auth/service';
 
 const CONTACT_FIELDS = {
   id: true,
   type: true,
   note: true,
   createdAt: true,
+  createdById: true,
+  // Who logged it; null for older contacts.
+  createdBy: { select: { name: true, email: true } },
 } as const;
 
 const LATEST_CONTACT = {
@@ -115,19 +121,32 @@ export default class CommunicationService {
   static async log(
     donorId: string,
     type: ContactType,
-    note: string | null
+    note: string | null,
+    createdById: string
   ): Promise<Contact> {
     await prisma.donor.findUniqueOrThrow({
       where: { id: donorId },
       select: { id: true },
     });
     return prisma.communication.create({
-      data: { donorId, type, note },
+      data: { donorId, type, note, createdById },
       select: CONTACT_FIELDS,
     });
   }
 
-  static async delete(id: string) {
+  // Volunteers may remove only contacts they logged (e.g. Undo on the call
+  // list); admins may remove any. Throws P2025 (404) for an unknown id.
+  static async delete(id: string, user: CurrentUser) {
+    const contact = await prisma.communication.findUniqueOrThrow({
+      where: { id },
+      select: { createdById: true },
+    });
+    if (!isAdmin(user) && contact.createdById !== user.id) {
+      throw new ForbiddenError(
+        "Only admins can delete other people's contacts.",
+        'ADMIN_ONLY'
+      );
+    }
     return prisma.communication.delete({ where: { id } });
   }
 }

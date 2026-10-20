@@ -8,6 +8,9 @@ export interface Contact {
   type: CommunicationType;
   note: string | null;
   createdAt: string;
+  createdById: string | null;
+  // Who logged it; null for older contacts.
+  createdBy: { name: string; email: string } | null;
 }
 
 export interface CallListDonor {

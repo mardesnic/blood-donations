@@ -7,6 +7,7 @@ import { MdBolt, MdDelete, MdEdit, MdPrint } from 'react-icons/md';
 import { useTranslations } from 'next-intl';
 import { ROUTE_PATHS } from '@/routes';
 import { ActionWithPlace, useActionsContext } from '@/context/ActionsContext';
+import { useCurrentUser } from '@/context/CurrentUserContext';
 
 interface Props {
   action: ActionWithPlace;
@@ -15,6 +16,7 @@ interface Props {
 // Breadcrumbs plus Edit and Delete, which open the actions dialogs.
 export const ActionDetailsHeader = ({ action }: Props) => {
   const t = useTranslations();
+  const { isAdmin } = useCurrentUser();
   const { openDialog, isLoading } = useActionsContext();
   return (
     <Stack
@@ -67,16 +69,19 @@ export const ActionDetailsHeader = ({ action }: Props) => {
         >
           {t('common.edit')}
         </Button>
-        <Button
-          variant='outlined'
-          color='inherit'
-          size='medium'
-          startIcon={<MdDelete />}
-          disabled={isLoading}
-          onClick={() => openDialog({ type: 'delete', action })}
-        >
-          {t('common.delete')}
-        </Button>
+        {/* Only admins delete. */}
+        {isAdmin && (
+          <Button
+            variant='outlined'
+            color='inherit'
+            size='medium'
+            startIcon={<MdDelete />}
+            disabled={isLoading}
+            onClick={() => openDialog({ type: 'delete', action })}
+          >
+            {t('common.delete')}
+          </Button>
+        )}
       </Stack>
     </Stack>
   );

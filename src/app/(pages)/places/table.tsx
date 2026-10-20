@@ -19,6 +19,7 @@ import { usePlacesContext } from '@/context/PlacesContext';
 import { PlaceListItem } from '@/hooks/usePlaces';
 import { ROUTE_PATHS } from '@/routes';
 import { PAGE_SIZE } from '@/lib/const';
+import { useCurrentUser } from '@/context/CurrentUserContext';
 
 export default function PlacesTable() {
   const {
@@ -33,6 +34,7 @@ export default function PlacesTable() {
     changeSortModel,
   } = usePlacesContext();
   const t = useTranslations();
+  const { isAdmin } = useCurrentUser();
   const router = useRouter();
 
   // Phones show name, city and the buttons; tablets add contact person and
@@ -99,8 +101,9 @@ export default function PlacesTable() {
       disableColumnMenu: true,
       sortable: false,
       filterable: false,
-      // Two icon buttons plus the table's 24px right padding.
-      width: isPhone ? 105 : 130,
+      // Icon buttons (delete only for admins) plus the table's 24px right
+      // padding.
+      width: isAdmin ? (isPhone ? 105 : 130) : isPhone ? 65 : 80,
       // The row opens the place; these buttons must not.
       renderCell: (params) => (
         <Stack
@@ -116,19 +119,22 @@ export default function PlacesTable() {
           >
             <MdEdit />
           </IconButton>
-          <IconButton
-            size={isPhone ? 'small' : 'medium'}
-            aria-label={t('common.delete')}
-            onClick={() =>
-              openDialog({
-                type: 'delete',
-                place: params.row,
-                actionCount: params.row._count?.actions ?? 0,
-              })
-            }
-          >
-            <MdDelete />
-          </IconButton>
+          {/* Only admins delete. */}
+          {isAdmin && (
+            <IconButton
+              size={isPhone ? 'small' : 'medium'}
+              aria-label={t('common.delete')}
+              onClick={() =>
+                openDialog({
+                  type: 'delete',
+                  place: params.row,
+                  actionCount: params.row._count?.actions ?? 0,
+                })
+              }
+            >
+              <MdDelete />
+            </IconButton>
+          )}
         </Stack>
       ),
     },

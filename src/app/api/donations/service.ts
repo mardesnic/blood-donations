@@ -50,6 +50,8 @@ export default class DonationService {
       include: {
         donor: true,
         action: true,
+        // Who entered it; null for older donations.
+        createdBy: { select: { name: true, email: true } },
       },
     });
   }

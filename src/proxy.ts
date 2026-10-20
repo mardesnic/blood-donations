@@ -5,6 +5,7 @@ import {
 } from 'next/server';
 import { withAuth, type NextRequestWithAuth } from 'next-auth/middleware';
 import { buildContentSecurityPolicy, createNonce } from '@/lib/csp';
+import { ROUTE_PATHS } from '@/routes';
 
 // Adds a per-request nonce Content-Security-Policy. Next.js reads the nonce
 // from the request's CSP header and puts it on its own scripts.
@@ -20,9 +21,20 @@ function withCsp(req: NextRequest) {
   return response;
 }
 
+const CHANGE_PASSWORD_PATH = ROUTE_PATHS.ACCOUNT.PASSWORD.path;
+
 // Signed-out visitors are redirected to the login page; signed-in ones get
-// the page with the CSP.
-const signedIn = withAuth((req) => withCsp(req));
+// the page with the CSP, or the change-password page while they still have
+// a temporary password.
+const signedIn = withAuth((req) => {
+  if (
+    req.nextauth.token?.mustChangePassword &&
+    req.nextUrl.pathname !== CHANGE_PASSWORD_PATH
+  ) {
+    return NextResponse.redirect(new URL(CHANGE_PASSWORD_PATH, req.url));
+  }
+  return withCsp(req);
+});
 
 export function proxy(req: NextRequestWithAuth, event: NextFetchEvent) {
   if (req.nextUrl.pathname === '/login') {

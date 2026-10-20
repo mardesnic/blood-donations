@@ -11,7 +11,10 @@ import {
 import { toAppDay } from '../src/lib/dates';
 
 // Define types for the partial structures that will be generated
-type GeneratedDonation = Omit<Donation, 'createdAt' | 'updatedAt'>;
+type GeneratedDonation = Omit<
+  Donation,
+  'createdAt' | 'updatedAt' | 'createdById'
+>;
 type GeneratedDonor = Omit<Donor, 'createdAt' | 'updatedAt'> & {
   donations: GeneratedDonation[];
 };

@@ -19,7 +19,7 @@ import { pageTitle } from '@/i18n/metadata';
 import { getDisplayName } from '@/lib/utils';
 import { formatDay } from '@/lib/dates';
 import { BLOOD_TYPES } from '@/lib/const';
-import { formatContactDay } from '@/lib/callList';
+import { contactSummary } from '@/lib/callList';
 import { eligibilityLabel, eligibilityReason } from '@/lib/eligibility';
 import { ROUTE_PATHS } from '@/routes';
 import { DonationsProvider } from '@/context/DonationsContext';
@@ -174,10 +174,7 @@ export default async function DonorOverviewPage({ params }: Props) {
               label={t('donorOverview.lastContact')}
               value={
                 lastContact
-                  ? t('contacts.summary', {
-                      type: t(`contacts.types.${lastContact.type}`),
-                      date: formatContactDay(lastContact.createdAt),
-                    })
+                  ? contactSummary(lastContact, t)
                   : t('contacts.none')
               }
             />

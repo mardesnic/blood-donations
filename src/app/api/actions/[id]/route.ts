@@ -13,10 +13,12 @@ export const PUT = withAuth(
   }
 );
 
+// Only admins delete.
 export const DELETE = withAuth(
   async (_: NextRequest, contex: { params: Promise<{ id: string }> }) => {
     const { id } = await contex.params;
     await ActionService.delete(id);
     return NextResponse.json({ message: `Successfully deleted action ${id}.` });
-  }
+  },
+  { admin: true }
 );

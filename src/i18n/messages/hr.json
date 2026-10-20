@@ -14,7 +14,13 @@
     "places": "Mjesta",
     "overview": "Pregled",
     "reports": "Izvještaji",
-    "callList": "Pozivi"
+    "callList": "Pozivi",
+    "users": "Korisnici",
+    "changePassword": "Promijeni lozinku",
+    "roles": {
+      "ADMIN": "Administrator",
+      "VOLUNTEER": "Volonter"
+    }
   },
   "pageTitles": {
     "welcome": "Dobro došli",
@@ -28,7 +34,9 @@
     "places": "Mjesta",
     "overview": "Pregled",
     "reports": "Izvještaji",
-    "callList": "Pozivi"
+    "callList": "Pozivi",
+    "users": "Korisnici",
+    "changePassword": "Promjena lozinke"
   },
   "common": {
     "cancel": "Odustani",
@@ -150,7 +158,8 @@
     "titleRequired": "Naziv je obavezan",
     "donorRequired": "Darivatelj je obavezan",
     "selectDonor": "Odaberite darivatelja",
-    "tooLong": "Najviše 100 znakova"
+    "tooLong": "Najviše 100 znakova",
+    "nameRequired": "Ime je obavezno"
   },
   "login": {
     "title": "Prijava",
@@ -189,7 +198,8 @@
     "noAction": "Bez akcije",
     "donorLocked": "Darivatelj se ne može promijeniti. Ako je pogrešan, obrišite ovo darivanje i upišite ga ponovo za pravog darivatelja.",
     "recorded": "Upisano {date}",
-    "changed": "izmijenjeno {date}"
+    "changed": "izmijenjeno {date}",
+    "recordedBy": "Upisano {date} · {name}"
   },
   "actions": {
     "title": "Akcije",
@@ -428,5 +438,62 @@
     "download": "Preuzmi CSV",
     "fileName": "akcija",
     "totals": "Darivalo: {successful} · odbijeno: {denied}"
+  },
+  "users": {
+    "title": "Korisnici",
+    "intro": "Osobe koje se mogu prijaviti. Volonteri mogu sve osim brisanja zapisa i upravljanja korisnicima.",
+    "add": "Dodaj korisnika",
+    "edit": "Uredi korisnika",
+    "name": "Ime i prezime",
+    "role": "Uloga",
+    "roleHelp": {
+      "ADMIN": "Sve, uključujući brisanje zapisa i upravljanje korisnicima.",
+      "VOLUNTEER": "Sve osim brisanja zapisa i upravljanja korisnicima."
+    },
+    "activeLabel": "Može se prijaviti",
+    "inactive": "Deaktiviran",
+    "you": "Vi",
+    "selfHint": "Ne možete promijeniti svoju ulogu ni deaktivirati sebe.",
+    "addHint": "Dobit ćete privremenu lozinku koju trebate proslijediti. Nakon prijave korisnik postavlja svoju.",
+    "lastLogin": "Zadnja prijava {date}",
+    "neverSignedIn": "Još se nije prijavio/la",
+    "temporaryPasswordSet": "Ima privremenu lozinku",
+    "resetPassword": "Nova lozinka",
+    "resetTitle": "Postaviti novu lozinku?",
+    "resetText": "Trenutna lozinka korisnika {name} prestat će vrijediti. Dobit ćete privremenu lozinku koju trebate proslijediti.",
+    "resetConfirm": "Postavi novu lozinku",
+    "saved": "Korisnik spremljen",
+    "temporaryTitle": "Privremena lozinka: {name}",
+    "temporaryText": "Proslijedite je osobno ili telefonom. Korisnik se prijavljuje s {email} i ovom lozinkom, a zatim postavlja svoju.",
+    "temporaryOnce": "Neće se ponovno prikazati. Ako se izgubi, postavite novu lozinku.",
+    "copy": "Kopiraj",
+    "copied": "Kopirano",
+    "done": "Gotovo",
+    "errors": {
+      "LOAD": "Korisnici nisu učitani.",
+      "REQUEST_FAILED": "Spremanje nije uspjelo. Pokušajte ponovo.",
+      "DUPLICATE_EMAIL": "Korisnik s ovim e-mailom već postoji.",
+      "SELF_CHANGE": "Ne možete promijeniti svoju ulogu ni deaktivirati sebe.",
+      "ADMIN_ONLY": "To mogu samo administratori."
+    }
+  },
+  "account": {
+    "title": "Promjena lozinke",
+    "temporary": "Prijavili ste se privremenom lozinkom. Za nastavak postavite svoju.",
+    "temporaryPassword": "Privremena lozinka",
+    "current": "Trenutna lozinka",
+    "new": "Nova lozinka",
+    "repeat": "Ponovite novu lozinku",
+    "save": "Promijeni lozinku",
+    "currentRequired": "Upišite trenutnu lozinku",
+    "mismatch": "Lozinke se ne podudaraju",
+    "changed": "Lozinka promijenjena",
+    "errors": {
+      "TOO_SHORT": "Upišite barem {min} znakova",
+      "TOO_LONG": "Lozinka je preduga",
+      "SAME_PASSWORD": "Odaberite lozinku različitu od trenutne",
+      "WRONG_PASSWORD": "Trenutna lozinka nije točna",
+      "FAILED": "Promjena lozinke nije uspjela. Pokušajte ponovo."
+    }
   }
 }

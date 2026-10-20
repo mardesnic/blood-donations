@@ -12,10 +12,12 @@ export const PUT = withAuth(
   }
 );
 
+// Only admins delete.
 export const DELETE = withAuth(
   async (_: NextRequest, contex: { params: Promise<{ id: string }> }) => {
     const { id } = await contex.params;
     await PlaceService.delete(id);
     return NextResponse.json({ message: `Successfully deleted place ${id}.` });
-  }
+  },
+  { admin: true }
 );

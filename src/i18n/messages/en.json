@@ -14,7 +14,13 @@
     "places": "Places",
     "overview": "Overview",
     "reports": "Reports",
-    "callList": "Call list"
+    "callList": "Call list",
+    "users": "Users",
+    "changePassword": "Change password",
+    "roles": {
+      "ADMIN": "Admin",
+      "VOLUNTEER": "Volunteer"
+    }
   },
   "pageTitles": {
     "welcome": "Welcome",
@@ -28,7 +34,9 @@
     "places": "Places",
     "overview": "Overview",
     "reports": "Reports",
-    "callList": "Call list"
+    "callList": "Call list",
+    "users": "Users",
+    "changePassword": "Change password"
   },
   "common": {
     "cancel": "Cancel",
@@ -150,7 +158,8 @@
     "titleRequired": "Title is required",
     "donorRequired": "Donor is required",
     "selectDonor": "Please select donor",
-    "tooLong": "At most 100 characters"
+    "tooLong": "At most 100 characters",
+    "nameRequired": "Name is required"
   },
   "login": {
     "title": "Sign in",
@@ -189,7 +198,8 @@
     "noAction": "No action",
     "donorLocked": "The donor can't be changed. If it's wrong, delete this donation and enter it again for the right donor.",
     "recorded": "Recorded {date}",
-    "changed": "changed {date}"
+    "changed": "changed {date}",
+    "recordedBy": "Recorded {date} by {name}"
   },
   "actions": {
     "title": "Actions",
@@ -428,5 +438,62 @@
     "download": "Download CSV",
     "fileName": "drive",
     "totals": "{successful} donated · {denied} denied"
+  },
+  "users": {
+    "title": "Users",
+    "intro": "People who can sign in. Volunteers can do everything except delete records and manage users.",
+    "add": "Add user",
+    "edit": "Edit user",
+    "name": "Name",
+    "role": "Role",
+    "roleHelp": {
+      "ADMIN": "Everything, including deleting records and managing users.",
+      "VOLUNTEER": "Everything except deleting records and managing users."
+    },
+    "activeLabel": "Can sign in",
+    "inactive": "Deactivated",
+    "you": "You",
+    "selfHint": "You can't change your own role or deactivate yourself.",
+    "addHint": "You'll get a temporary password to pass on. They choose their own after signing in.",
+    "lastLogin": "Last signed in {date}",
+    "neverSignedIn": "Never signed in",
+    "temporaryPasswordSet": "Has a temporary password",
+    "resetPassword": "Reset password",
+    "resetTitle": "Reset password?",
+    "resetText": "{name}'s current password will stop working. You'll get a temporary password to pass on.",
+    "resetConfirm": "Reset password",
+    "saved": "User saved",
+    "temporaryTitle": "Temporary password for {name}",
+    "temporaryText": "Pass this on in person or by phone. They sign in with {email} and this password, then choose their own.",
+    "temporaryOnce": "It won't be shown again. If it gets lost, reset the password.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "done": "Done",
+    "errors": {
+      "LOAD": "Couldn't load the users.",
+      "REQUEST_FAILED": "Couldn't save. Try again.",
+      "DUPLICATE_EMAIL": "A user with this email already exists.",
+      "SELF_CHANGE": "You can't change your own role or deactivate yourself.",
+      "ADMIN_ONLY": "Only admins can do this."
+    }
+  },
+  "account": {
+    "title": "Change password",
+    "temporary": "You signed in with a temporary password. Choose your own to continue.",
+    "temporaryPassword": "Temporary password",
+    "current": "Current password",
+    "new": "New password",
+    "repeat": "Repeat new password",
+    "save": "Change password",
+    "currentRequired": "Enter your current password",
+    "mismatch": "The passwords don't match",
+    "changed": "Password changed",
+    "errors": {
+      "TOO_SHORT": "Use at least {min} characters",
+      "TOO_LONG": "The password is too long",
+      "SAME_PASSWORD": "Choose a password different from the current one",
+      "WRONG_PASSWORD": "The current password is wrong",
+      "FAILED": "Couldn't change the password. Try again."
+    }
   }
 }

@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { ROUTE_PATHS } from '@/routes';
 import { usePlacesContext } from '@/context/PlacesContext';
 import type { PlaceWithActionCount } from '@/app/api/places/service';
+import { useCurrentUser } from '@/context/CurrentUserContext';
 
 interface Props {
   place: PlaceWithActionCount;
@@ -16,6 +17,7 @@ interface Props {
 // Breadcrumbs plus Edit and Delete, which open the places dialogs.
 export const PlaceDetailsHeader = ({ place }: Props) => {
   const t = useTranslations();
+  const { isAdmin } = useCurrentUser();
   const { openDialog, isLoading } = usePlacesContext();
   return (
     <Stack
@@ -51,22 +53,25 @@ export const PlaceDetailsHeader = ({ place }: Props) => {
         >
           {t('common.edit')}
         </Button>
-        <Button
-          variant='outlined'
-          color='inherit'
-          size='medium'
-          startIcon={<MdDelete />}
-          disabled={isLoading}
-          onClick={() =>
-            openDialog({
-              type: 'delete',
-              place,
-              actionCount: place._count.actions,
-            })
-          }
-        >
-          {t('common.delete')}
-        </Button>
+        {/* Only admins delete. */}
+        {isAdmin && (
+          <Button
+            variant='outlined'
+            color='inherit'
+            size='medium'
+            startIcon={<MdDelete />}
+            disabled={isLoading}
+            onClick={() =>
+              openDialog({
+                type: 'delete',
+                place,
+                actionCount: place._count.actions,
+              })
+            }
+          >
+            {t('common.delete')}
+          </Button>
+        )}
       </Stack>
     </Stack>
   );

@@ -31,8 +31,11 @@ export const GET = withAuth(async (req: NextRequest) => {
   return NextResponse.json({ donations, count });
 });
 
-export const POST = withAuth(async (req: NextRequest) => {
+export const POST = withAuth(async (req: NextRequest, _, user) => {
   const data = await parseBody(donationSchema, await req.json());
-  const newDonation = await DonationService.create(data);
+  const newDonation = await DonationService.create({
+    ...data,
+    createdById: user.id,
+  });
   return NextResponse.json(newDonation);
 });
