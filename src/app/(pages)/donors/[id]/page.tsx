@@ -12,7 +12,7 @@ import {
   Link as MuiLink,
   Typography,
 } from '@mui/material';
-import { MdEdit } from 'react-icons/md';
+import { MdEdit, MdEmojiEvents } from 'react-icons/md';
 import DonorService from '@/app/api/donors/service';
 import CommunicationService from '@/app/api/communications/service';
 import { pageTitle } from '@/i18n/metadata';
@@ -51,7 +51,7 @@ export default async function DonorOverviewPage({ params }: Props) {
   if (!overview) {
     notFound();
   }
-  const { donor, eligibility, age } = overview;
+  const { donor, eligibility, age, milestone } = overview;
   const lastContact = await CommunicationService.lastContact(donor.id);
   const t = await getTranslations();
   const tEligibility = await getTranslations('eligibility');
@@ -100,6 +100,40 @@ export default async function DonorOverviewPage({ params }: Props) {
             <InfoField
               label={t('donorOverview.totalDonations')}
               value={donor.donationCount}
+            />
+            <InfoField
+              label={t('milestones.label')}
+              value={
+                <>
+                  {milestone.reached && (
+                    <Box>
+                      <Chip
+                        size='small'
+                        color='secondary'
+                        icon={<MdEmojiEvents />}
+                        label={t('milestones.reached', {
+                          milestone: milestone.reached.milestone,
+                        })}
+                        sx={{ mr: 1 }}
+                      />
+                      <Typography
+                        variant='body2'
+                        component='span'
+                        sx={{ color: 'text.secondary' }}
+                      >
+                        {milestone.reached.date
+                          ? t('milestones.reachedOn', {
+                              date: formatDay(milestone.reached.date),
+                            })
+                          : t('milestones.beforeRecords')}
+                      </Typography>
+                    </Box>
+                  )}
+                  {milestone.next
+                    ? t('milestones.next', milestone.next)
+                    : t('milestones.allReached')}
+                </>
+              }
             />
             <InfoField
               label={t('fields.lastDonation')}

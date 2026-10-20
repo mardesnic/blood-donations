@@ -583,7 +583,13 @@ async function main() {
     'report by blood type includes 0-',
     (await reportSheet('bloodTypes')).rows.some((row) => row[0] === '0-')
   );
-  for (const table of ['months', 'actions', 'genderAge', 'denyReasons']) {
+  for (const table of [
+    'months',
+    'actions',
+    'genderAge',
+    'denyReasons',
+    'milestones',
+  ]) {
     const report = await reportSheet(table);
     check(
       `report ${table} Excel file`,
@@ -725,6 +731,8 @@ async function main() {
     'donor overview shows eligibility, details and donations',
     res.status === 200 &&
       res.data.includes('Total donations') &&
+      res.data.includes('Milestone') &&
+      res.data.includes('Next: 10 (') &&
       res.data.includes('Personal details') &&
       res.data.includes(`/donors/${donor.id}/edit`) &&
       res.data.includes('id="donations"'),
@@ -776,6 +784,7 @@ async function main() {
       res.data.includes('Donations this year') &&
       res.data.includes('Can donate now') &&
       res.data.includes('Donations per month') &&
+      res.data.includes('Close to a milestone') &&
       res.data.includes('filter=eligible%7Cis%7CNOW'),
     res.status
   );

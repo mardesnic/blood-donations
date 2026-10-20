@@ -23,6 +23,7 @@ import { refreshActionStats, refreshDonorStats } from './stats';
 type DonorInput = ReturnType<typeof donorDataFromBody>;
 import { Donor, Prisma } from '@/generated/prisma/client';
 import { excelDateTime, ExcelValue } from '@/lib/excel';
+import { milestoneDates, nextMilestone } from '@/lib/milestones';
 
 // The export's columns in order; their names are in the "export" messages.
 const EXPORT_COLUMNS = [
@@ -99,16 +100,33 @@ export default class DonorService {
     const today = toAppDay(new Date()) as Date;
     const found = await prisma.donor.findUnique({
       where: { id },
-      include: { donations: DENIALS },
+      include: {
+        donations: {
+          select: { donationDate: true, denied: true, denyReason: true },
+        },
+      },
     });
     if (!found) {
       return null;
     }
     const { donations, ...donor } = found;
+    const reached = milestoneDates(
+      donor.initialDonationCount,
+      donor.initialLastDonation,
+      donations.filter((d) => !d.denied).map((d) => d.donationDate)
+    ).at(-1);
     return {
       donor,
-      eligibility: computeEligibility({ ...donor, denials: donations }, today),
+      eligibility: computeEligibility(
+        { ...donor, denials: donations.filter((d) => d.denied) },
+        today
+      ),
       age: ageOn(donor.dob, today),
+      // The highest milestone reached (and when), and the next one.
+      milestone: {
+        reached: reached ?? null,
+        next: nextMilestone(donor.donationCount),
+      },
     };
   }
 
