@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "next build && node scripts/migrate-on-deploy.mjs",
     "start": "next start",
     "lint": "eslint .",
     "lint-staged": "lint-staged",

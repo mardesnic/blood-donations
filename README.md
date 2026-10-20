@@ -98,3 +98,20 @@ node scripts/smoke-test.mjs http://localhost:3000
 CI (`.github/workflows/ci.yml`) runs lint, type-check, unit tests, migrations
 against Postgres, a schema drift check, the build and the smoke test on every
 pull request.
+
+## Deploying
+
+Vercel deploys every push to `master` to Production. Its build runs
+`npm run vercel-build`: `next build`, then `scripts/migrate-on-deploy.mjs`,
+which applies pending migrations (`prisma migrate deploy`) with
+`POSTGRES_URL_NON_POOLING`. A failed migration fails the deploy, and the
+previous deployment stays live. Preview deploys skip migrations, because an
+unmerged branch must not change the production database.
+
+The migration runs a few seconds before the new code goes live, so a
+migration must keep working with the code before it: add columns and tables;
+rename or drop them only in a later release. Back up the database before
+merging a migration that changes existing data.
+
+The Vercel project's Build Command must be left at its default, or set to
+`npm run vercel-build`, for this to run.
