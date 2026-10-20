@@ -225,6 +225,9 @@ export default async function OverviewPage() {
             sx={{
               gap: 3,
               height: '100%',
+              // The two cards share the column instead of each taking all
+              // of its height (and overflowing onto the cards below).
+              '& > .MuiCard-root': { height: 'auto', flex: '1 0 auto' },
             }}
           >
             <InfoSection title={t('overview.upcoming')}>
