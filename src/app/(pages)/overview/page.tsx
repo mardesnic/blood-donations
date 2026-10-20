@@ -45,7 +45,12 @@ const Stat = ({
 }) => (
   <Card elevation={2} sx={{ height: '100%' }}>
     <CardContent>
-      <Typography variant='body2' color='text.secondary'>
+      <Typography
+        variant='body2'
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {label}
       </Typography>
       <Typography sx={{ fontSize: 32, fontWeight: 700, lineHeight: 1.3 }}>
@@ -57,7 +62,7 @@ const Stat = ({
           value
         )}
       </Typography>
-      <Typography variant='body2' color={noteColor}>
+      <Typography variant='body2' sx={{ color: noteColor }}>
         {note}
       </Typography>
     </CardContent>
@@ -152,7 +157,9 @@ export default async function OverviewPage() {
                 <Stack
                   key={reason ?? 'unknown'}
                   direction='row'
-                  justifyContent='space-between'
+                  sx={{
+                    justifyContent: 'space-between',
+                  }}
                 >
                   <span>
                     {reason ? t(`denyReasons.${reason}`) : t('common.unknown')}
@@ -161,7 +168,11 @@ export default async function OverviewPage() {
                 </Stack>
               ))
             ) : (
-              <Typography color='text.secondary'>
+              <Typography
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {t('overview.noDenials')}
               </Typography>
             )}
@@ -209,14 +220,23 @@ export default async function OverviewPage() {
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
-          <Stack gap={3} height='100%'>
+          <Stack
+            sx={{
+              gap: 3,
+              height: '100%',
+            }}
+          >
             <InfoSection title={t('overview.upcoming')}>
               {stats.upcomingActions.length ? (
                 stats.upcomingActions.map((action) => (
                   <ActionLine key={action.id} action={action} />
                 ))
               ) : (
-                <Typography color='text.secondary'>
+                <Typography
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {t('overview.noUpcoming')}
                 </Typography>
               )}
@@ -234,7 +254,11 @@ export default async function OverviewPage() {
                   />
                 ))
               ) : (
-                <Typography color='text.secondary'>
+                <Typography
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {t('overview.noRecent')}
                 </Typography>
               )}
@@ -267,7 +291,12 @@ const ActionLine = ({
     >
       {action.title}
     </Link>
-    <Typography variant='body2' color='text.secondary'>
+    <Typography
+      variant='body2'
+      sx={{
+        color: 'text.secondary',
+      }}
+    >
       <ActionTimes start={action.startDateTime} end={action.endDateTime} />
       {action.place ? ` · ${action.place}` : ''}
     </Typography>

@@ -63,9 +63,11 @@ export const DonorsFilters = ({ filterModel, changeFilterModel }: Props) => {
     <Box sx={{ px: 3, pb: 3 }}>
       <Stack
         direction={{ xs: 'column', md: 'row' }}
-        alignItems={{ xs: 'flex-start', md: 'center' }}
-        justifyContent='space-between'
-        gap={2}
+        sx={{
+          alignItems: { xs: 'flex-start', md: 'center' },
+          justifyContent: 'space-between',
+          gap: 2,
+        }}
       >
         <FormControlLabel
           control={
@@ -78,8 +80,20 @@ export const DonorsFilters = ({ filterModel, changeFilterModel }: Props) => {
           }
           label={t('filters.eligibleOnly')}
         />
-        <Stack direction='row' alignItems='center' gap={1} flexWrap='wrap'>
-          <Typography variant='body2' color='text.secondary'>
+        <Stack
+          direction='row'
+          sx={{
+            alignItems: 'center',
+            gap: 1,
+            flexWrap: 'wrap',
+          }}
+        >
+          <Typography
+            variant='body2'
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {t('fields.bloodTypes')}
           </Typography>
           <ToggleButtonGroup
@@ -166,7 +180,12 @@ export const DonorsFilters = ({ filterModel, changeFilterModel }: Props) => {
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <Stack direction='row' gap={2}>
+          <Stack
+            direction='row'
+            sx={{
+              gap: 2,
+            }}
+          >
             <TextField
               label={t('filters.ageFrom')}
               type='number'
@@ -184,7 +203,12 @@ export const DonorsFilters = ({ filterModel, changeFilterModel }: Props) => {
           </Stack>
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <Stack direction='row' gap={2}>
+          <Stack
+            direction='row'
+            sx={{
+              gap: 2,
+            }}
+          >
             <DatePicker
               label={t('filters.lastDonationFrom')}
               value={dayValue('lastDonation', 'onOrAfter')}
@@ -205,7 +229,13 @@ export const DonorsFilters = ({ filterModel, changeFilterModel }: Props) => {
         </Grid>
       </Grid>
 
-      <Stack direction='row' justifyContent='flex-end' sx={{ mt: 1 }}>
+      <Stack
+        direction='row'
+        sx={{
+          justifyContent: 'flex-end',
+          mt: 1,
+        }}
+      >
         <Button
           variant='text'
           color='secondary'

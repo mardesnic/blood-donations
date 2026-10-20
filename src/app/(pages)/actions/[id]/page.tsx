@@ -118,7 +118,11 @@ export default async function ActionDetails({ params }: Props) {
         <Grid size={{ xs: 12, md: 6 }}>
           <InfoSection title={t('actionOverview.result')}>
             {summary.successful + summary.denied === 0 ? (
-              <Typography color='text.secondary'>
+              <Typography
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {t('actionOverview.noDonations')}
               </Typography>
             ) : (

@@ -157,9 +157,12 @@ export default function DonorsTable() {
             <Typography
               variant='inherit'
               component='span'
-              color={
-                eligibility?.status === 'ELIGIBLE' ? 'success.main' : 'inherit'
-              }
+              sx={{
+                color:
+                  eligibility?.status === 'ELIGIBLE'
+                    ? 'success.main'
+                    : 'inherit',
+              }}
             >
               {eligibilityLabel(eligibility, tEligibility)}
             </Typography>
@@ -205,13 +208,20 @@ export default function DonorsTable() {
     <>
       <Stack
         direction='row'
-        justifyContent='space-between'
-        alignItems='center'
-        flexWrap='wrap'
-        gap={2}
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
       >
         <Typography variant='h1'>{t('donors.title')}</Typography>
-        <Stack direction='row' gap={2}>
+        <Stack
+          direction='row'
+          sx={{
+            gap: 2,
+          }}
+        >
           <Button
             variant='outlined'
             size='medium'
@@ -231,10 +241,12 @@ export default function DonorsTable() {
       <Card sx={{ mt: 4 }} elevation={2}>
         <Stack
           direction='row'
-          justifyContent='space-between'
-          alignItems='center'
-          gap={2}
-          sx={{ p: '30px 24px' }}
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 2,
+            p: '30px 24px',
+          }}
         >
           <TextField
             key={urlVersion}

@@ -22,13 +22,21 @@ export const DonorDetailsHeader = ({
   return (
     <Stack
       direction='row'
-      alignItems='center'
-      justifyContent='space-between'
-      flexWrap='wrap'
-      gap={2}
+      sx={{
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 2,
+      }}
     >
       <Typography variant='h1' sx={{ mb: 0 }}>
-        <Stack direction='row' alignItems='center' gap={1}>
+        <Stack
+          direction='row'
+          sx={{
+            alignItems: 'center',
+            gap: 1,
+          }}
+        >
           <DonorBackLink href={backHref} />
           <>
             {donor.firstName} {donor.lastName}
@@ -37,7 +45,12 @@ export const DonorDetailsHeader = ({
         </Stack>
       </Typography>
       {children && (
-        <Stack direction='row' gap={2}>
+        <Stack
+          direction='row'
+          sx={{
+            gap: 2,
+          }}
+        >
           {children}
         </Stack>
       )}

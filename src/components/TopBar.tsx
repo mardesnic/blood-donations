@@ -35,7 +35,13 @@ export const TopBar = () => {
           </Link>
         </Typography>
         <>
-          <Box display={{ xs: 'none', md: 'flex' }} sx={{ flexGrow: 1, ml: 2 }}>
+          <Box
+            sx={{
+              display: { xs: 'none', md: 'flex' },
+              flexGrow: 1,
+              ml: 2,
+            }}
+          >
             {menuRoutes(isAdmin).map((route) => (
               <Link href={route.path} key={`${route.path}`}>
                 <Button
@@ -61,10 +67,18 @@ export const TopBar = () => {
           <Box sx={{ ml: 'auto' }}>
             <LanguageSwitcher />
           </Box>
-          <Box display={{ xs: 'none', md: 'flex' }}>
+          <Box
+            sx={{
+              display: { xs: 'none', md: 'flex' },
+            }}
+          >
             <UserDropdown />
           </Box>
-          <Box display={{ md: 'none' }}>
+          <Box
+            sx={{
+              display: { md: 'none' },
+            }}
+          >
             <Sidebar />
           </Box>
         </>

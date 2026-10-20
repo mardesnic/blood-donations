@@ -108,11 +108,13 @@ export const UsersList = () => {
     <>
       <Stack
         direction='row'
-        justifyContent='space-between'
-        alignItems='center'
-        flexWrap='wrap'
-        gap={2}
-        mb={1}
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2,
+          mb: 1,
+        }}
       >
         <Typography variant='h1' sx={{ mb: 0 }}>
           {t('users.title')}
@@ -126,13 +128,24 @@ export const UsersList = () => {
           {t('users.add')}
         </Button>
       </Stack>
-      <Typography color='text.secondary' sx={{ mb: 3 }}>
+      <Typography
+        sx={{
+          color: 'text.secondary',
+          mb: 3,
+        }}
+      >
         {t('users.intro')}
       </Typography>
 
       {isLoading && <CircularProgress />}
       {isError && (
-        <Typography color='error.main'>{t('users.errors.LOAD')}</Typography>
+        <Typography
+          sx={{
+            color: 'error.main',
+          }}
+        >
+          {t('users.errors.LOAD')}
+        </Typography>
       )}
 
       {data && (
@@ -142,17 +155,22 @@ export const UsersList = () => {
               {index > 0 && <Divider />}
               <Stack
                 direction={{ xs: 'column', sm: 'row' }}
-                justifyContent='space-between'
-                alignItems={{ xs: 'stretch', sm: 'center' }}
-                gap={1.5}
-                sx={{ p: 2, opacity: user.active ? 1 : 0.6 }}
+                sx={{
+                  justifyContent: 'space-between',
+                  alignItems: { xs: 'stretch', sm: 'center' },
+                  gap: 1.5,
+                  p: 2,
+                  opacity: user.active ? 1 : 0.6,
+                }}
               >
                 <Box sx={{ minWidth: 0 }}>
                   <Stack
                     direction='row'
-                    alignItems='center'
-                    flexWrap='wrap'
-                    gap={1}
+                    sx={{
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: 1,
+                    }}
                   >
                     <Typography variant='h3' component='span'>
                       {user.name || user.email}
@@ -179,12 +197,19 @@ export const UsersList = () => {
                   </Stack>
                   <Typography
                     variant='body2'
-                    color='text.secondary'
-                    sx={{ wordBreak: 'break-all' }}
+                    sx={{
+                      color: 'text.secondary',
+                      wordBreak: 'break-all',
+                    }}
                   >
                     {user.email}
                   </Typography>
-                  <Typography variant='body2' color='text.secondary'>
+                  <Typography
+                    variant='body2'
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {user.mustChangePassword
                       ? t('users.temporaryPasswordSet')
                       : user.lastLoginAt
@@ -194,7 +219,13 @@ export const UsersList = () => {
                         : t('users.neverSignedIn')}
                   </Typography>
                 </Box>
-                <Stack direction='row' gap={1} sx={{ flexShrink: 0 }}>
+                <Stack
+                  direction='row'
+                  sx={{
+                    gap: 1,
+                    flexShrink: 0,
+                  }}
+                >
                   <Button
                     variant='outlined'
                     color='inherit'

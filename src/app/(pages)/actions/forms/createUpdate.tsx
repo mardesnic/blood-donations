@@ -163,7 +163,13 @@ const Form = ({ action }: Props) => {
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
       />
-      <Stack direction='row' justifyContent='flex-end' gap={2}>
+      <Stack
+        direction='row'
+        sx={{
+          justifyContent: 'flex-end',
+          gap: 2,
+        }}
+      >
         <Button onClick={closeDialog} variant='outlined' disabled={isLoading}>
           {t('common.cancel')}
         </Button>

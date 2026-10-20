@@ -21,11 +21,13 @@ export const ActionDetailsHeader = ({ action }: Props) => {
   return (
     <Stack
       direction='row'
-      justifyContent='space-between'
-      alignItems='center'
-      flexWrap='wrap'
-      gap={2}
-      mb={3}
+      sx={{
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 2,
+        mb: 3,
+      }}
     >
       <Breadcrumbs>
         <Link href={ROUTE_PATHS.PROTECTED.ACTIONS.path} className='tap-target'>
@@ -35,13 +37,21 @@ export const ActionDetailsHeader = ({ action }: Props) => {
         <Typography
           variant='h1'
           component='h1'
-          color='text.primary'
-          sx={{ mb: 0 }}
+          sx={{
+            color: 'text.primary',
+            mb: 0,
+          }}
         >
           {action.title}
         </Typography>
       </Breadcrumbs>
-      <Stack direction='row' gap={2} flexWrap='wrap'>
+      <Stack
+        direction='row'
+        sx={{
+          gap: 2,
+          flexWrap: 'wrap',
+        }}
+      >
         {/* Quick entry of donations at the drive. */}
         <Link href={`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${action.id}/drive`}>
           <Button color='secondary' size='medium' startIcon={<MdBolt />}>

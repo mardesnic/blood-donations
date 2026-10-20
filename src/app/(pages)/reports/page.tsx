@@ -52,9 +52,11 @@ const ReportCard = ({
     <CardContent>
       <Stack
         direction='row'
-        justifyContent='space-between'
-        alignItems='center'
-        mb={1}
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 1,
+        }}
       >
         <Typography variant='h3' component='h2'>
           {table.title}
@@ -105,7 +107,13 @@ const ReportCard = ({
           </Table>
         </TableContainer>
       ) : (
-        <Typography color='text.secondary'>{emptyText}</Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          {emptyText}
+        </Typography>
       )}
     </CardContent>
   </Card>
@@ -140,10 +148,12 @@ export default async function ReportsPage({ searchParams }: Props) {
     <>
       <Stack
         direction='row'
-        justifyContent='space-between'
-        alignItems='center'
-        flexWrap='wrap'
-        gap={2}
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
       >
         <Typography variant='h1' sx={{ mb: 0 }}>
           {t('reports.title')}
@@ -151,7 +161,13 @@ export default async function ReportsPage({ searchParams }: Props) {
         <PrintButton />
       </Stack>
 
-      <Stack gap={1} sx={{ mt: 3, mb: 3 }}>
+      <Stack
+        sx={{
+          gap: 1,
+          mt: 3,
+          mb: 3,
+        }}
+      >
         <PeriodPicker
           // A new period starts the picker again from the URL.
           key={`${toDayString(period.from)}_${toDayString(period.to)}`}
@@ -165,7 +181,12 @@ export default async function ReportsPage({ searchParams }: Props) {
             to: formatDay(period.to),
           })}
         </Typography>
-        <Typography variant='body2' color='text.secondary'>
+        <Typography
+          variant='body2'
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {t('reports.note')}
         </Typography>
       </Stack>

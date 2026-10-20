@@ -69,9 +69,11 @@ export const PeriodPicker = ({ from, to, currentYear }: Props) => {
   return (
     <Stack
       direction={{ xs: 'column', sm: 'row' }}
-      gap={2}
-      alignItems={{ sm: 'center' }}
       className='no-print'
+      sx={{
+        gap: 2,
+        alignItems: { sm: 'center' },
+      }}
     >
       {part !== 'custom' && (
         <TextField

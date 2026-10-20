@@ -208,9 +208,11 @@ export const QuickDonorDialog = ({
           {error && <Stack sx={{ color: 'error.main', mt: 1 }}>{error}</Stack>}
           <Stack
             direction={{ xs: 'column-reverse', sm: 'row' }}
-            justifyContent='flex-end'
-            gap={2}
-            mt={2}
+            sx={{
+              justifyContent: 'flex-end',
+              gap: 2,
+              mt: 2,
+            }}
           >
             <Button
               variant='outlined'

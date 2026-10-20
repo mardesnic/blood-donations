@@ -66,10 +66,13 @@ export const DonorsActiveFilters = ({
   return (
     <Stack
       direction='row'
-      gap={1}
-      flexWrap='wrap'
-      sx={{ px: 3, pb: 2 }}
       aria-label={t('filters.active')}
+      sx={{
+        gap: 1,
+        flexWrap: 'wrap',
+        px: 3,
+        pb: 2,
+      }}
     >
       {items.map((item) => (
         <Chip

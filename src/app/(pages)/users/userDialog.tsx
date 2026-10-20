@@ -127,20 +127,33 @@ export const UserDialog = ({
             />
           )}
           {isSelf && (
-            <Typography variant='body2' color='text.secondary'>
+            <Typography
+              variant='body2'
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {t('users.selfHint')}
             </Typography>
           )}
           {!user && (
-            <Typography variant='body2' color='text.secondary' sx={{ mt: 1 }}>
+            <Typography
+              variant='body2'
+              sx={{
+                color: 'text.secondary',
+                mt: 1,
+              }}
+            >
               {t('users.addHint')}
             </Typography>
           )}
           <Stack
             direction={{ xs: 'column-reverse', sm: 'row' }}
-            justifyContent='flex-end'
-            gap={2}
-            mt={3}
+            sx={{
+              justifyContent: 'flex-end',
+              gap: 2,
+              mt: 3,
+            }}
           >
             <Button
               variant='outlined'

@@ -102,9 +102,11 @@ export default function ActionsTable() {
       renderCell: (params: { row: Action }) => (
         <Stack
           direction='row'
-          alignItems='center'
-          height='100%'
           onClick={(event) => event.stopPropagation()}
+          sx={{
+            alignItems: 'center',
+            height: '100%',
+          }}
         >
           <IconButton
             size={isPhone ? 'small' : 'medium'}

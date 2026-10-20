@@ -10,7 +10,13 @@ export const CreateDonorHeader = () => {
   const t = useTranslations('donors');
   return (
     <Typography variant='h1'>
-      <Stack direction='row' alignItems='center' gap={1}>
+      <Stack
+        direction='row'
+        sx={{
+          alignItems: 'center',
+          gap: 1,
+        }}
+      >
         <Link
           href={`${ROUTE_PATHS.PROTECTED.DONORS.path}`}
           className='tap-target'

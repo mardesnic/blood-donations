@@ -22,11 +22,13 @@ export const PlaceDetailsHeader = ({ place }: Props) => {
   return (
     <Stack
       direction='row'
-      justifyContent='space-between'
-      alignItems='center'
-      flexWrap='wrap'
-      gap={2}
-      mb={3}
+      sx={{
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 2,
+        mb: 3,
+      }}
     >
       <Breadcrumbs>
         <Link href={ROUTE_PATHS.PROTECTED.PLACES.path} className='tap-target'>
@@ -36,13 +38,20 @@ export const PlaceDetailsHeader = ({ place }: Props) => {
         <Typography
           variant='h1'
           component='h1'
-          color='text.primary'
-          sx={{ mb: 0 }}
+          sx={{
+            color: 'text.primary',
+            mb: 0,
+          }}
         >
           {place.title}
         </Typography>
       </Breadcrumbs>
-      <Stack direction='row' gap={2}>
+      <Stack
+        direction='row'
+        sx={{
+          gap: 2,
+        }}
+      >
         <Button
           variant='outlined'
           color='inherit'

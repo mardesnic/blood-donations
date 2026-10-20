@@ -168,7 +168,11 @@ export const DriveMode = ({ action }: { action: DriveAction }) => {
   const canDonate = eligibility?.status === 'ELIGIBLE';
 
   return (
-    <Stack gap={3}>
+    <Stack
+      sx={{
+        gap: 3,
+      }}
+    >
       <Typography
         variant='h3'
         component='p'
@@ -185,9 +189,11 @@ export const DriveMode = ({ action }: { action: DriveAction }) => {
         <CardContent>
           <Stack
             direction='row'
-            gap={1}
-            alignItems='flex-start'
-            flexWrap='wrap'
+            sx={{
+              gap: 1,
+              alignItems: 'flex-start',
+              flexWrap: 'wrap',
+            }}
           >
             <Autocomplete
               sx={{ flex: 1, minWidth: 240 }}
@@ -228,7 +234,12 @@ export const DriveMode = ({ action }: { action: DriveAction }) => {
                           />
                         )}
                       </span>
-                      <Typography variant='body2' color='text.secondary'>
+                      <Typography
+                        variant='body2'
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         {[
                           option.bloodType && BLOOD_TYPES[option.bloodType],
                           option.oib,
@@ -251,14 +262,16 @@ export const DriveMode = ({ action }: { action: DriveAction }) => {
                   label={t('drive.search')}
                   placeholder={t('drive.searchPlaceholder')}
                   slotProps={{
+                    ...params.slotProps,
+
                     input: {
-                      ...params.InputProps,
+                      ...params.slotProps.input,
                       endAdornment: (
                         <>
                           {searching && isSearching && (
                             <CircularProgress color='inherit' size={20} />
                           )}
-                          {params.InputProps.endAdornment}
+                          {params.slotProps.input.endAdornment}
                         </>
                       ),
                     },
@@ -318,8 +331,10 @@ export const DriveMode = ({ action }: { action: DriveAction }) => {
 
               <Stack
                 direction={{ xs: 'column', sm: 'row' }}
-                gap={2}
-                sx={{ mt: 2 }}
+                sx={{
+                  gap: 2,
+                  mt: 2,
+                }}
               >
                 <Button
                   size='large'
@@ -376,19 +391,39 @@ export const DriveMode = ({ action }: { action: DriveAction }) => {
             {t('drive.recent')}
           </Typography>
           {recent.length === 0 && (
-            <Typography color='text.secondary'>{t('drive.noneYet')}</Typography>
+            <Typography
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
+              {t('drive.noneYet')}
+            </Typography>
           )}
-          <Stack gap={1}>
+          <Stack
+            sx={{
+              gap: 1,
+            }}
+          >
             {recent.slice(0, 15).map((donation) => (
               <Stack
                 key={donation.id}
                 direction='row'
-                alignItems='center'
-                justifyContent='space-between'
-                gap={1}
-                sx={{ borderBottom: 1, borderColor: 'divider', pb: 1 }}
+                sx={{
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 1,
+                  borderBottom: 1,
+                  borderColor: 'divider',
+                  pb: 1,
+                }}
               >
-                <Stack direction='row' alignItems='center' gap={1}>
+                <Stack
+                  direction='row'
+                  sx={{
+                    alignItems: 'center',
+                    gap: 1,
+                  }}
+                >
                   <GoDotFill
                     color={
                       donation.denied
@@ -401,7 +436,9 @@ export const DriveMode = ({ action }: { action: DriveAction }) => {
                     <Typography
                       component='span'
                       variant='body2'
-                      color='text.secondary'
+                      sx={{
+                        color: 'text.secondary',
+                      }}
                     >
                       {' · '}
                       {dayjs(donation.donationDate).format('HH:mm')}

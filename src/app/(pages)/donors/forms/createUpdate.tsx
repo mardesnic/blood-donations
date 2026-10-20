@@ -258,7 +258,6 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
         value={formik.values.initialDonationCount}
         onChange={formik.handleChange}
         type='number'
-        InputLabelProps={{ shrink: true }}
         onBlur={formik.handleBlur}
         error={
           formik.touched.initialDonationCount &&
@@ -271,6 +270,9 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
             ? t('donors.totalWithRecorded', { count: donor.donationCount })
             : t('donors.initialDonationsHelp'))
         }
+        slotProps={{
+          inputLabel: { shrink: true },
+        }}
       />
 
       <DatePicker
@@ -301,10 +303,12 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
       {/* Phones stack the buttons full width: Save on top, Delete last. */}
       <Stack
         direction={{ xs: 'column-reverse', sm: 'row' }}
-        justifyContent='space-between'
-        alignItems={{ xs: 'stretch', sm: 'center' }}
-        gap={2}
-        mt={2}
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: { xs: 'stretch', sm: 'center' },
+          gap: 2,
+          mt: 2,
+        }}
       >
         {/* Only admins delete. */}
         {donor?.id && isAdmin && (
@@ -319,8 +323,10 @@ export const DonorCreateUpdateForm = ({ donor }: Props) => {
 
         <Stack
           direction={{ xs: 'column-reverse', sm: 'row' }}
-          gap={2}
-          ml={{ sm: 'auto' }}
+          sx={{
+            gap: 2,
+            ml: { sm: 'auto' },
+          }}
         >
           <Button
             onClick={goToDonorsTable}

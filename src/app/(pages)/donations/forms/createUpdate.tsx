@@ -166,16 +166,20 @@ const Form = ({ donation }: Props) => {
               onBlur={formik.handleBlur}
               error={formik.touched.donorId && Boolean(formik.errors.donorId)}
               helperText={formik.touched.donorId && formik.errors.donorId}
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <React.Fragment>
-                    {isDonorsLoading ? (
-                      <CircularProgress color='inherit' size={20} />
-                    ) : null}
-                    {params.InputProps.endAdornment}
-                  </React.Fragment>
-                ),
+              slotProps={{
+                ...params.slotProps,
+
+                input: {
+                  ...params.slotProps.input,
+                  endAdornment: (
+                    <React.Fragment>
+                      {isDonorsLoading ? (
+                        <CircularProgress color='inherit' size={20} />
+                      ) : null}
+                      {params.slotProps.input.endAdornment}
+                    </React.Fragment>
+                  ),
+                },
               }}
             />
           )}
@@ -223,7 +227,9 @@ const Form = ({ donation }: Props) => {
             checked={formik.values.denied}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            inputProps={{ 'aria-label': 'controlled' }}
+            slotProps={{
+              input: { 'aria-label': 'controlled' },
+            }}
           />
         }
         label={t('fields.denied')}
@@ -250,10 +256,12 @@ const Form = ({ donation }: Props) => {
       {/* Phones stack the buttons full width: Save on top, Delete last. */}
       <Stack
         direction={{ xs: 'column-reverse', sm: 'row' }}
-        justifyContent='space-between'
-        alignItems={{ xs: 'stretch', sm: 'center' }}
-        gap={2}
-        mt={3}
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: { xs: 'stretch', sm: 'center' },
+          gap: 2,
+          mt: 3,
+        }}
       >
         {/* Only admins delete. */}
         {!!donation && isAdmin && (
@@ -267,9 +275,11 @@ const Form = ({ donation }: Props) => {
         )}
         <Stack
           direction={{ xs: 'column-reverse', sm: 'row' }}
-          justifyContent='flex-end'
-          gap={2}
-          ml={{ sm: 'auto' }}
+          sx={{
+            justifyContent: 'flex-end',
+            gap: 2,
+            ml: { sm: 'auto' },
+          }}
         >
           <Button
             onClick={() => router.back()}

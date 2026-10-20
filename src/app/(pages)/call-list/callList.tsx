@@ -123,8 +123,7 @@ export const CallList = () => {
             value={query.bloodTypes}
             onChange={(event) => {
               const value = event.target.value as unknown as
-                | BloodType[]
-                | string;
+                BloodType[] | string;
               setQuery({
                 bloodTypes: (typeof value === 'string'
                   ? value.split(',')
@@ -175,7 +174,11 @@ export const CallList = () => {
                 label={t('fields.city')}
                 placeholder={t('callList.anyCity')}
                 slotProps={{
-                  inputLabel: { ...inputParams.InputLabelProps, shrink: true },
+                  ...inputParams.slotProps,
+                  inputLabel: {
+                    ...inputParams.slotProps.inputLabel,
+                    shrink: true,
+                  },
                 }}
               />
             )}
@@ -199,8 +202,19 @@ export const CallList = () => {
         </Grid>
       </Grid>
 
-      <Stack direction='row' alignItems='center' gap={1} sx={{ mb: 2 }}>
-        <Typography color='text.secondary'>
+      <Stack
+        direction='row'
+        sx={{
+          alignItems: 'center',
+          gap: 1,
+          mb: 2,
+        }}
+      >
+        <Typography
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {data ? t('callList.count', { count }) : ''}
         </Typography>
         {isFetching && <CircularProgress size={16} />}
@@ -208,13 +222,29 @@ export const CallList = () => {
 
       {isLoading && <CircularProgress />}
       {isError && (
-        <Typography color='error.main'>{t('callList.loadError')}</Typography>
+        <Typography
+          sx={{
+            color: 'error.main',
+          }}
+        >
+          {t('callList.loadError')}
+        </Typography>
       )}
       {data && !donors.length && (
-        <Typography color='text.secondary'>{t('callList.empty')}</Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          {t('callList.empty')}
+        </Typography>
       )}
 
-      <Stack gap={2}>
+      <Stack
+        sx={{
+          gap: 2,
+        }}
+      >
         {donors.map((donor) => (
           <CallListRow
             key={donor.id}
@@ -239,7 +269,11 @@ export const CallList = () => {
               {t('callList.showMore')}
             </Button>
           ) : (
-            <Typography color='text.secondary'>
+            <Typography
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {t('callList.narrowDown', { shown: donors.length })}
             </Typography>
           )}
@@ -293,11 +327,19 @@ const CallListRow = ({
       <CardContent>
         <Stack
           direction={{ xs: 'column', md: 'row' }}
-          justifyContent='space-between'
-          gap={2}
+          sx={{
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
         >
           <Box sx={{ minWidth: 0 }}>
-            <Stack direction='row' alignItems='center' gap={1}>
+            <Stack
+              direction='row'
+              sx={{
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
               <Link
                 href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${donor.id}`}
                 style={{ textDecoration: 'underline' }}
@@ -311,13 +353,20 @@ const CallListRow = ({
                 <Chip size='small' label={BLOOD_TYPES[donor.bloodType]} />
               )}
             </Stack>
-            <Typography variant='body2' color='text.secondary'>
+            <Typography
+              variant='body2'
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {details.join(' · ')}
             </Typography>
             <Stack
               direction={{ xs: 'column', sm: 'row' }}
-              columnGap={3}
-              sx={{ mt: 1 }}
+              sx={{
+                columnGap: 3,
+                mt: 1,
+              }}
             >
               {donor.phone && (
                 <MuiLink
@@ -347,13 +396,17 @@ const CallListRow = ({
             </Stack>
           </Box>
           <Stack
-            alignItems={{ xs: 'stretch', md: 'flex-end' }}
-            gap={1}
-            sx={{ flexShrink: 0 }}
+            sx={{
+              alignItems: { xs: 'stretch', md: 'flex-end' },
+              gap: 1,
+              flexShrink: 0,
+            }}
           >
             <Typography
               variant='body2'
-              color={loggedContact ? 'success.main' : 'text.secondary'}
+              sx={{
+                color: loggedContact ? 'success.main' : 'text.secondary',
+              }}
             >
               {t('callList.lastContact')}:{' '}
               {lastContact
@@ -363,8 +416,11 @@ const CallListRow = ({
             {lastContact?.note && (
               <Typography
                 variant='body2'
-                color='text.secondary'
-                sx={{ maxWidth: { md: 280 }, whiteSpace: 'pre-line' }}
+                sx={{
+                  color: 'text.secondary',
+                  maxWidth: { md: 280 },
+                  whiteSpace: 'pre-line',
+                }}
               >
                 {lastContact.note}
               </Typography>

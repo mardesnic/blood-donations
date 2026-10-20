@@ -100,7 +100,12 @@ export const ChangePasswordForm = ({ temporary }: { temporary: boolean }) => {
             autoComplete='new-password'
           />
           {error && (
-            <Typography color='error.main' sx={{ mt: 1 }}>
+            <Typography
+              sx={{
+                color: 'error.main',
+                mt: 1,
+              }}
+            >
               {error}
             </Typography>
           )}

@@ -87,7 +87,7 @@ export default async function DonorOverviewPage({ params }: Props) {
                 <Typography
                   variant='h3'
                   component='span'
-                  color={canDonate ? 'success.main' : 'text.primary'}
+                  sx={{ color: canDonate ? 'success.main' : 'text.primary' }}
                 >
                   {eligibilityLabel(eligibility, tEligibility)}
                 </Typography>

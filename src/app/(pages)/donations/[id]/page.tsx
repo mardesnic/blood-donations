@@ -43,7 +43,13 @@ export default async function DonationDetails({ params }: Props) {
       <Container component='main' maxWidth='sm' disableGutters>
         <UpdateDonationHeader donation={donation} />
         <UpdateDonationBody donation={donation} />
-        <Typography variant='body2' color='text.secondary' sx={{ mt: 2 }}>
+        <Typography
+          variant='body2'
+          sx={{
+            color: 'text.secondary',
+            mt: 2,
+          }}
+        >
           {[
             donation.createdBy
               ? t('recordedBy', {
