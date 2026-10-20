@@ -63,8 +63,11 @@ jobs:
       - run: npm run type-check
       - run: npm test
 
+      # The same script Vercel runs after a production build.
       - name: Apply migrations
-        run: npx prisma migrate deploy
+        run: node scripts/migrate-on-deploy.mjs
+        env:
+          VERCEL_ENV: production
 
       - name: Check schema and migrations match
         run: >-
