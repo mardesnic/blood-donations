@@ -65,19 +65,23 @@ export const theme = createTheme({
     MuiTextField: {
       defaultProps: {
         variant: 'outlined',
-        InputLabelProps: { shrink: true },
         fullWidth: true,
         margin: 'normal',
+        slotProps: {
+          inputLabel: { shrink: true },
+        },
       },
     },
-    // Date pickers v8 render their own field component, which doesn't
+    // Date pickers render their own field component, which doesn't
     // inherit the MuiTextField defaults above.
     MuiPickersTextField: {
       defaultProps: {
         variant: 'outlined',
-        InputLabelProps: { shrink: true },
         fullWidth: true,
         margin: 'normal',
+        slotProps: {
+          inputLabel: { shrink: true },
+        },
       },
     },
     MuiDialog: {

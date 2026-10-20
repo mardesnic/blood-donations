@@ -25,17 +25,26 @@ export const UpdateDonationHeader = async ({ donation }: Props) => {
           {t('nav.donations')}
         </Link>
         {/* Breadcrumbs grey the last item; the title stays prominent. */}
-        <Typography variant='h1' color='text.primary' sx={{ mb: 0 }}>
+        <Typography
+          variant='h1'
+          sx={{
+            color: 'text.primary',
+            mb: 0,
+          }}
+        >
           {donor.fullName} · {formatDay(toAppDay(donation.donationDate))}
         </Typography>
       </Breadcrumbs>
       <Stack
         direction='row'
-        alignItems='center'
-        flexWrap='wrap'
-        columnGap={1}
-        rowGap={0.5}
-        sx={{ mt: 1, color: 'text.secondary' }}
+        sx={{
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          columnGap: 1,
+          rowGap: 0.5,
+          mt: 1,
+          color: 'text.secondary',
+        }}
       >
         <Link
           href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${donor.id}`}

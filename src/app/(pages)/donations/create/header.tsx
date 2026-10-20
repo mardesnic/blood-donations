@@ -11,7 +11,13 @@ export const CreateDonationHeader = () => {
   const t = useTranslations('donations');
   return (
     <Typography variant='h1'>
-      <Stack direction='row' alignItems='center' gap={1}>
+      <Stack
+        direction='row'
+        sx={{
+          alignItems: 'center',
+          gap: 1,
+        }}
+      >
         <Box
           className='tap-target'
           sx={{ cursor: 'pointer' }}

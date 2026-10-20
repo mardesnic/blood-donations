@@ -44,8 +44,19 @@ export default function DonationsTable() {
     note: !isTablet,
   };
   const status = (denied: boolean, denyReason: string | null) => (
-    <Stack justifyContent='center' height='100%'>
-      <Stack direction='row' alignItems='center' gap={0.5}>
+    <Stack
+      sx={{
+        justifyContent: 'center',
+        height: '100%',
+      }}
+    >
+      <Stack
+        direction='row'
+        sx={{
+          alignItems: 'center',
+          gap: 0.5,
+        }}
+      >
         <GoDotFill
           color={
             denied ? theme.palette.primary.main : theme.palette.success.main
@@ -54,7 +65,13 @@ export default function DonationsTable() {
         <span>{t(denied ? 'donations.denied' : 'donations.completed')}</span>
       </Stack>
       {isPhone && denied && denyReason && (
-        <Typography variant='caption' color='text.secondary' sx={{ pl: 2 }}>
+        <Typography
+          variant='caption'
+          sx={{
+            color: 'text.secondary',
+            pl: 2,
+          }}
+        >
           {t(`denyReasons.${denyReason}`)}
         </Typography>
       )}

@@ -93,7 +93,13 @@ export const LoginForm = () => {
         error={formik.touched.password && Boolean(formik.errors.password)}
         helperText={formik.touched.password && formik.errors.password}
       />
-      <Stack direction='row' justifyContent='flex-end' sx={{ mt: 2 }}>
+      <Stack
+        direction='row'
+        sx={{
+          justifyContent: 'flex-end',
+          mt: 2,
+        }}
+      >
         <Button
           type='submit'
           disabled={loading}

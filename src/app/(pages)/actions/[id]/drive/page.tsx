@@ -38,12 +38,23 @@ export default async function DriveModePage({ params }: Props) {
         <Link href={actionPath} className='tap-target'>
           {action.title}
         </Link>
-        <Typography color='text.primary'>{t('drive.title')}</Typography>
+        <Typography
+          sx={{
+            color: 'text.primary',
+          }}
+        >
+          {t('drive.title')}
+        </Typography>
       </Breadcrumbs>
       <Typography variant='h1' sx={{ mt: 2, mb: 0.5 }}>
         {action.title}
       </Typography>
-      <Typography color='text.secondary' sx={{ mb: 3 }}>
+      <Typography
+        sx={{
+          color: 'text.secondary',
+          mb: 3,
+        }}
+      >
         <ActionTimes start={action.startDateTime} end={action.endDateTime} />
         {action.place ? ` · ${action.place.title}` : ''}
         {' · '}

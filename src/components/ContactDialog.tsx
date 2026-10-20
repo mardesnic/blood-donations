@@ -48,7 +48,13 @@ export const ContactDialog = ({
             onSave(type, note.trim());
           }}
         >
-          <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
+          <Typography
+            variant='body2'
+            sx={{
+              color: 'text.secondary',
+              mb: 1,
+            }}
+          >
             {t('contacts.type')}
           </Typography>
           <ToggleButtonGroup
@@ -76,9 +82,11 @@ export const ContactDialog = ({
           />
           <Stack
             direction={{ xs: 'column-reverse', sm: 'row' }}
-            justifyContent='flex-end'
-            gap={2}
-            mt={2}
+            sx={{
+              justifyContent: 'flex-end',
+              gap: 2,
+              mt: 2,
+            }}
           >
             <Button
               variant='outlined'

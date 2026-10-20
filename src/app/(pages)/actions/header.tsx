@@ -12,10 +12,12 @@ export const ActionsHeader = () => {
   return (
     <Stack
       direction='row'
-      justifyContent='space-between'
-      alignItems='center'
-      flexWrap='wrap'
-      gap={2}
+      sx={{
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 2,
+      }}
     >
       <Typography variant='h1'>{t('title')}</Typography>
       <Button

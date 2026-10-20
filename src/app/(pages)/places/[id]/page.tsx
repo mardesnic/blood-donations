@@ -46,7 +46,12 @@ const ActionSummary = ({ action }: { action: ActionLink }) =>
       >
         {action.title}
       </Link>
-      <Typography variant='body2' color='text.secondary'>
+      <Typography
+        variant='body2'
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         <ActionTimes start={action.startDateTime} end={action.endDateTime} />
       </Typography>
     </>

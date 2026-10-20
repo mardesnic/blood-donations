@@ -48,14 +48,20 @@ export const DuplicateDonorWarning = ({
       <Typography variant='body2' sx={{ fontWeight: 700, mb: 1 }}>
         {t(strongest)}
       </Typography>
-      <Stack gap={1}>
+      <Stack
+        sx={{
+          gap: 1,
+        }}
+      >
         {shown.map((match) => (
           <Stack
             key={match.donor.id}
             direction='row'
-            alignItems='center'
-            gap={1}
-            flexWrap='wrap'
+            sx={{
+              alignItems: 'center',
+              gap: 1,
+              flexWrap: 'wrap',
+            }}
           >
             <Link
               href={`${ROUTE_PATHS.PROTECTED.DONORS.path}/${match.donor.id}`}
@@ -64,7 +70,12 @@ export const DuplicateDonorWarning = ({
             >
               {match.donor.fullName}
             </Link>
-            <Typography variant='body2' color='text.secondary'>
+            <Typography
+              variant='body2'
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {[match.donor.oib, formatDay(match.donor.dob), match.donor.city]
                 .filter(Boolean)
                 .join(' · ')}

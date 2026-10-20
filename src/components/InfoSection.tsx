@@ -10,7 +10,12 @@ export const InfoField = ({
   value: ReactNode;
 }) => (
   <Box>
-    <Typography variant='body2' color='text.secondary'>
+    <Typography
+      variant='body2'
+      sx={{
+        color: 'text.secondary',
+      }}
+    >
       {label}
     </Typography>
     <Typography component='div' sx={{ wordBreak: 'break-word' }}>
@@ -32,7 +37,13 @@ export const InfoSection = ({
       <Typography variant='h3' component='h2' sx={{ mb: 2 }}>
         {title}
       </Typography>
-      <Stack gap={1.5}>{children}</Stack>
+      <Stack
+        sx={{
+          gap: 1.5,
+        }}
+      >
+        {children}
+      </Stack>
     </CardContent>
   </Card>
 );

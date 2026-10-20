@@ -80,7 +80,14 @@ export const PlaceCreateUpdateForm = ({
         <TextField key={name} {...fieldProps(name)} />
       ))}
       <TextField {...fieldProps('note')} multiline minRows={2} />
-      <Stack direction='row' justifyContent='flex-end' gap={2} mt={1}>
+      <Stack
+        direction='row'
+        sx={{
+          justifyContent: 'flex-end',
+          gap: 2,
+          mt: 1,
+        }}
+      >
         <Button onClick={onCancel} variant='outlined' disabled={isLoading}>
           {t('common.cancel')}
         </Button>

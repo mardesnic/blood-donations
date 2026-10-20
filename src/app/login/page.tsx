@@ -17,7 +17,13 @@ export default async function LoginPage() {
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
         <LanguageSwitcher color='secondary' />
       </Box>
-      <Stack alignItems='center' gap={1} sx={{ marginTop: 6 }}>
+      <Stack
+        sx={{
+          alignItems: 'center',
+          gap: 1,
+          marginTop: 6,
+        }}
+      >
         <Typography variant='h1'>{t('title')}</Typography>
         <LoginForm />
       </Stack>

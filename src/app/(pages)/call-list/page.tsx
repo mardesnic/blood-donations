@@ -18,7 +18,12 @@ export default async function CallListPage() {
       <Typography variant='h1' sx={{ mb: 0.5 }}>
         {t('title')}
       </Typography>
-      <Typography color='text.secondary' sx={{ mb: 2 }}>
+      <Typography
+        sx={{
+          color: 'text.secondary',
+          mb: 2,
+        }}
+      >
         {t('intro')}
       </Typography>
       {/* The filters live in the URL, read with useSearchParams. */}

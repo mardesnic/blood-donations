@@ -40,7 +40,13 @@ export const UserDropdown = () => {
 
   return (
     <div>
-      <Stack direction='row' alignItems='center' onClick={handleMenu}>
+      <Stack
+        direction='row'
+        onClick={handleMenu}
+        sx={{
+          alignItems: 'center',
+        }}
+      >
         <IconButton size='large' color='inherit' aria-label={t('account')}>
           <MdAccountCircle />
         </IconButton>

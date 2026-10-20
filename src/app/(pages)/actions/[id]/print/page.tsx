@@ -70,15 +70,23 @@ export default async function DrivePrintPage({ params, searchParams }: Props) {
         <Link href={actionPath} className='tap-target'>
           {action.title}
         </Link>
-        <Typography color='text.primary'>{t('driveSheets.title')}</Typography>
+        <Typography
+          sx={{
+            color: 'text.primary',
+          }}
+        >
+          {t('driveSheets.title')}
+        </Typography>
       </Breadcrumbs>
 
       <Stack
         direction='row'
-        flexWrap='wrap'
-        gap={1}
-        sx={{ my: 2 }}
         className='no-print'
+        sx={{
+          flexWrap: 'wrap',
+          gap: 1,
+          my: 2,
+        }}
       >
         {DRIVE_SHEETS.map((sheetKey) => (
           <Link key={sheetKey} href={`${actionPath}/print?sheet=${sheetKey}`}>
@@ -108,7 +116,11 @@ export default async function DrivePrintPage({ params, searchParams }: Props) {
       <Typography variant='h1' sx={{ mb: 0.5 }}>
         {action.title} · {sheet.title}
       </Typography>
-      <Typography color='text.secondary'>
+      <Typography
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         <ActionTimes start={action.startDateTime} end={action.endDateTime} />
         {action.place
           ? ` · ${[action.place.title, action.place.city]
@@ -116,7 +128,12 @@ export default async function DrivePrintPage({ params, searchParams }: Props) {
               .join(', ')}`
           : ''}
       </Typography>
-      <Typography color='text.secondary' sx={{ mb: 2 }}>
+      <Typography
+        sx={{
+          color: 'text.secondary',
+          mb: 2,
+        }}
+      >
         {key === 'expected'
           ? t('driveSheets.expectedHint', { days: EXPECTED_CONTACT_DAYS })
           : t('driveSheets.totals', {
