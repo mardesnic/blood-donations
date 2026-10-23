@@ -61,7 +61,7 @@ const ReportCard = ({
         <Typography variant='h3' component='h2'>
           {table.title}
         </Typography>
-        {table.rows.length > 0 && (
+        {!table.empty && (
           <MuiLink
             href={downloadUrl}
             color='secondary'
@@ -73,7 +73,7 @@ const ReportCard = ({
           </MuiLink>
         )}
       </Stack>
-      {table.rows.length ? (
+      {!table.empty ? (
         // Wide tables (by action) scroll sideways on phones instead of
         // sticking out of the card.
         <TableContainer>

@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { TruncatedText } from '@/components/TruncatedText';
 import { useCurrentUser } from '@/context/CurrentUserContext';
+import { EmptyState } from '@/components/EmptyState';
 
 export default function ActionsTable() {
   const {
@@ -129,6 +130,17 @@ export default function ActionsTable() {
       ),
     },
   ];
+  // Nothing yet (this list has no search or filters): a message instead of
+  // an empty table.
+  if (!isLoading && !isFetching && !count) {
+    return (
+      <Card sx={{ mt: 4 }} elevation={2}>
+        <EmptyState
+          message={t(place ? 'empty.placeActions' : 'empty.actions')}
+        />
+      </Card>
+    );
+  }
   return (
     <Card sx={{ mt: 4 }} elevation={2}>
       <DataGrid
