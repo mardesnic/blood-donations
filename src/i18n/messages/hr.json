@@ -273,6 +273,19 @@
     "reportTitle": "Dosegnuti jubileji",
     "date": "Datum"
   },
+  "empty": {
+    "noResults": "Ništa ne odgovara ovoj pretrazi ili filtrima.",
+    "clear": "Očisti pretragu i filtre",
+    "clearSearch": "Očisti pretragu",
+    "donors": "Još nema darivatelja.",
+    "places": "Još nema mjesta.",
+    "actions": "Još nema akcija.",
+    "placeActions": "Na ovom mjestu još nije bilo akcija.",
+    "donations": "Još nema upisanih darivanja.",
+    "openDrive": "Otvori unos na akciji",
+    "chart": "Još nema darivanja u zadnjih 12 mjeseci.",
+    "bloodTypes": "Još nema aktivnih darivatelja."
+  },
   "actionOverview": {
     "details": "Akcija",
     "time": "Vrijeme",

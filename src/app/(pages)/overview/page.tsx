@@ -182,41 +182,49 @@ export default async function OverviewPage() {
 
         <Grid size={{ xs: 12, md: 6 }}>
           <InfoSection title={t('overview.bloodTypes')}>
-            <Table size='small'>
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('fields.bloodType')}</TableCell>
-                  <TableCell align='right'>{t('overview.active')}</TableCell>
-                  <TableCell align='right'>{t('overview.eligible')}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {stats.bloodTypes.map((row) => (
-                  <TableRow key={row.bloodType ?? 'unknown'}>
-                    <TableCell>
-                      {row.bloodType
-                        ? BLOOD_TYPES[row.bloodType]
-                        : t('common.unknown')}
-                    </TableCell>
-                    <TableCell align='right'>{row.active}</TableCell>
+            {stats.bloodTypes.length ? (
+              <Table size='small'>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t('fields.bloodType')}</TableCell>
+                    <TableCell align='right'>{t('overview.active')}</TableCell>
                     <TableCell align='right'>
-                      {/* Opens the call list for that blood type. */}
-                      {row.bloodType && row.eligible ? (
-                        <Link
-                          href={eligibleDonorsUrl(row.bloodType)}
-                          style={{ textDecoration: 'underline' }}
-                          className='tap-target'
-                        >
-                          {row.eligible}
-                        </Link>
-                      ) : (
-                        row.eligible
-                      )}
+                      {t('overview.eligible')}
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {stats.bloodTypes.map((row) => (
+                    <TableRow key={row.bloodType ?? 'unknown'}>
+                      <TableCell>
+                        {row.bloodType
+                          ? BLOOD_TYPES[row.bloodType]
+                          : t('common.unknown')}
+                      </TableCell>
+                      <TableCell align='right'>{row.active}</TableCell>
+                      <TableCell align='right'>
+                        {/* Opens the call list for that blood type. */}
+                        {row.bloodType && row.eligible ? (
+                          <Link
+                            href={eligibleDonorsUrl(row.bloodType)}
+                            style={{ textDecoration: 'underline' }}
+                            className='tap-target'
+                          >
+                            {row.eligible}
+                          </Link>
+                        ) : (
+                          row.eligible
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <Typography sx={{ color: 'text.secondary' }}>
+                {t('empty.bloodTypes')}
+              </Typography>
+            )}
           </InfoSection>
         </Grid>
 

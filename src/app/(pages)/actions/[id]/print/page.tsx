@@ -101,16 +101,20 @@ export default async function DrivePrintPage({ params, searchParams }: Props) {
           </Link>
         ))}
         <PrintButton />
-        <Button
-          component='a'
-          href={`/api/actions/${action.id}/export?sheet=${key}`}
-          variant='outlined'
-          color='inherit'
-          size='medium'
-          startIcon={<MdDownload />}
-        >
-          {t('driveSheets.download')}
-        </Button>
+        {/* An empty sheet is still worth printing (blank rows for walk-ins),
+            but not downloading. */}
+        {sheet.rows.length > 0 && (
+          <Button
+            component='a'
+            href={`/api/actions/${action.id}/export?sheet=${key}`}
+            variant='outlined'
+            color='inherit'
+            size='medium'
+            startIcon={<MdDownload />}
+          >
+            {t('driveSheets.download')}
+          </Button>
+        )}
       </Stack>
 
       <Typography variant='h1' sx={{ mb: 0.5 }}>

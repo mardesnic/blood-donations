@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import {
+  Button,
   Card,
   Stack,
   Typography,
@@ -17,6 +18,8 @@ import { GoDotFill } from 'react-icons/go';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/lib/const';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { EmptyState } from '@/components/EmptyState';
 
 export default function DonationsTable() {
   const theme = useTheme();
@@ -29,6 +32,7 @@ export default function DonationsTable() {
     changePaginationModel,
     changeSortModel,
     donor,
+    action,
   } = useDonationsContext();
   const t = useTranslations();
   // Phones show donor (or, on a donor's page, action), date and status, with
@@ -137,6 +141,28 @@ export default function DonationsTable() {
       renderCell: (params) => <TruncatedText text={params.value} />,
     },
   ];
+  // Nothing recorded yet (this list has no search or filters): a message
+  // instead of an empty table, and on a drive's page a way to start.
+  if (!isLoading && !isFetching && !count) {
+    return (
+      <Card sx={{ mt: 4 }} elevation={2}>
+        <EmptyState
+          message={t('empty.donations')}
+          action={
+            action && (
+              <Link
+                href={`${ROUTE_PATHS.PROTECTED.ACTIONS.path}/${action.id}/drive`}
+              >
+                <Button variant='outlined' color='secondary' size='medium'>
+                  {t('empty.openDrive')}
+                </Button>
+              </Link>
+            )
+          }
+        />
+      </Card>
+    );
+  }
   return (
     <Card sx={{ mt: 4 }} elevation={2}>
       <DataGrid

@@ -32,6 +32,7 @@ import { DonorsFilters } from '@/app/(pages)/donors/filters';
 import { DonorsActiveFilters } from '@/app/(pages)/donors/activeFilters';
 import { activeFilters, donorListToSearchParams } from '@/lib/donorFilterModel';
 import { debounce } from '@mui/material/utils';
+import { EmptyState } from '@/components/EmptyState';
 
 export default function DonorsTable() {
   const router = useRouter();
@@ -185,6 +186,34 @@ export default function DonorsTable() {
     [changeFilterModel]
   );
   const filterCount = activeFilters(filterModel).length;
+  const isFiltered = !!filterCount || !!filterModel.quickFilterValues?.[0];
+  // Starts the search box and filter panel again, empty.
+  const [clearCount, setClearCount] = useState(0);
+  const clearSearchAndFilters = React.useCallback(() => {
+    changeFilterModel({ items: [], quickFilterValues: [] });
+    setClearCount((count) => count + 1);
+  }, [changeFilterModel]);
+  // Why the list is empty, and after a search or filters how to get back.
+  const NoDonors = React.useCallback(
+    () => (
+      <EmptyState
+        message={t(isFiltered ? 'empty.noResults' : 'empty.donors')}
+        action={
+          isFiltered && (
+            <Button
+              variant='outlined'
+              color='secondary'
+              size='medium'
+              onClick={clearSearchAndFilters}
+            >
+              {t('empty.clear')}
+            </Button>
+          )
+        }
+      />
+    ),
+    [isFiltered, clearSearchAndFilters, t]
+  );
 
   // Keeps the URL in step with the filters without reloading the page or
   // adding a history entry for every change.
@@ -249,7 +278,7 @@ export default function DonorsTable() {
           }}
         >
           <TextField
-            key={urlVersion}
+            key={`${urlVersion}-${clearCount}`}
             color='secondary'
             label={t('donors.search')}
             placeholder={t('donors.searchPlaceholder')}
@@ -273,7 +302,7 @@ export default function DonorsTable() {
         </Stack>
         {showFilters ? (
           <DonorsFilters
-            key={urlVersion}
+            key={`${urlVersion}-${clearCount}`}
             filterModel={filterModel}
             changeFilterModel={changeFilterModel}
           />
@@ -308,6 +337,7 @@ export default function DonorsTable() {
             params.row.active ? '' : 'donor-inactive'
           }
           disableColumnFilter={true}
+          slots={{ noRowsOverlay: NoDonors }}
           onRowClick={(row) => router.push(donorPath(String(row.id)))}
         />
       </Card>

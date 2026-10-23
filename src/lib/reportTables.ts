@@ -27,6 +27,26 @@ export interface ReportTable {
   // Columns after the first hold numbers (right-aligned on the page).
   numeric: boolean[];
   rows: (string | number)[][];
+  // Nothing to show for the period (the page says so instead of a table).
+  empty: boolean;
+}
+
+// Tables that list every month or age group whatever the period, so they are
+// empty when all their counts are 0.
+const ZERO_MEANS_EMPTY: ReportTableKey[] = ['months', 'genderAge'];
+
+// No rows, or only zeros in a table that always has rows. The totals are
+// never empty: for them 0 is the answer.
+function isEmptyTable(table: Omit<ReportTable, 'empty'>): boolean {
+  if (table.key === 'totals') {
+    return false;
+  }
+  if (ZERO_MEANS_EMPTY.includes(table.key)) {
+    return table.rows.every((row) =>
+      row.every((cell) => typeof cell !== 'number' || cell === 0)
+    );
+  }
+  return !table.rows.length;
 }
 
 // The report's tables in the user's language, shared by the page and the
@@ -46,7 +66,7 @@ export function reportTables(
   };
   const unknown = t('common.unknown');
   const { totals } = report;
-  return [
+  const tables: Omit<ReportTable, 'empty'>[] = [
     {
       key: 'totals',
       title: t('reports.totals'),
@@ -168,4 +188,5 @@ export function reportTables(
       ]),
     },
   ];
+  return tables.map((table) => ({ ...table, empty: isEmptyTable(table) }));
 }

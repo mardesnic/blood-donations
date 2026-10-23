@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import {
+  Button,
   Card,
   IconButton,
   Stack,
@@ -20,6 +21,7 @@ import { PlaceListItem } from '@/hooks/usePlaces';
 import { ROUTE_PATHS } from '@/routes';
 import { PAGE_SIZE } from '@/lib/const';
 import { useCurrentUser } from '@/context/CurrentUserContext';
+import { EmptyState } from '@/components/EmptyState';
 
 export default function PlacesTable() {
   const {
@@ -153,10 +155,40 @@ export default function PlacesTable() {
     []
   );
 
+  const isSearching = !!filterModel.quickFilterValues?.[0];
+  // Starts the search box again, empty.
+  const [clearCount, setClearCount] = React.useState(0);
+  const clearSearch = React.useCallback(() => {
+    changeFilterModel({ ...filterModel, quickFilterValues: [] });
+    setClearCount((count) => count + 1);
+  }, [changeFilterModel, filterModel]);
+  // Why the list is empty, and after a search how to get back.
+  const NoPlaces = React.useCallback(
+    () => (
+      <EmptyState
+        message={t(isSearching ? 'empty.noResults' : 'empty.places')}
+        action={
+          isSearching && (
+            <Button
+              variant='outlined'
+              color='secondary'
+              size='medium'
+              onClick={clearSearch}
+            >
+              {t('empty.clearSearch')}
+            </Button>
+          )
+        }
+      />
+    ),
+    [isSearching, clearSearch, t]
+  );
+
   return (
     <Card sx={{ mt: 4 }} elevation={2}>
       <Stack direction='row' sx={{ p: '30px 24px' }}>
         <TextField
+          key={clearCount}
           color='secondary'
           label={t('common.search')}
           placeholder={t('places.searchPlaceholder')}
@@ -182,6 +214,7 @@ export default function PlacesTable() {
         sortingMode='server'
         onSortModelChange={changeSortModel}
         sx={{ border: 0 }}
+        slots={{ noRowsOverlay: NoPlaces }}
         getRowHeight={() => 55}
         onRowClick={(row) =>
           router.push(`${ROUTE_PATHS.PROTECTED.PLACES.path}/${row.id}`)

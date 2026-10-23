@@ -273,6 +273,19 @@
     "reportTitle": "Milestones reached",
     "date": "Date"
   },
+  "empty": {
+    "noResults": "Nothing matches this search or these filters.",
+    "clear": "Clear search and filters",
+    "clearSearch": "Clear search",
+    "donors": "No donors yet.",
+    "places": "No places yet.",
+    "actions": "No actions yet.",
+    "placeActions": "No actions at this place yet.",
+    "donations": "No donations recorded yet.",
+    "openDrive": "Open drive mode",
+    "chart": "No donations in the last 12 months yet.",
+    "bloodTypes": "No active donors yet."
+  },
   "actionOverview": {
     "details": "Action",
     "time": "Time",
